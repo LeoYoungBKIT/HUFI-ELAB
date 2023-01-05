@@ -25,7 +25,7 @@ import {
 	Typography,
 } from '@mui/material';
 import { Box } from '@mui/system';
-import { useEffect, useRef, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { RootState } from '../../store';
 
@@ -40,7 +40,28 @@ import { setSnackbarMessage } from '../../pages/appSlice';
 import { deleteDevice, getDevices } from '../../services/deviveDepartmentServices';
 import { IDeviceDepartmentType } from '../../types/deviceDepartmentType';
 import { IExportDeviceType } from '../../types/exportDeviceType';
-import { DialogCreate, DialogDelete, DialogDeviceUsageHours } from './Dialog';
+import {
+	DialogCreate,
+	DialogDelete,
+	DialogDeviceUsageHours,
+	DialogHistoryDevices,
+	DialogMaintenanceDevice,
+} from './Dialog';
+import ManageHistoryIcon from '@mui/icons-material/ManageHistory';
+import { IRepairDeviceItem, IRepairDevice } from '../../types/maintenanceDevicesType';
+import { getMaintenanceDeviceById } from '../../services/maintenanceDevicesServices';
+import {
+	DeviceOfDepartmentTableProvider,
+	useDeviceOfDepartmentTableStore,
+	ProviderValueType,
+	DeviceOfDepartmentTableProviderProps,
+} from './context/DeviceOfDepartmentTableContext';
+import EngineeringIcon from '@mui/icons-material/Engineering';
+import { getDeviceHitories } from '../../services/deviceHistoryServices';
+import { IDeviceHistory } from '../../types/deviceHistoriesType';
+import { IInstrumentHistory } from '../../types/instrumentHistoriesType';
+import { getInstrumentHitories } from '../../services/instrumentHistoryServices';
+import { DeviceColumnType } from './DeviceOfExperimentCenterTable';
 
 const listDeviceType = ['Thiết bị', 'Công cụ', 'Dụng cụ'];
 
@@ -59,25 +80,13 @@ const FormControlStyled = styled(FormControl)(theme => ({
 const BoxTextFieldStyled = styled(Box)(theme => ({
 	'@media (max-width: 600px)': {
 		width: '100%',
-		margin: '8px 0'
+		margin: '8px 0',
 	},
 
 	'@media (max-width: 900px)': {
-		margin: '8px 0'
+		margin: '8px 0',
 	},
 }));
-
-type DeviceTableProps = {
-	id: Number | undefined;
-};
-
-export type DeviceColumnType = {
-	id: string;
-	header: String;
-	type?: string;
-	data?: any;
-	size?: number;
-};
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
 	if (b[orderBy] < a[orderBy]) {
@@ -96,7 +105,7 @@ function renderArrowSort(order: string, orderBy: string, property: string) {
 	return null;
 }
 
-function removeAccents(str: string) {
+export function removeAccents(str: string) {
 	return str
 		.normalize('NFD')
 		.replace(/[\u0300-\u036f]/g, '')
@@ -115,7 +124,7 @@ const isObject = (val: any) => {
 const nestedObject = (obj: any, string: String) => {
 	for (const key in obj) {
 		if (isObject(obj[key])) {
-			nestedObject(obj[key], string);
+			string += `${nestedObject(obj[key], string)}`;
 		} else {
 			switch (key) {
 				case 'ExportDate':
@@ -124,6 +133,7 @@ const nestedObject = (obj: any, string: String) => {
 				case 'EndGuarantee':
 				case 'DateTranferTo':
 				case 'DateStartUsage':
+				case 'ImportDate':
 					string += `${moment.unix(Number(obj[key])).format('DD/MM/YYYY')} `;
 					break;
 				default:
@@ -135,47 +145,35 @@ const nestedObject = (obj: any, string: String) => {
 	return string;
 };
 
-const DeviceOfDepartmentTable = ({ id }: DeviceTableProps) => {
+const DeviceOfDepartmentTable = () => {
 	const warehouseLaboratoriesData = useAppSelector((state: RootState) => state.warehouse.listOfWarehouseLaboratory);
 	const dispatch = useAppDispatch();
-	const [devices, setDevices] = useState<IDeviceDepartmentType[]>([]);
 	const [order, setOrder] = useState<string>('asc');
 	const [orderBy, setOrderBy] = useState<string>('DeviceId');
 	const [keyword, setKeyword] = useState<string>('');
 	const [dataSearch, setDataSearch] = useState<any>([]);
-	const [cloneDevices, setCloneDevices] = useState<IDeviceDepartmentType[]>([]);
 	const [isOpenCreateModal, setIsOpenCreateModal] = useState<boolean>(false);
 	const [isOpenDeviceUsageHours, setIsOpenDeviceUsageHours] = useState<boolean>(false);
 	const [isOpenEditModal, setIsOpenEditModal] = useState<boolean>(false);
 	const [isOpenDeleteModal, setIsOpenDeleteModal] = useState<boolean>(false);
-	const [deviceType, setDeviceType] = useState<string>('Thiết bị');
-	const [deviceData, setDeviceData] = useState<any>({});
 	const [page, setPage] = useState(0);
 	const [rowsPerPage, setRowsPerPage] = useState(10);
-	const [loading, setLoading] = useState<Boolean>(true);
 	const [open, setOpen] = useState<number>(-1);
 	const [updatedRow, setUpdatedRow] = useState<any>();
 	const [deletedRow, setDeletedRow] = useState<IDeviceDepartmentType>();
-
-	const getDeviceData = async () => {
-		try {
-			setLoading(true);
-			const data: IDeviceDepartmentType[] = await getDevices(id || 0, deviceType);
-
-			if (!deviceData[deviceType]) {
-				deviceData[deviceType] = data;
-				setDeviceData({ ...deviceData });
-			}
-			if (Array.isArray(data)) {
-				setDevices(data || []);
-				setCloneDevices(data);
-			}
-		} catch (error) {
-			console.log(error);
-		} finally {
-			setLoading(false);
-		}
-	};
+	const {
+		devices,
+		setDeviceValues,
+		loading,
+		setLoadingValues,
+		deviceType,
+		setDeviceTypeValues,
+		deviceData,
+		setDeviceDataValues,
+		cloneDevices,
+		setCloneDeviceValues,
+		getDeviceData,
+	}: ProviderValueType = useDeviceOfDepartmentTableStore();
 
 	useEffect(() => {
 		getDeviceData();
@@ -189,7 +187,7 @@ const DeviceOfDepartmentTable = ({ id }: DeviceTableProps) => {
 	};
 
 	useEffect(() => {
-		setDevices(prev => {
+		const sortDevices = (prev: IDeviceDepartmentType[]) => {
 			let data = [...prev];
 			data?.sort((a: IDeviceDepartmentType, b: IDeviceDepartmentType) => {
 				let i =
@@ -199,44 +197,15 @@ const DeviceOfDepartmentTable = ({ id }: DeviceTableProps) => {
 				return i;
 			});
 			return data || [];
-		});
+		};
+		setDeviceValues(sortDevices(devices));
 	}, [order, orderBy]);
 
 	useEffect(() => {
 		const data = devices.map((device: any) => {
 			let string: String = '';
 
-			const isObject = (val: any) => {
-				if (val === null) {
-					return false;
-				}
-
-				return typeof val === 'object';
-			};
-
-			const nestedObject = (obj: any) => {
-				for (const key in obj) {
-					if (isObject(obj[key])) {
-						nestedObject(obj[key]);
-					} else {
-						switch (key) {
-							case 'ExportDate':
-							case 'ManufacturingDate':
-							case 'StartGuarantee':
-							case 'EndGuarantee':
-							case 'DateTranferTo':
-							case 'DateStartUsage':
-								string += `${moment.unix(Number(obj[key])).format('DD/MM/YYYY')} `;
-								break;
-							default:
-								string += `${obj[key]} `;
-								break;
-						}
-					}
-				}
-			};
-
-			nestedObject(device);
+			string = nestedObject(device, string);
 
 			return {
 				label: removeAccents(string.toUpperCase()),
@@ -250,10 +219,10 @@ const DeviceOfDepartmentTable = ({ id }: DeviceTableProps) => {
 		const listId = dataSearch.filter((x: any) => x?.label?.includes(keyword)).map((y: any) => y.id);
 
 		if (keyword === '') {
-			setDevices(cloneDevices || []);
+			setDeviceValues(cloneDevices || []);
 		} else {
 			const data = devices.filter((x: any) => listId.indexOf(x?.DeviceDetailId) !== -1);
-			setDevices(data || []);
+			setDeviceValues(data || []);
 		}
 	}, [keyword]);
 
@@ -290,12 +259,12 @@ const DeviceOfDepartmentTable = ({ id }: DeviceTableProps) => {
 			if (data) {
 				dispatch(setSnackbarMessage('Xóa thông tin thành công'));
 				const newData = deviceData[deviceType]?.filter((device: any) => DeviceId !== device?.DeviceId);
-				setDeviceData({
+				setDeviceDataValues({
 					...deviceData,
 					[deviceType]: newData,
 				});
-				setDevices(newData || []);
-				setCloneDevices(newData || []);
+				setDeviceValues(newData || []);
+				setCloneDeviceValues(newData || []);
 			} else {
 				dispatch(setSnackbarMessage('Xóa thông tin không thành công'));
 			}
@@ -306,16 +275,39 @@ const DeviceOfDepartmentTable = ({ id }: DeviceTableProps) => {
 		}
 	};
 
-	const columns = useRef([
-		{ id: 'DeviceDeptId', header: 'Mã chi tiết TB' },
+	const columns = useRef<DeviceColumnType[]>([
+		{ id: 'DeviceDetailId', header: 'Mã chi tiết TB' },
 		{ id: 'DeviceId', header: 'Mã thiết bị' },
 		{ id: 'DeviceName', header: 'Tên thiết bị' },
+		{ id: 'Model', header: 'Số Model' },
+		{ id: 'ImportDate', header: 'Ngày nhập', type: 'date' },
 		{ id: 'Standard', header: 'Qui cách' },
-		{ id: 'HasTrain', header: 'Đã tập huấn' },
-		{ id: 'QuantityOriginal', header: 'SL ban đầu' },
-		{ id: 'QuantityExport', header: 'SL xuất' },
-		{ id: 'QuantityRemain', header: 'SL tồn' },
-		{ id: 'QuantityLiquidate', header: 'SL thanh lý' },
+		{ id: 'HasTrain', header: 'Đã tập huấn', renderValue: value => (value === 1 ? 'Có' : 'Không') },
+		{
+			id: 'QuantityOriginal',
+			header: 'SL ban đầu',
+			renderValue: (qty: any, unit: any) => `${qty === null ? 0 : qty} (${unit})`,
+		},
+		{
+			id: 'QuantityExport',
+			header: 'SL xuất',
+			renderValue: (qty: any, unit: any) => `${qty === null ? 0 : qty} (${unit})`,
+		},
+		{
+			id: 'QuantityRemain',
+			header: 'SL kho',
+			renderValue: (qty: any, unit: any) => `${qty === null ? 0 : qty} (${unit})`,
+		},
+		{
+			id: 'QuantityTotal',
+			header: 'SL tồn',
+			renderValue: (qty: any, unit: any) => `${qty === null ? 0 : qty} (${unit})`,
+		},
+		{
+			id: 'QuantityLiquidate',
+			header: 'SL thanh lý',
+			renderValue: (qty: any, unit: any) => `${qty === null ? 0 : qty} (${unit})`,
+		},
 	]);
 
 	return (
@@ -333,7 +325,7 @@ const DeviceOfDepartmentTable = ({ id }: DeviceTableProps) => {
 								name="radio-buttons-group"
 								sx={{ display: 'flex', flexDirection: 'row' }}
 								onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-									setDeviceType((event.target as HTMLInputElement).value);
+									setDeviceTypeValues((event.target as HTMLInputElement).value);
 								}}
 							>
 								{listDeviceType.map((type: string) => (
@@ -401,16 +393,20 @@ const DeviceOfDepartmentTable = ({ id }: DeviceTableProps) => {
 							<StyledTableCell align="left">
 								<b>#</b>
 							</StyledTableCell>
-							{columns.current.map(col => (
-								<StyledTableCell align="left" key={col.id} onClick={() => handleRequestSort(col.id)}>
-									<b>{col.header}</b>
-									{renderArrowSort(order, orderBy, col.id)}
-								</StyledTableCell>
-							))}
-
-							{/* <StyledTableCell align="right">
-								<b>Hành động</b>
-							</StyledTableCell> */}
+							{columns.current.map(col => {
+								if (col.id === 'Model' && deviceType !== listDeviceType[0]) return;
+								return (
+									<StyledTableCell
+										align="left"
+										key={col.id}
+										onClick={() => handleRequestSort(col.id)}
+									>
+										<b>{col.header}</b>
+										{renderArrowSort(order, orderBy, col.id)}
+									</StyledTableCell>
+								);
+							})}
+							{deviceType !== listDeviceType[0] && <StyledTableCell></StyledTableCell>}
 						</TableRow>
 					</TableHead>
 					<TableBody>
@@ -423,6 +419,7 @@ const DeviceOfDepartmentTable = ({ id }: DeviceTableProps) => {
 										device={exportDevice}
 										index={index}
 										key={index}
+										columns={columns.current}
 										handleOpenDelete={handleOpenDelete}
 										handleOpenEdit={handleOpenEdit}
 										handleOpen={(index: number) => setOpen(open === index ? -1 : index)}
@@ -438,7 +435,7 @@ const DeviceOfDepartmentTable = ({ id }: DeviceTableProps) => {
 						)}
 						{!loading && devices?.length === 0 && (
 							<TableRow>
-								<TableCell colSpan={10} sx={{ textAlign: 'center' }}>
+								<TableCell colSpan={11} sx={{ textAlign: 'center' }}>
 									<Typography variant="h5" gutterBottom align="center" component="div">
 										Trống
 									</Typography>
@@ -470,17 +467,49 @@ type RowDeviceProps = {
 	openIndex: number;
 	handleOpen: (index: number) => void;
 	deviceType: string;
+	columns: DeviceColumnType[];
 };
 
 const RowDevice = ({
 	index,
 	device,
+	columns,
 	handleOpenEdit,
 	handleOpenDelete,
 	handleOpen,
 	openIndex,
 	deviceType,
 }: RowDeviceProps) => {
+	const [isOpenHistory, setIsOpenHistory] = useState<boolean>(false);
+	const [serialNumber, setSerialNumber] = useState<String>('');
+	const [loading, setLoading] = useState<boolean>(false);
+	const [deviceHitories, setDeviceHistories] = useState<IInstrumentHistory | null>(null);
+	const handleOpenHistoryDialog = (serialNumber: String) => {
+		setIsOpenHistory(true);
+		setSerialNumber(serialNumber);
+	};
+
+	const getHistoryInstrument = async () => {
+		setLoading(true);
+		try {
+			let deviceHitories: IInstrumentHistory = await getInstrumentHitories(serialNumber);
+			setDeviceHistories(deviceHitories);
+		} catch (error) {
+			setDeviceHistories(null);
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	useEffect(() => {
+		if (serialNumber !== '' && deviceType !== listDeviceType[0]) getHistoryInstrument();
+	}, [serialNumber]);
+
+	const handleCloseHistoryDialog = () => {
+		setSerialNumber('');
+		setIsOpenHistory(false);
+	};
+
 	return (
 		<>
 			<TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 }, '& > *': { borderBottom: 'unset' } }}>
@@ -490,34 +519,61 @@ const RowDevice = ({
 					</IconButton>
 				</TableCell>
 				<TableCell align="left">{index + 1}</TableCell>
-				<TableCell align="left">{device?.DeviceDetailId}</TableCell>
-				<TableCell align="left">{device?.DeviceId}</TableCell>
-				<TableCell align="left">{device?.DeviceName}</TableCell>
-				<TableCell align="left">{device?.Standard}</TableCell>
-				<TableCell align="left">{device?.HasTrain}</TableCell>
-				<TableCell align="left">
-					{device?.QuantityOriginal?.toString()} {`(${device?.Unit})`}
-				</TableCell>
-				<TableCell align="left">
-					{device?.QuantityExport?.toString()} {`(${device?.Unit})`}
-				</TableCell>
-				<TableCell align="left">
-					{device?.QuantityRemain?.toString()} {`(${device?.Unit})`}
-				</TableCell>
-				<TableCell align="left">
-					{device?.QuantityLiquidate?.toString()} {`(${device?.Unit})`}
-				</TableCell>
+
+				{columns.map(col => {
+					if (col.id === 'Model' && deviceType !== listDeviceType[0]) return;
+
+					if (col.type === 'date')
+						return (
+							<TableCell align="left" key={col.id}>
+								{moment.unix(Number(device[col.id as keyof typeof device])).format('DD/MM/YYYY')}
+							</TableCell>
+						);
+					if (col.renderValue !== undefined) {
+						if (
+							col.id === 'QuantityExport' ||
+							col.id === 'QuantityOriginal' ||
+							col.id === 'QuantityRemain' ||
+							col.id === 'QuantityTotal' ||
+							col.id === 'QuantityLiquidate'
+						)
+							return (
+								<TableCell align="left" key={col.id}>
+									{col.renderValue(device[col.id as keyof typeof device], device.Unit)}
+								</TableCell>
+							);
+						if (col.id === 'HasTrain')
+							return (
+								<TableCell align="left" key={col.id}>
+									{col.renderValue(device[col.id as keyof typeof device])}
+								</TableCell>
+							);
+					}
+					return <TableCell align="left">{`${device[col.id as keyof typeof device] || ''}`}</TableCell>;
+				})}
+				{deviceType !== listDeviceType[0] && (
+					<TableCell>
+						<Tooltip arrow placement="left" title="Bảo dưỡng thiết bị">
+							<IconButton
+								aria-label="delete"
+								onClick={() => handleOpenHistoryDialog(device.InstrumentDeptId)}
+							>
+								<ManageHistoryIcon />
+							</IconButton>
+						</Tooltip>
+					</TableCell>
+				)}
 			</TableRow>
 			<TableRow>
-				<TableCell style={{ paddingBottom: 0, paddingTop: 0, background: '#f3f3f3' }} colSpan={12}>
+				<TableCell style={{ paddingBottom: 0, paddingTop: 0, background: '#f3f3f3' }} colSpan={14}>
 					<Collapse in={openIndex === index} timeout="auto" unmountOnExit>
 						<Box sx={{ margin: 1 }}>
-							{device?.listExportDevice?.length !== 0 && deviceType === listDeviceType[0] ? (
+							{device?.listDeviceInfo?.length !== 0 && deviceType === listDeviceType[0] ? (
 								<>
 									<DeviceDetailTable
-										data={device?.listExportDevice || []}
+										data={device?.listDeviceInfo || []}
 										unit={device.Unit}
-										deviceType={deviceType}
+										deviceName={device.DeviceName}
 									/>
 								</>
 							) : (
@@ -534,7 +590,8 @@ const RowDevice = ({
 									<DeviceDetailTable
 										data={device?.listExportInstrument || []}
 										unit={device.Unit}
-										deviceType={deviceType}
+										deviceName={device.DeviceName}
+										instrumentDeptId={device.InstrumentDeptId}
 									/>
 								</>
 							) : (
@@ -548,6 +605,15 @@ const RowDevice = ({
 					</Collapse>
 				</TableCell>
 			</TableRow>
+
+			{deviceHitories !== null && (
+				<DialogHistoryDevices
+					isOpen={isOpenHistory}
+					onClose={handleCloseHistoryDialog}
+					data={deviceHitories}
+					loading={loading}
+				/>
+			)}
 		</>
 	);
 };
@@ -555,25 +621,29 @@ const RowDevice = ({
 type DeviceDetailTableProps = {
 	data: IExportDeviceType[];
 	unit: String;
-	deviceType: string;
+	deviceName: String;
+	instrumentDeptId?: String;
 };
 
-const DeviceDetailTable = ({ data, unit, deviceType }: DeviceDetailTableProps) => {
+const DeviceDetailTable = ({ data, unit, deviceName, instrumentDeptId }: DeviceDetailTableProps) => {
+	const listTypeData = useRef(['MAINTENANCE', 'HISTORY']);
 	const [deviceDetails, setDeviceDetails] = useState<IExportDeviceType[]>([]);
 	const [order, setOrder] = useState<string>('asc');
 	const [orderBy, setOrderBy] = useState<string>('DeviceDeptId');
 	const [keyword, setKeyword] = useState<string>('');
 	const [dataSearch, setDataSearch] = useState<any>([]);
+	const [isOpenMaintenance, setIsOpenMaintenance] = useState<boolean>(false);
+	const [isOpenHistory, setIsOpenHistory] = useState<boolean>(false);
+	const [serialNumber, setSerialNumber] = useState<String>('');
+	const [maintenanceDevice, setMaintenanceDevice] = useState<IRepairDevice | null>(null);
+	const [loading, setLoading] = useState<boolean>(true);
+	const [typeData, setTypeData] = useState<String | null>(null);
+	const [deviceHitories, setDeviceHistories] = useState<IDeviceHistory | IInstrumentHistory | null>(null);
+	const { deviceType } = useDeviceOfDepartmentTableStore();
 
 	useEffect(() => {
 		setDeviceDetails(data);
 	}, [data]);
-
-	const handleRequestSort = (property: string) => {
-		const isAsc = orderBy === property && order === 'asc';
-		setOrder(isAsc ? 'desc' : 'asc');
-		setOrderBy(property);
-	};
 
 	useEffect(() => {
 		setDeviceDetails(prev => {
@@ -616,7 +686,6 @@ const DeviceDetailTable = ({ data, unit, deviceType }: DeviceDetailTableProps) =
 		(() => {
 			if (deviceType === listDeviceType[1] || deviceType === listDeviceType[2])
 				return [
-					{ id: 'DeviceDeptId', header: 'Mã' },
 					{
 						id: 'LabName',
 						header: 'Phòng',
@@ -628,7 +697,7 @@ const DeviceDetailTable = ({ data, unit, deviceType }: DeviceDetailTableProps) =
 				];
 
 			return [
-				{ id: 'DeviceDeptId', header: 'Mã' },
+				{ id: 'DeviceInfoId', header: 'Mã' },
 				{
 					id: 'LabName',
 					header: 'Phòng',
@@ -636,20 +705,94 @@ const DeviceDetailTable = ({ data, unit, deviceType }: DeviceDetailTableProps) =
 					renderValue: (...args: String[]) => args.join(' - '),
 				},
 				{ id: 'Location', header: 'Địa chỉ', sx: { minWidth: '150px' } },
-				{ id: 'DateTranferTo', header: 'Ngày nhập', type: 'date' },
-				{ id: 'EmployeeName', header: 'Người xuất' },
+				{ id: 'DateTranferTo', header: 'Ngày chuyển đến', type: 'date' },
+				{ id: 'EmployeeName', header: 'Người xuất', sx: { minWidth: '150px' } },
 				{ id: 'SerialNumber', header: 'Số Serial' },
 				{ id: 'ManufacturingDate', header: 'Ngày sản xuất', type: 'date' },
 				{ id: 'StartGuarantee', header: 'Bắt đầu bảo hành', type: 'date' },
 				{ id: 'EndGuarantee', header: 'Kết thúc bảo hành', type: 'date' },
 				{ id: 'DateStartUsage', header: 'Bắt đầu sử dụng', type: 'date' },
-				{ id: 'HoursUsageTotal', header: 'Giờ sử dụng' },
-				{ id: 'PeriodicMaintenance', header: 'Bảo dưỡng định kỳ' },
-				{ id: 'Status', header: 'Trạng thái' },
+				{ id: 'DateMaintenace', header: 'Bắt đầu sử dụng', type: 'date' },
+				{ id: 'HoursUsageTotal', header: 'Tổng giờ sử dụng' },
+				{ id: 'PeriodicMaintenance', header: 'BDĐK (tháng)' },
+				{ id: 'Status', header: 'Trạng thái', sx: { minWidth: '150px' } },
 				{ id: 'WarningMaintenace', header: 'Cảnh báo' },
 			];
 		})(),
 	);
+
+	const handleRequestSort = (property: string) => {
+		const isAsc = orderBy === property && order === 'asc';
+		setOrder(isAsc ? 'desc' : 'asc');
+		setOrderBy(property);
+	};
+
+	const handleCloseMaintenanceDialog = () => {
+		setSerialNumber('');
+		setIsOpenMaintenance(false);
+	};
+
+	const handleCloseHistoryDialog = () => {
+		setSerialNumber('');
+		setIsOpenHistory(false);
+	};
+
+	const handleOpenMaintenanceDialog = (serialNumber: String) => {
+		setIsOpenMaintenance(true);
+		setSerialNumber(serialNumber);
+		setTypeData(listTypeData.current[0]);
+	};
+
+	const handleOpenHistoryDialog = (serialNumber: String) => {
+		setIsOpenHistory(true);
+		setSerialNumber(serialNumber);
+		setTypeData(listTypeData.current[1]);
+	};
+
+	const getMaintenanceDevice = async () => {
+		setLoading(true);
+		try {
+			let maintenanceDevice: IRepairDevice = await getMaintenanceDeviceById(serialNumber);
+			if (maintenanceDevice) {
+				setMaintenanceDevice(maintenanceDevice);
+			} else {
+				let index = deviceDetails.findIndex(x => x?.SerialNumber === serialNumber);
+				if (index !== -1) {
+					setMaintenanceDevice({
+						DeviceName: deviceName || '',
+						SerialNumber: deviceDetails[index]?.SerialNumber || '',
+						DeviceInfoId: deviceDetails[index]?.DeviceInfoId || '',
+						DateStartUsage: deviceDetails[index]?.DateStartUsage || '',
+						LastMaintenanceDate: '',
+						Unit: unit || '',
+						listRepair: [],
+					});
+				}
+			}
+		} catch (error) {
+			setMaintenanceDevice(null);
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const getHistoryDevice = async () => {
+		setLoading(true);
+		try {
+			let deviceHitories: IDeviceHistory = await getDeviceHitories(serialNumber);
+			setDeviceHistories(deviceHitories);
+		} catch (error) {
+			setDeviceHistories(null);
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	useEffect(() => {
+		if (typeData === listTypeData.current[0] && serialNumber !== '') getMaintenanceDevice();
+		if (typeData === listTypeData.current[1] && serialNumber !== '' && deviceType === listDeviceType[0])
+			getHistoryDevice();
+	}, [serialNumber]);
 
 	return (
 		<>
@@ -673,7 +816,7 @@ const DeviceDetailTable = ({ data, unit, deviceType }: DeviceDetailTableProps) =
 				/>
 			</Box>
 			<TableContainer component={Paper} sx={{ maxHeight: '400px', marginBottom: '24px', overflow: 'overlay' }}>
-				<Table size="small" aria-label="purchases" sx={{ padding: '8px' }}>
+				<Table stickyHeader size="small" aria-label="purchases" sx={{ padding: '8px' }}>
 					<TableHead>
 						<TableRow>
 							{columns.current.map(col => {
@@ -688,6 +831,7 @@ const DeviceDetailTable = ({ data, unit, deviceType }: DeviceDetailTableProps) =
 									</StyledTableCell>
 								);
 							})}
+							{deviceType === listDeviceType[0] && <StyledTableCell></StyledTableCell>}
 						</TableRow>
 					</TableHead>
 					<TableBody>
@@ -759,9 +903,7 @@ const DeviceDetailTable = ({ data, unit, deviceType }: DeviceDetailTableProps) =
 												<TableCell align="left" key={col.id} sx={{ ...col?.sx }}>
 													{deviceDetailType[col.id as keyof typeof deviceDetailType] !==
 														null &&
-														`${
-															deviceDetailType[col.id as keyof typeof deviceDetailType]
-														} tháng`}
+														`${deviceDetailType[col.id as keyof typeof deviceDetailType]}`}
 												</TableCell>
 											);
 										}
@@ -772,12 +914,56 @@ const DeviceDetailTable = ({ data, unit, deviceType }: DeviceDetailTableProps) =
 											</TableCell>
 										);
 									})}
+									{deviceType === listDeviceType[0] && (
+										<TableCell sx={{ minWidth: '120px' }}>
+											<>
+												<Tooltip arrow placement="left" title="Bảo dưỡng thiết bị">
+													<IconButton
+														aria-label="delete"
+														onClick={() =>
+															handleOpenMaintenanceDialog(
+																deviceDetailType.DeviceInfoId || '',
+															)
+														}
+													>
+														<EngineeringIcon />
+													</IconButton>
+												</Tooltip>
+												<Tooltip arrow placement="left" title="Bảo dưỡng thiết bị">
+													<IconButton
+														aria-label="delete"
+														onClick={() =>
+															handleOpenHistoryDialog(
+																(deviceType === listDeviceType[0]
+																	? deviceDetailType.DeviceInfoId
+																	: instrumentDeptId) || '',
+															)
+														}
+													>
+														<ManageHistoryIcon />
+													</IconButton>
+												</Tooltip>
+											</>
+										</TableCell>
+									)}
 								</TableRow>
 							);
 						})}
 					</TableBody>
 				</Table>
 			</TableContainer>
+			<DialogMaintenanceDevice
+				isOpen={isOpenMaintenance}
+				onClose={handleCloseMaintenanceDialog}
+				data={maintenanceDevice}
+				loading={loading}
+			/>
+			<DialogHistoryDevices
+				isOpen={isOpenHistory}
+				onClose={handleCloseHistoryDialog}
+				data={deviceHitories}
+				loading={loading}
+			/>
 		</>
 	);
 };
