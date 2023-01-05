@@ -19,7 +19,12 @@ import {
   TextareaAutosize,
   Autocomplete
 } from '@mui/material';
-import { deletePurchaseOrder, getPurchaseOrders, postPurchaseOrder, updatePurchaseOrder } from "../../services/purchaseOrderServices";
+import { 
+  deletePurchaseOrder, 
+  getPurchaseOrders, 
+  postPurchaseOrder, 
+  updatePurchaseOrder 
+} from "../../services/purchaseOrderServices";
 import { setListOfPurchaseOrders } from "./purchaseOrderSlice";
 import PurchaseOrderChemicalTable from "./POChemicalTable";
 import PurchaseOrderDeviceTable from "./PODeviceTable";
@@ -47,19 +52,21 @@ export const PurchaseOrderTable: FC = () => {
   const [createdRow, setCreatedRow] = useState<any>(dummyPurchaseOrderData);
 
   useEffect(() => {
-    let formatedPurchaseOrderData = purchaseOrdersData.map((order: IPurchaseOrderType) => {
-      let supplierInfoIdx = supplierData.findIndex(item => item.SupplierId === order.SupplierId);
-      let employeeInfoIdx = employeeData.findIndex(item => item.EmployeeId === order.EmployeeId);
-      let departmentInfoIdx = departmentData.findIndex(item => item.DepartmentId === order.DepartmentId);
-      return {
-        ...order,
-        "formatedOrderDate": moment.unix(order.OrderDate).format('DD/MM/YYYY'),
-        "SupplierName": supplierInfoIdx > -1 ? supplierData[supplierInfoIdx].Name : "",
-        "EmployeeName": employeeInfoIdx > -1 ? employeeData[employeeInfoIdx].Fullname : "",
-        "DepartmentName": departmentInfoIdx > -1 ? departmentData[departmentInfoIdx].DepartmentName : "",
-      }
-    })
-    setTableData(formatedPurchaseOrderData);
+    if (purchaseOrdersData.length > 0) {
+      let formatedPurchaseOrderData = purchaseOrdersData.map((order: IPurchaseOrderType) => {
+        let supplierInfoIdx = supplierData.findIndex(item => item.SupplierId === order.SupplierId);
+        let employeeInfoIdx = employeeData.findIndex(item => item.EmployeeId === order.EmployeeId);
+        let departmentInfoIdx = departmentData.findIndex(item => item.DepartmentId === order.DepartmentId);
+        return {
+          ...order,
+          "formatedOrderDate": moment.unix(order.OrderDate).format('DD/MM/YYYY'),
+          "SupplierName": supplierInfoIdx > -1 ? supplierData[supplierInfoIdx].Name : "",
+          "EmployeeName": employeeInfoIdx > -1 ? employeeData[employeeInfoIdx].Fullname : "",
+          "DepartmentName": departmentInfoIdx > -1 ? departmentData[departmentInfoIdx].DepartmentName : "",
+        }
+      })
+      setTableData(formatedPurchaseOrderData);
+    }
   }, [purchaseOrdersData]);
 
   useEffect(() => {

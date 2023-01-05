@@ -19,7 +19,7 @@ import {
 } from '@mui/material';
 import { Box } from '@mui/system';
 import { ColumnType, descendingComparator, removeAccents, renderArrowSort } from '../Utils';
-import { IOrderChemicalType } from '../../../types/purchaseOrderType';
+import { IListChemicalRegisterGeneralType } from '../../../types/registerGeneralType';
 
 const StyledTableCell = styled(TableCell)(theme => ({
   [`&.${tableCellClasses.head}`]: {
@@ -27,13 +27,13 @@ const StyledTableCell = styled(TableCell)(theme => ({
   },
 }));
 
-const PurchaseOrderChemicalTable: FC<{ 
-  chemicalData: IOrderChemicalType[]; 
-  columns: ColumnType[]; 
+const RegisterGeneralChemicalTable: FC<{ 
+    chemicalData: IListChemicalRegisterGeneralType[]; 
+    columns: ColumnType[]; 
 }> = ({ chemicalData, columns }) => {
-  const [tableData, setTableData] = useState<IOrderChemicalType[]>(chemicalData);
+  const [tableData, setTableData] = useState<IListChemicalRegisterGeneralType[]>(chemicalData);
   const [order, setOrder] = useState<string>('asc');
-  const [orderBy, setOrderBy] = useState<string>('ChemDetailId');
+  const [orderBy, setOrderBy] = useState<string>('ChemicalId');
   const [keyword, setKeyword] = useState<string>('');
   const [dataSearch, setDataSearch] = useState<any>([]);
 
@@ -47,7 +47,7 @@ const PurchaseOrderChemicalTable: FC<{
   useEffect(() => {
     setTableData(prev => {
       let data = [...prev];
-      data?.sort((a: IOrderChemicalType, b: IOrderChemicalType) => {
+      data?.sort((a: IListChemicalRegisterGeneralType, b: IListChemicalRegisterGeneralType) => {
         let i =
           order === 'desc'
             ? descendingComparator<any>(a, b, orderBy)
@@ -60,8 +60,8 @@ const PurchaseOrderChemicalTable: FC<{
 
 
   useEffect(() => {
-    const chemicalDataItems: IOrderChemicalType[] = chemicalData || [];
-    const data = chemicalDataItems?.map((x: IOrderChemicalType) => {
+    const chemicalDataItems: IListChemicalRegisterGeneralType[] = chemicalData || [];
+    const data = chemicalDataItems?.map((x: IListChemicalRegisterGeneralType) => {
       let string: String = '';
 
       Object.keys(x).forEach(key => {
@@ -71,7 +71,7 @@ const PurchaseOrderChemicalTable: FC<{
 
       return {
         label: removeAccents(string.toUpperCase()),
-        id: x?.ChemDetailId,
+        id: x?.ChemicalId,
       };
     });
     setDataSearch(data);
@@ -79,12 +79,12 @@ const PurchaseOrderChemicalTable: FC<{
 
   useEffect(() => {
     const listId = dataSearch.filter((x: any) => x?.label?.includes(keyword)).map((y: any) => y.id);
-    const chemicalDataItems: IOrderChemicalType[] = chemicalData || [];
+    const chemicalDataItems: IListChemicalRegisterGeneralType[] = chemicalData || [];
 
     if (keyword === '') {
       setTableData(chemicalDataItems);
     } else {
-      const data = chemicalDataItems?.filter((x: any) => listId.indexOf(x?.ChemDetailId) !== -1);
+      const data = chemicalDataItems?.filter((x: any) => listId.indexOf(x?.ChemicalId) !== -1);
       setTableData(data);
     }
   }, [keyword, dataSearch]);
@@ -92,7 +92,7 @@ const PurchaseOrderChemicalTable: FC<{
   return (
     <>
       <Box component="div" alignItems="center" justifyContent="space-between" display="flex" mb={2}>
-        <Typography fontWeight="bold">Thông tin nhập hóa chất</Typography>
+        <Typography fontWeight="bold">Thông tin hóa chất đăng ký</Typography>
         <Box display="flex" alignItems="end">
           <TextField
             id="filled-search"
@@ -132,7 +132,7 @@ const PurchaseOrderChemicalTable: FC<{
             </TableRow>
           </TableHead>
           <TableBody>
-            {tableData.length > 0 ? tableData?.map((chemDeptItem: IOrderChemicalType, index: number) => (
+            {tableData.length > 0 ? tableData?.map((chemDeptItem: IListChemicalRegisterGeneralType, index: number) => (
               <TableRow key={index} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                 <TableCell align="left">{index + 1}</TableCell>
                 {columns.map(col => {
@@ -181,4 +181,4 @@ const PurchaseOrderChemicalTable: FC<{
   );
 };
 
-export default React.memo(PurchaseOrderChemicalTable);
+export default React.memo(RegisterGeneralChemicalTable);

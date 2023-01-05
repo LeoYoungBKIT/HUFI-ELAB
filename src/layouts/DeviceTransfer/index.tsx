@@ -417,7 +417,7 @@ function DeviceTransfer() {
 						</Typography>
 						{labFrom && (
 							<Autocomplete
-								options={deviceTransferData.filter(lab => lab.LabId !== labTo.LabId)}
+								options={deviceTransferData.length > 0 ? deviceTransferData.filter(lab => lab.LabId !== labTo.LabId) : []}
 								getOptionLabel={option => `${option.LabId} - ${option.LabName}`}
 								renderInput={params => (
 									<TextField {...params} label="Phòng ban đầu" placeholder="Phòng ban đầu..." />
@@ -432,7 +432,7 @@ function DeviceTransfer() {
 									setLabFrom(value || dummyDeviceTransferData);
 									setLabTo(
 										deviceTransferData.find(lab => lab.LabId === labTo.LabId) ||
-											dummyDeviceTransferData,
+										dummyDeviceTransferData,
 									);
 									setSelected([]);
 									setDeviceTransfered([]);
@@ -529,7 +529,7 @@ function DeviceTransfer() {
 						</Typography>
 						{labTo && (
 							<Autocomplete
-								options={deviceTransferData?.filter(lab => lab.LabId !== labFrom.LabId) || []}
+								options={deviceTransferData.length > 0 ? deviceTransferData?.filter(lab => lab.LabId !== labFrom.LabId) : []}
 								getOptionLabel={option => `${option.LabId} - ${option.LabName}`}
 								renderInput={params => (
 									<TextField {...params} label="Phòng chuyển đến" placeholder="Phòng chuyển đến..." />
@@ -544,7 +544,7 @@ function DeviceTransfer() {
 									setLabTo(value || dummyDeviceTransferData);
 									setLabFrom(
 										deviceTransferData.find(lab => lab.LabId === labFrom.LabId) ||
-											dummyDeviceTransferData,
+										dummyDeviceTransferData,
 									);
 									setSelected([]);
 									setDeviceTransfered([]);
@@ -733,9 +733,8 @@ function TableFrom({ selected, lab, handleSelectAllClick, columns, isSelected, h
 									{columns.map(col => {
 										if (col.id === 'STT') return <TableCell key={col.id}>{index}</TableCell>;
 										return (
-											<TableCell key={col.id}>{`${
-												device[col.id as keyof typeof device]
-											}`}</TableCell>
+											<TableCell key={col.id}>{`${device[col.id as keyof typeof device]
+												}`}</TableCell>
 										);
 									})}
 								</TableRow>
@@ -908,9 +907,8 @@ function TableTo({ columns, lab, deviceTransfered, cancelTransfer, type }: Table
 									{columns.map(col => {
 										if (col.id === 'STT') return <TableCell key={col.id}>{index}</TableCell>;
 										return (
-											<TableCell key={col.id}>{`${
-												device[col.id as keyof typeof device]
-											}`}</TableCell>
+											<TableCell key={col.id}>{`${device[col.id as keyof typeof device]
+												}`}</TableCell>
 										);
 									})}
 
