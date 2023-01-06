@@ -1,5 +1,4 @@
 import styled from '@emotion/styled';
-import AddIcon from '@mui/icons-material/Add';
 import {
 	Button,
 	CircularProgress,
@@ -22,46 +21,43 @@ import {
 	TableRow,
 	TextField,
 	Tooltip,
-	Typography,
+	Typography
 } from '@mui/material';
 import { Box } from '@mui/system';
-import { ReactNode, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { RootState } from '../../store';
 
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import EngineeringIcon from '@mui/icons-material/Engineering';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import ManageHistoryIcon from '@mui/icons-material/ManageHistory';
 import SearchIcon from '@mui/icons-material/Search';
 import WarningIcon from '@mui/icons-material/Warning';
 import moment from 'moment';
 import { setSnackbarMessage } from '../../pages/appSlice';
-import { deleteDevice, getDevices } from '../../services/deviveDepartmentServices';
+import { getDeviceHitories } from '../../services/deviceHistoryServices';
+import { deleteDevice } from '../../services/deviveDepartmentServices';
+import { getInstrumentHitories } from '../../services/instrumentHistoryServices';
+import { getMaintenanceDeviceById } from '../../services/maintenanceDevicesServices';
 import { IDeviceDepartmentType } from '../../types/deviceDepartmentType';
+import { IDeviceHistory } from '../../types/deviceHistoriesType';
 import { IExportDeviceType } from '../../types/exportDeviceType';
+import { IInstrumentHistory } from '../../types/instrumentHistoriesType';
+import { IRepairDevice } from '../../types/maintenanceDevicesType';
+import {
+	ProviderValueType, useDeviceOfDepartmentTableStore
+} from './context/DeviceOfDepartmentTableContext';
+import { DeviceColumnType } from './DeviceOfExperimentCenterTable';
 import {
 	DialogCreate,
 	DialogDelete,
 	DialogDeviceUsageHours,
 	DialogHistoryDevices,
-	DialogMaintenanceDevice,
+	DialogMaintenanceDevice
 } from './Dialog';
-import ManageHistoryIcon from '@mui/icons-material/ManageHistory';
-import { IRepairDeviceItem, IRepairDevice } from '../../types/maintenanceDevicesType';
-import { getMaintenanceDeviceById } from '../../services/maintenanceDevicesServices';
-import {
-	DeviceOfDepartmentTableProvider,
-	useDeviceOfDepartmentTableStore,
-	ProviderValueType,
-	DeviceOfDepartmentTableProviderProps,
-} from './context/DeviceOfDepartmentTableContext';
-import EngineeringIcon from '@mui/icons-material/Engineering';
-import { getDeviceHitories } from '../../services/deviceHistoryServices';
-import { IDeviceHistory } from '../../types/deviceHistoriesType';
-import { IInstrumentHistory } from '../../types/instrumentHistoriesType';
-import { getInstrumentHitories } from '../../services/instrumentHistoryServices';
-import { DeviceColumnType } from './DeviceOfExperimentCenterTable';
 
 const listDeviceType = ['Thiết bị', 'Công cụ', 'Dụng cụ'];
 
@@ -455,6 +451,7 @@ const DeviceOfDepartmentTable = () => {
 			/>
 
 			<DialogDeviceUsageHours isOpen={isOpenDeviceUsageHours} onClose={() => setIsOpenDeviceUsageHours(false)} />
+			
 		</>
 	);
 };
@@ -754,9 +751,10 @@ const DeviceDetailTable = ({ data, unit, deviceName, instrumentDeptId }: DeviceD
 		try {
 			let maintenanceDevice: IRepairDevice = await getMaintenanceDeviceById(serialNumber);
 			if (maintenanceDevice) {
+				console.log(1)
 				setMaintenanceDevice(maintenanceDevice);
 			} else {
-				let index = deviceDetails.findIndex(x => x?.SerialNumber === serialNumber);
+				let index = deviceDetails.findIndex(x => x?.DeviceInfoId === serialNumber);
 				if (index !== -1) {
 					setMaintenanceDevice({
 						DeviceName: deviceName || '',

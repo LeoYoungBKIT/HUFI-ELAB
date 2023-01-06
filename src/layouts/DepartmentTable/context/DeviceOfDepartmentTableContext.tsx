@@ -17,6 +17,7 @@ const DeviceOfDepartmentTableContext = createContext<ProviderValueType>({
 	setCloneDeviceValues: (value: IDeviceDepartmentType[]) => {},
 	getDeviceData: async (isDisabledLoading?: Boolean) => {},
 	listDeviceType,
+	id: 0,
 });
 
 export type DeviceOfDepartmentTableProviderProps = {
@@ -37,6 +38,7 @@ export type ProviderValueType = {
 	setCloneDeviceValues: (value: IDeviceDepartmentType[]) => void;
 	getDeviceData: (isDisabledLoading?: Boolean) => Promise<void>;
 	listDeviceType: string[];
+	id: Number;
 };
 
 const DeviceOfDepartmentTableProvider = ({ children, id }: DeviceOfDepartmentTableProviderProps) => {
@@ -99,6 +101,7 @@ const DeviceOfDepartmentTableProvider = ({ children, id }: DeviceOfDepartmentTab
 		setCloneDeviceValues,
 		getDeviceData,
 		listDeviceType,
+		id
 	};
 
 	return <DeviceOfDepartmentTableContext.Provider value={value}>{children}</DeviceOfDepartmentTableContext.Provider>;
