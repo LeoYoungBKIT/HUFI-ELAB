@@ -118,4 +118,3 @@ const DeviceTable = ({ children, id }: DeviceOfDepartmentTableProviderProps) => 
 };
 
 export { useDeviceOfDepartmentTableStore, DeviceOfDepartmentTableProvider, DeviceTable };
-

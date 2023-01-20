@@ -27,23 +27,26 @@ import { dummyRegisterGeneralData, IRegisterGeneralType } from '../../types/regi
 import DialogExportInstrument from './DialogExportInstrument';
 import RegisterGeneralChemicalTable from './RegisterGeneralChemicalTable';
 import RegisterGeneralDeviceTable from './RegisterGeneralDeviceTable';
+import RegisterGeneralInstrumentTable from './RegisterGeneralInstrumentTable';
 import { setListOfRegisterGenerals } from './registerGeneralSlice';
+import RegisterGeneralToolTable from './RegisterGeneralToolTable';
 import { ColumnType } from './Utils';
 
 const RegisterGeneralsTable: FC = () => {
-	const registerGeneralsData = useAppSelector((state: RootState) => state.registerGeneral.listOfRegisterGenerals);
-	const employeeData = useAppSelector((state: RootState) => state.employee.listOfEmployees);
-	const dispatch = useAppDispatch();
-
-	const [isCreateModal, setIsCreateModal] = useState(false);
-	const [isEditModal, setIsEditModal] = useState<boolean>(false);
-	const [isDeleteModal, setIsDeleteModal] = useState<boolean>(false);
-	const [isExportInstrumentModal, setIsExportInstrumentModal] = useState<boolean>(false);
-	const [tableData, setTableData] = useState<IRegisterGeneralType[]>([]);
-	const [employeeDataValue, setEmployeeDataValue] = useState<any>([]);
-	const [validationErrors, setValidationErrors] = useState<{
-		[cellId: string]: string;
-	}>({});
+  const registerGeneralsData = useAppSelector((state: RootState) => state.registerGeneral.listOfRegisterGenerals);
+  const employeeData = useAppSelector((state: RootState) => state.employee.listOfEmployees);
+  const researcherData = useAppSelector((state: RootState) => state.researchTeam.listOfResearchers);
+  const dispatch = useAppDispatch();
+  const [isExportInstrumentModal, setIsExportInstrumentModal] = useState<boolean>(false);
+  const [isCreateModal, setIsCreateModal] = useState(false);
+  const [isEditModal, setIsEditModal] = useState<boolean>(false);
+  const [isDeleteModal, setIsDeleteModal] = useState<boolean>(false);
+  const [tableData, setTableData] = useState<IRegisterGeneralType[]>([]);
+  const [employeeDataValue, setEmployeeDataValue] = useState<any>([]);
+  const [researcherDataValue, setResearcherDataValue] = useState<any>([]);
+  const [validationErrors, setValidationErrors] = useState<{
+    [cellId: string]: string;
+  }>({});
 
 	const [updatedRow, setUpdatedRow] = useState<any>(dummyRegisterGeneralData);
 	const [deletedRow, setDeletedRow] = useState<any>(dummyRegisterGeneralData);
@@ -60,22 +63,31 @@ const RegisterGeneralsTable: FC = () => {
 		}
 	}, [employeeData]);
 
-	useEffect(() => {
-		if (registerGeneralsData.length > 0) {
-			let formatedRegisterGeneral = registerGeneralsData.map((item: IRegisterGeneralType) => {
-				return Object.assign(
-					{},
-					{
-						...item,
-						formatedDateCreate: moment.unix(Number(item.DateCreate)).format('DD/MM/YYYY'),
-						formatedStartDate: moment.unix(Number(item.StartDate)).format('DD/MM/YYYY'),
-						formatedEndDate: moment.unix(Number(item.EndDate)).format('DD/MM/YYYY'),
-					},
-				);
-			});
-			setTableData(formatedRegisterGeneral);
-		}
-	}, [registerGeneralsData]);
+  useEffect(() => {
+    if (researcherData.length > 0) {
+      const list = researcherData.map(x => ({
+        label: `${x.ResearcherId} - ${x.Fullname}`,
+        id: x.ResearcherId,
+        name: x.Fullname
+      }));
+      setResearcherDataValue(list);
+    }
+  }, [researcherData])
+
+  useEffect(() => {
+    if (registerGeneralsData.length > 0) {
+      let formatedRegisterGeneral = registerGeneralsData.map((item: IRegisterGeneralType) => {
+        return Object.assign({}, {
+          ...item,
+          formatedDateCreate: moment.unix(Number(item.DateCreate)).format('DD/MM/YYYY'),
+          formatedStartDate: moment.unix(Number(item.StartDate)).format('DD/MM/YYYY'),
+          formatedEndDate: moment.unix(Number(item.EndDate)).format('DD/MM/YYYY'),
+        })
+      })
+      setTableData(formatedRegisterGeneral);
+    }
+
+  }, [registerGeneralsData])
 
 	const getCommonEditTextFieldProps = useCallback(
 		(
@@ -91,109 +103,109 @@ const RegisterGeneralsTable: FC = () => {
 
 	const columns = useMemo<MRT_ColumnDef<IRegisterGeneralType>[]>(
 		() => [
-			{
-				accessorKey: 'RegisterGeneralId',
-				header: 'Mã phiếu ĐK',
-			},
-			{
-				accessorKey: 'formatedDateCreate',
-				header: 'Ngày tạo',
-			},
-			{
-				accessorKey: 'InstructorName',
-				header: 'Người hướng dẫn',
-			},
-			{
-				accessorKey: 'ThesisName',
-				header: 'Tên luận văn',
-			},
-			{
-				accessorKey: 'ResearchSubject',
-				header: 'Chủ đề nghiên cứu',
-			},
-			{
-				accessorKey: 'formatedStartDate',
-				header: 'Ngày BĐ',
-			},
-			{
-				accessorKey: 'formatedEndDate',
-				header: 'Ngày KT',
-			},
-			{
-				accessorKey: 'ResearcherId',
-				header: 'Mã nghiên cứu viên',
-			},
-			{
-				accessorKey: 'ResearcherName',
-				header: 'Tên nghiên cứu viên',
-			},
-			// {
-			//   accessorKey: 'EmployeeId',
-			//   header: 'Mã nhân viên',
-			// },
-			{
-				accessorKey: 'EmployeeName',
-				header: 'Tên nhân viên',
-			},
+		  {
+			accessorKey: 'RegisterGeneralId',
+			header: 'Mã phiếu ĐK',
+		  },
+		  {
+			accessorKey: 'formatedDateCreate',
+			header: 'Ngày tạo',
+		  },
+		  {
+			accessorKey: 'InstructorName',
+			header: 'Người hướng dẫn',
+		  },
+		  {
+			accessorKey: 'ThesisName',
+			header: 'Tên luận văn',
+		  },
+		  {
+			accessorKey: 'ResearchSubject',
+			header: 'Chủ đề nghiên cứu',
+		  },
+		  {
+			accessorKey: 'formatedStartDate',
+			header: 'Ngày BĐ',
+		  },
+		  {
+			accessorKey: 'formatedEndDate',
+			header: 'Ngày KT',
+		  },
+		  // {
+		  //   accessorKey: 'ResearcherId',
+		  //   header: 'Mã nghiên cứu viên',
+		  // },
+		  {
+			accessorKey: 'ResearcherName',
+			header: 'Tên nghiên cứu viên',
+		  },
+		  // {
+		  //   accessorKey: 'EmployeeId',
+		  //   header: 'Mã nhân viên',
+		  // },
+		  {
+			accessorKey: 'EmployeeName',
+			header: 'Tên nhân viên',
+		  },
 		],
 		[getCommonEditTextFieldProps],
-	);
-
-	const RegisterGeneralChemicalTableColumns = useRef<ColumnType[]>([
+	  );
+	
+	  const RegisterGeneralChemicalTableColumns = useRef<ColumnType[]>([
 		{
-			id: 'Purpose',
-			header: 'Mục đích',
+		  id: 'Purpose',
+		  header: 'Mục đích',
 		},
 		{
-			id: 'ChemicalId',
-			header: 'Mã hoá chất',
+		  id: 'ChemicalId',
+		  header: 'Mã hoá chất',
 		},
 		{
-			id: 'ChemicalName',
-			header: 'Tên hoá chất',
+		  id: 'ChemicalName',
+		  header: 'Tên hoá chất',
 		},
 		{
-			id: 'Specifications',
-			header: 'CTHH',
+		  id: 'Specifications',
+		  header: 'CTHH',
 		},
 		{
-			id: 'Amount',
-			header: 'Số lượng',
-			renderValue: (Amount, Unit) => `${Amount} (${Unit})`,
+		  id: 'Amount',
+		  header: 'Số lượng',
+		  renderValue: (Amount, Unit) => `${Amount} (${Unit})`
 		},
 		{
-			id: 'Note',
-			header: 'Ghi chú',
-		},
-	]);
-
-	const RegisterGeneralDeviceTableColumns = useRef<ColumnType[]>([
+		  id: 'Note',
+		  header: 'Ghi chú',
+		}
+	  ]);
+	
+	  const RegisterGeneralDeviceTableColumns = useRef<ColumnType[]>([
 		{
-			id: 'Purpose',
-			header: 'Mục đích',
-		},
-		{
-			id: 'DeviceId',
-			header: 'Mã thiết bị',
+		  id: 'Purpose',
+		  header: 'Mục đích',
 		},
 		{
-			id: 'DeviceName',
-			header: 'Tên thiết bị',
+		  id: 'DeviceId',
+		  header: 'Mã thiết bị',
 		},
 		{
-			id: 'Standard',
-			header: 'Quy cách',
+		  id: 'DeviceName',
+		  header: 'Tên thiết bị',
 		},
 		{
-			id: 'Quantity',
-			header: 'Số lượng',
-			renderValue: (Quantity, Unit) => `${Quantity} (${Unit})`,
+		  id: 'Standard',
+		  header: 'Quy cách',
 		},
 		{
-			id: 'Note',
-			header: 'Ghi chú',
+		  id: 'Quantity',
+		  header: 'Số lượng',
+		  renderValue: (Quantity, Unit) => `${Quantity} (${Unit})`
 		},
-	]);
+		{
+		  id: 'Note',
+		  header: 'Ghi chú',
+		}
+	  ]);
 
 	const handleOpenEditModal = (row: any) => {
 		setUpdatedRow(row.original);
