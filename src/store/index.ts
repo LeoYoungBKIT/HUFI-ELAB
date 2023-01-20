@@ -18,6 +18,7 @@ import purchaseOrderReducer from '../layouts/PurchaseOrderTable/purchaseOrderSli
 import scheduleReducer from '../layouts/ScheduleTable/scheduleSlice';
 import planSubjectReducer from '../layouts/PlanSubjectTable/planSubjectSlice';
 import researchTeamReducer from '../layouts/ResearchTeamTable/researchTeamSlice';
+import trainScheduleReducer from '../layouts/TrainSchedule/TrainScheduleSlice';
 
 export const store = configureStore({
 	reducer: {
@@ -39,7 +40,8 @@ export const store = configureStore({
 		purchaseOrder: purchaseOrderReducer,
 		schedule: scheduleReducer,
 		planSubject: planSubjectReducer,
-		researchTeam: researchTeamReducer
+		researchTeam: researchTeamReducer,
+		managerTrainSchedule: trainScheduleReducer,
 	},
 });
 

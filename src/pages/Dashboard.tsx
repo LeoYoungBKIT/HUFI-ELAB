@@ -1,7 +1,7 @@
+import { SnackbarContent } from '@mui/material';
 import Snackbar from '@mui/material/Snackbar';
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import ChemicalTable from '../layouts/ChemicalTable';
 import { setListOfChemicals } from '../layouts/ChemicalTable/chemicalSlice';
 import ChemicalWarehouseTable from '../layouts/ChemicalWarehouseTable';
 import { setListOfChemicalWarehouse } from '../layouts/ChemicalWarehouseTable/chemicalWarehouseSlice';
@@ -9,7 +9,6 @@ import ClassSubjectTable from '../layouts/ClassSubjectTable';
 import { setListOfClassSubjects } from '../layouts/ClassSubjectTable/classSubjectSlice';
 import DepartmentTable from '../layouts/DepartmentTable';
 import { setListOfDepartments } from '../layouts/DepartmentTable/departmentSlice';
-import DeviceTable from '../layouts/DeviceTable';
 import { setListOfDevices, setListOfDeviceSpecs } from '../layouts/DeviceTable/deviceSlice';
 import DeviceTransfer from '../layouts/DeviceTransfer';
 import EmployeeTable from '../layouts/EmployeeTable';
@@ -26,43 +25,48 @@ import { PurchaseOrderTable } from '../layouts/PurchaseOrderTable';
 import { setListOfPurchaseOrders } from '../layouts/PurchaseOrderTable/purchaseOrderSlice';
 import RegisterGeneralsTable from '../layouts/RegisterGeneralTable';
 import { setListOfRegisterGenerals } from '../layouts/RegisterGeneralTable/registerGeneralSlice';
+import ResearchTeamTable from '../layouts/ResearchTeamTable';
+import { setListOfResearchTeams } from '../layouts/ResearchTeamTable/researchTeamSlice';
+import FacultyViewScheduleTable from '../layouts/ScheduleTable/FacultyViewIndex';
 import { setListOfSchedules } from '../layouts/ScheduleTable/scheduleSlice';
 import TeacherViewScheduleTable from '../layouts/ScheduleTable/TeacherViewIndex';
-import FacultyViewScheduleTable from '../layouts/ScheduleTable/FacultyViewIndex';
 import SubjectTable from '../layouts/SubjectTable';
 import { setListOfSubjects } from '../layouts/SubjectTable/subjectSlice';
 import SupplierTable from '../layouts/SupplierTable';
 import { setListOfSuppliers } from '../layouts/SupplierTable/supplierSlice';
+import TrainSchedule from '../layouts/TrainSchedule';
+import {
+	setListOfTrainDevice,
+	setListOfTrainer,
+	setListOfTrainInstructor
+} from '../layouts/TrainSchedule/TrainScheduleSlice';
 import WarehouseTable from '../layouts/WarehouseTable';
 import {
-	setListOfWarehouseDepartment,
-	setListOfWarehouseLaboratory,
-	setListOfWarehouseRegisterGeneral,
-	setListOfWarehouseStudySession,
+	setListOfWarehouseDepartment
 } from '../layouts/WarehouseTable/warehouseSlice';
 import { getChemicals } from '../services/chemicalServices';
 import { getChemicalWarehouseById } from '../services/chemicalWarehouseServices';
 import { getClassSubjects } from '../services/clasSubjectServices';
 import { getDepartments } from '../services/departmentServices';
 import { getDevices, getDeviceSpec } from '../services/deviceServices';
-import { getDevicesTransfer } from '../services/deviceTransfer';
 import { getEmployees } from '../services/employeeServices';
-import { getExportsDep, getExportsLabs, getExportsRegs, getExportsSubs } from '../services/exportsServices';
+import { getExportsDep } from '../services/exportsServices';
 import { getLaboratories } from '../services/laboratoryServices';
 import { getLessonLabs } from '../services/lessonLabServices';
 import { getManufacturers } from '../services/manufacturerServices';
 import { getPlanSubjects } from '../services/planSubjectServices';
 import { getPurchaseOrders } from '../services/purchaseOrderServices';
 import { getRegisterGenerals } from '../services/registerGeneralServices';
+import { getResearchTeams } from '../services/researchTeamServices';
 import { getSchedules } from '../services/scheduleServices';
 import { getSubjects } from '../services/subjectServices';
 import { getSuppliers } from '../services/supplierServices';
+import { getTrainDevices, getTrainer, getTrainInstructors } from '../services/trainServices';
 import { RootState } from '../store';
 import { IChemicalType } from '../types/chemicalType';
 import { IChemicalWarehouseType } from '../types/chemicalWarehouseType';
 import { IClassSubjectType } from '../types/classSubjectType';
 import { IDepartmentType } from '../types/departmentType';
-import { IDeviceTransfer } from '../types/deviceTransferType';
 import { IDeviceSpecType, IDeviceType } from '../types/deviceType';
 import { IEmployeeType } from '../types/employeeType';
 import { IExportType } from '../types/exportType';
@@ -72,16 +76,16 @@ import { IManufacturerType } from '../types/manufacturerType';
 import { IPlanSubjectType } from '../types/planSubjectType';
 import { IPurchaseOrderType } from '../types/purchaseOrderType';
 import { IRegisterGeneralType } from '../types/registerGeneralType';
+import { IResearchTeamType } from '../types/researchTeamType';
 import { IScheduleType } from '../types/scheduleType';
 import { ISubjectType } from '../types/subjectType';
 import { ISupplierType } from '../types/supplierType';
+import { ITrainDevice, ITrainer, ITrainInstructor } from '../types/trainType';
 import { setSnackbarMessage } from './appSlice';
 import './Dashboard.css';
-import { SnackbarContent } from '@mui/material';
-import { getResearchTeams } from '../services/researchTeamServices';
-import { IResearchTeamType } from '../types/researchTeamType';
-import { setListOfResearchTeams } from '../layouts/ResearchTeamTable/researchTeamSlice';
-import ResearchTeamTable from '../layouts/ResearchTeamTable';
+
+import { loadMessages } from 'devextreme/localization';
+import viMessages from '../configs/devextreme_vi.json';
 
 export function Dashboard() {
 	const laboratoriesData = useAppSelector((state: RootState) => state.laboratory.listOfLaboratories);
@@ -101,6 +105,10 @@ export function Dashboard() {
 	const role = Number(localStorage.getItem('role') || 1);
 
 	const dispatch = useAppDispatch();
+
+	useEffect(() => {
+		loadMessages(viMessages);
+	}, []);
 
 	const getLaboratoryData = async () => {
 		const listOfLaboratories: ILaboratoryType[] = await getLaboratories();
@@ -194,7 +202,7 @@ export function Dashboard() {
 	};
 
 	const getRegisterGeneralsData = async () => {
-		const listOfRegisterGeneral: IRegisterGeneralType[] = await getRegisterGenerals("2");
+		const listOfRegisterGeneral: IRegisterGeneralType[] = await getRegisterGenerals('2');
 		if (listOfRegisterGeneral) {
 			dispatch(setListOfRegisterGenerals(listOfRegisterGeneral));
 		}
@@ -228,6 +236,27 @@ export function Dashboard() {
 		}
 	};
 
+	const getTrainDeviceData = async () => {
+		const listOfTrainDevices: ITrainDevice[] = await getTrainDevices();
+		if (listOfTrainDevices) {
+			dispatch(setListOfTrainDevice(listOfTrainDevices));
+		}
+	};
+
+	const getTrainInstructorData = async () => {
+		const listOfTrainInstructors: ITrainInstructor[] = await getTrainInstructors();
+		if (listOfTrainInstructors) {
+			dispatch(setListOfTrainInstructor(listOfTrainInstructors));
+		}
+	};
+
+	const getTrainerData = async () => {
+		const listOfTrainer: ITrainer[] = await getTrainer();
+		if (listOfTrainer) {
+			dispatch(setListOfTrainer(listOfTrainer));
+		}
+	};
+
 	useEffect(() => {
 		getLaboratoryData();
 		getEmployeeData();
@@ -247,6 +276,9 @@ export function Dashboard() {
 		getScheduleData();
 		getPlanSubjectData();
 		getResearchTeamsData();
+		getTrainDeviceData();
+		getTrainInstructorData();
+		getTrainerData();
 	}, []);
 
 	const snackbarFunc = () =>
@@ -285,6 +317,7 @@ export function Dashboard() {
 				{sidebarItems[13].isOpen && <PlanSubjectTable />}
 				{sidebarItems[14].isOpen && <RegisterGeneralsTable />}
 				{sidebarItems[15].isOpen && <DeviceTransfer />}
+				{sidebarItems[16].isOpen && <TrainSchedule />}
 			</div>
 			<Snackbar
 				anchorOrigin={{
@@ -295,10 +328,11 @@ export function Dashboard() {
 				message={snackbarState.message}
 				key="bottomRight"
 			>
-				<SnackbarContent style={{
-					backgroundColor: snackbarState.backgroundColor,
-					color: snackbarState.color
-				}}
+				<SnackbarContent
+					style={{
+						backgroundColor: snackbarState.backgroundColor,
+						color: snackbarState.color,
+					}}
 					message={snackbarState.message}
 				/>
 			</Snackbar>
