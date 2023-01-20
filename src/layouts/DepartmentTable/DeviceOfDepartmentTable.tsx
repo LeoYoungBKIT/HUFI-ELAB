@@ -452,16 +452,16 @@ const DeviceOfDepartmentTable = () => {
 				</Table>
 			</TableContainer>
 
-			<DialogCreate isOpen={isOpenCreateModal} onClose={() => setIsOpenCreateModal(false)} />
-			<DialogDelete
+			{isOpenCreateModal && <DialogCreate isOpen={isOpenCreateModal} onClose={() => setIsOpenCreateModal(false)} />}
+			{isOpenDeleteModal && <DialogDelete
 				isOpen={isOpenDeleteModal}
 				onClose={() => setIsOpenDeleteModal(false)}
 				dataDelete={deletedRow}
 				handleSubmitDelete={handleSubmitDelete}
-			/>
+			/>}
 
-			<DialogDeviceUsageHours isOpen={isOpenDeviceUsageHours} onClose={() => setIsOpenDeviceUsageHours(false)} />
-			<DialogLiquidate isOpen={isOpenDeviceLiquidate} onClose={() => setIsOpenDeviceLiquidate(false)} />
+			{isOpenDeviceUsageHours && <DialogDeviceUsageHours isOpen={isOpenDeviceUsageHours} onClose={() => setIsOpenDeviceUsageHours(false)} />}
+			{isOpenDeviceLiquidate && <DialogLiquidate isOpen={isOpenDeviceLiquidate} onClose={() => setIsOpenDeviceLiquidate(false)} />}
 		</>
 	);
 };
@@ -964,18 +964,18 @@ const DeviceDetailTable = ({ data, unit, deviceName, instrumentDeptId }: DeviceD
 					</TableBody>
 				</Table>
 			</TableContainer>
-			<DialogMaintenanceDevice
+			{isOpenMaintenance && <DialogMaintenanceDevice
 				isOpen={isOpenMaintenance}
 				onClose={handleCloseMaintenanceDialog}
 				data={maintenanceDevice}
 				loading={loading}
-			/>
-			<DialogHistoryDevices
+			/>}
+			{isOpenHistory && <DialogHistoryDevices
 				isOpen={isOpenHistory}
 				onClose={handleCloseHistoryDialog}
 				data={deviceHitories}
 				loading={loading}
-			/>
+			/>}
 		</>
 	);
 };

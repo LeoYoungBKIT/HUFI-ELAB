@@ -1,37 +1,39 @@
 import CloseIcon from '@mui/icons-material/Close';
 import {
-    Autocomplete,
-    Box,
-    CircularProgress,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    FormControl,
-    FormHelperText,
-    Grid,
-    IconButton,
-    Input,
-    InputLabel,
-    TextField,
-    Typography
+	Autocomplete,
+	Box,
+	CircularProgress,
+	Dialog,
+	DialogActions,
+	DialogContent,
+	DialogTitle,
+	FormControl,
+	FormHelperText,
+	Grid,
+	IconButton,
+	Input,
+	InputLabel,
+	TextField,
+	Typography,
 } from '@mui/material';
 import Button from '@mui/material/Button';
 import DataGrid, {
-    Button as DevButtonGrid,
-    Column,
-    ColumnChooser,
-    ColumnFixing,
-    Editing,
-    FilterRow,
-    Grouping,
-    HeaderFilter, Item, MasterDetail,
-    Pager,
-    Paging,
-    RequiredRule,
-    Scrolling,
-    SearchPanel,
-    Toolbar
+	Button as DevButtonGrid,
+	Column,
+	ColumnChooser,
+	ColumnFixing,
+	Editing,
+	FilterRow,
+	Grouping,
+	HeaderFilter,
+	Item,
+	MasterDetail,
+	Pager,
+	Paging,
+	RequiredRule,
+	Scrolling,
+	SearchPanel,
+	Toolbar,
 } from 'devextreme-react/data-grid';
 import 'devextreme-react/text-area';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -45,15 +47,16 @@ import { colorsNotifi } from '../../../configs/color';
 import { useAppDispatch } from '../../../hooks';
 import { setSnackbar } from '../../../pages/appSlice';
 import {
-    deleteLiquidateDept,
-    getLiquidateDept,
-    getLiquidateDeptChemical,
-    postLiquidateDept,
-    updateLiquidateDept
+	deleteLiquidateDept,
+	getLiquidateDept,
+	getLiquidateDeptChemical,
+	postLiquidateDept,
+	updateLiquidateDept,
 } from '../../../services/liquidateChemicalServices';
 import {
-    dummyLiquidateChemical, ILiquidateChemical,
-    ILiquidateChemicalItem
+	dummyLiquidateChemical,
+	ILiquidateChemical,
+	ILiquidateChemicalItem,
 } from '../../../types/chemicalWarehouseType';
 import { renderHeader } from '../../DepartmentTable/Dialog/DialogImportDeviceInfo';
 import { ColumnSizeType, ColumnsType, DialogProps, ErrorType } from '../../DepartmentTable/Dialog/DialogType';
@@ -326,9 +329,6 @@ const DetailTemplate = (props: any) => {
 	return (
 		<>
 			<Box mb={2}>
-				<Typography variant="button" display="block" gutterBottom>
-					<b>Hóa chất</b>
-				</Typography>
 				<DataGrid
 					dataSource={dataSourceChemical}
 					showBorders={true}
@@ -341,6 +341,8 @@ const DetailTemplate = (props: any) => {
 					}}
 				>
 					<SearchPanel visible={true} width={240} placeholder="Tìm kiếm" />
+					<FilterRow visible={true} applyFilter={true} />
+					<HeaderFilter visible={true} />
 					<Column
 						dataField="ChemDeptId"
 						caption="Mã chi tiết hóa chất"
@@ -358,6 +360,14 @@ const DetailTemplate = (props: any) => {
 					/>
 					<Column dataField="Amount" caption="Số lượng" headerCellRender={data => renderHeader(data)} />
 					<Column dataField="Unit" caption="Đơn vị" headerCellRender={data => renderHeader(data)} />
+					<Toolbar>
+						<Item location="before">
+							<Typography variant="button" display="block" mb={0}>
+								<b>Hóa chất</b>
+							</Typography>
+						</Item>
+						<Item name="searchPanel" showText="always" />
+					</Toolbar>
 				</DataGrid>
 			</Box>
 		</>

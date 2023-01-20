@@ -1,39 +1,39 @@
 import CloseIcon from '@mui/icons-material/Close';
 import {
-    Autocomplete,
-    Box,
-    CircularProgress,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    FormControl,
-    FormHelperText,
-    Grid,
-    IconButton,
-    Input,
-    InputLabel,
-    TextField,
-    Typography
+	Autocomplete,
+	Box,
+	CircularProgress,
+	Dialog,
+	DialogActions,
+	DialogContent,
+	DialogTitle,
+	FormControl,
+	FormHelperText,
+	Grid,
+	IconButton,
+	Input,
+	InputLabel,
+	TextField,
+	Typography,
 } from '@mui/material';
 import Button from '@mui/material/Button';
 import DataGrid, {
-    Button as DevButtonGrid,
-    Column,
-    ColumnChooser,
-    ColumnFixing,
-    Editing,
-    FilterRow,
-    Grouping,
-    HeaderFilter,
-    Item,
-    MasterDetail,
-    Pager,
-    Paging,
-    RequiredRule,
-    Scrolling,
-    SearchPanel,
-    Toolbar
+	Button as DevButtonGrid,
+	Column,
+	ColumnChooser,
+	ColumnFixing,
+	Editing,
+	FilterRow,
+	Grouping,
+	HeaderFilter,
+	Item,
+	MasterDetail,
+	Pager,
+	Paging,
+	RequiredRule,
+	Scrolling,
+	SearchPanel,
+	Toolbar,
 } from 'devextreme-react/data-grid';
 import 'devextreme-react/text-area';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -48,12 +48,12 @@ import { colorsNotifi } from '../../../configs/color';
 import { useAppDispatch } from '../../../hooks';
 import { setSnackbar } from '../../../pages/appSlice';
 import {
-    deleteLiquidateDept,
-    getLiquidateDept,
-    getLiquidateDeptDevices,
-    getLiquidateDeptInstruments,
-    postLiquidateDept,
-    updateLiquidateDept
+	deleteLiquidateDept,
+	getLiquidateDept,
+	getLiquidateDeptDevices,
+	getLiquidateDeptInstruments,
+	postLiquidateDept,
+	updateLiquidateDept,
 } from '../../../services/liquidateDeviceServices';
 import { dummyLiquidateDept, ILiquidateDept } from '../../../types/deviceDepartmentType';
 import { ILiquidateDeptDevice } from '../../../types/deviceType';
@@ -351,9 +351,6 @@ const DetailTemplate = (props: any) => {
 	return (
 		<>
 			<Box mb={2}>
-				<Typography variant="button" display="block" gutterBottom>
-					<b>Thiết bị</b>
-				</Typography>
 				<DataGrid
 					dataSource={dataSourceDevice}
 					showBorders={true}
@@ -366,6 +363,8 @@ const DetailTemplate = (props: any) => {
 					}}
 				>
 					<SearchPanel visible={true} width={240} placeholder="Tìm kiếm" />
+					<FilterRow visible={true} applyFilter={true} />
+					<HeaderFilter visible={true} />
 					<Column
 						dataField="DeviceInfoId"
 						caption="Mã thông tin thiết bị"
@@ -383,13 +382,18 @@ const DetailTemplate = (props: any) => {
 						headerCellRender={data => renderHeader(data)}
 					/>
 					<Column dataField="Unit" caption="Đơn vị" headerCellRender={data => renderHeader(data)} />
+					<Toolbar>
+						<Item location='before'>
+							<Typography variant="button" display="block" mb={0}>
+								<b>Thiết bị</b>
+							</Typography>
+						</Item>
+						<Item name="searchPanel" showText="always" />
+					</Toolbar>
 				</DataGrid>
 			</Box>
 
 			<Box>
-				<Typography variant="button" display="block" gutterBottom>
-					<b>Công cụ - Dụng cụ</b>
-				</Typography>
 				<DataGrid
 					dataSource={dataSourceInstrument}
 					showBorders={true}
@@ -402,6 +406,8 @@ const DetailTemplate = (props: any) => {
 					}}
 				>
 					<SearchPanel visible={true} width={240} placeholder="Tìm kiếm" />
+					<FilterRow visible={true} applyFilter={true} />
+					<HeaderFilter visible={true} />
 					<Column
 						dataField="InstrumentDeptId"
 						caption="Mã thông tin CC - DC"
@@ -419,6 +425,14 @@ const DetailTemplate = (props: any) => {
 					/>
 					<Column dataField="Quantity" caption="Số lượng" headerCellRender={data => renderHeader(data)} />
 					<Column dataField="LabId" caption="Phòng" headerCellRender={data => renderHeader(data)} />
+					<Toolbar>
+						<Item location='before'>
+							<Typography variant="button" display="block" mb={0}>
+							<b>Công cụ - Dụng cụ</b>
+							</Typography>
+						</Item>
+						<Item name="searchPanel" showText="always" />
+					</Toolbar>
 				</DataGrid>
 			</Box>
 		</>

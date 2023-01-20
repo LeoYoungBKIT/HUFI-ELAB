@@ -69,11 +69,9 @@ const TrainSchedule: FC = () => {
 			{tabData.current.map((x, index) => {
 				const Comp = x.comp;
 				return (
-					<>
-						<TabPanel key={index} value={value} index={index}>
-							<Comp />
-						</TabPanel>
-					</>
+					<TabPanel key={index} value={value} index={index}>
+						<Comp />
+					</TabPanel>
 				);
 			})}
 		</Box>

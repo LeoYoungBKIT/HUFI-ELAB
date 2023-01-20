@@ -46,3 +46,7 @@
 .dx-datagrid-borders .dx-datagrid-headers .dx-datagrid-table .dx-header-row {
 	background-color: #eee;
 }
+
+.dx-datagrid .dx-datagrid-header-panel {
+	background: #fafafa !important;
+}

@@ -38,12 +38,10 @@ import TrainSchedule from '../layouts/TrainSchedule';
 import {
 	setListOfTrainDevice,
 	setListOfTrainer,
-	setListOfTrainInstructor
+	setListOfTrainInstructor,
 } from '../layouts/TrainSchedule/TrainScheduleSlice';
 import WarehouseTable from '../layouts/WarehouseTable';
-import {
-	setListOfWarehouseDepartment
-} from '../layouts/WarehouseTable/warehouseSlice';
+import { setListOfWarehouseDepartment } from '../layouts/WarehouseTable/warehouseSlice';
 import { getChemicals } from '../services/chemicalServices';
 import { getChemicalWarehouseById } from '../services/chemicalWarehouseServices';
 import { getClassSubjects } from '../services/clasSubjectServices';
@@ -76,7 +74,6 @@ import { IManufacturerType } from '../types/manufacturerType';
 import { IPlanSubjectType } from '../types/planSubjectType';
 import { IPurchaseOrderType } from '../types/purchaseOrderType';
 import { IRegisterGeneralType } from '../types/registerGeneralType';
-import { IResearchTeamType } from '../types/researchTeamType';
 import { IScheduleType } from '../types/scheduleType';
 import { ISubjectType } from '../types/subjectType';
 import { ISupplierType } from '../types/supplierType';
@@ -86,6 +83,11 @@ import './Dashboard.css';
 
 import { loadMessages } from 'devextreme/localization';
 import viMessages from '../configs/devextreme_vi.json';
+import { IResearchTeamType } from '../types/researchTeamType';
+import SuggestNewDevicesTable from '../layouts/SuggestNewDevicesTable';
+import { setListOfSuggestNewDevices } from '../layouts/SuggestNewDevicesTable/suggestNewDeviceSlice';
+import { ISuggestNewDeviceType } from '../types/suggestNewDeviceType';
+import { getSuggestNewDevices } from '../services/suggestNewDeviceServices';
 
 export function Dashboard() {
 	const laboratoriesData = useAppSelector((state: RootState) => state.laboratory.listOfLaboratories);
@@ -257,6 +259,13 @@ export function Dashboard() {
 		}
 	};
 
+	const getSuggestNewDevicesData = async () => {
+		const listOfSuggestNewDevices: ISuggestNewDeviceType[] = await getSuggestNewDevices('2');
+		if (listOfSuggestNewDevices) {
+			dispatch(setListOfSuggestNewDevices(listOfSuggestNewDevices));
+		}
+	};
+
 	useEffect(() => {
 		getLaboratoryData();
 		getEmployeeData();
@@ -279,6 +288,7 @@ export function Dashboard() {
 		getTrainDeviceData();
 		getTrainInstructorData();
 		getTrainerData();
+		getSuggestNewDevicesData();
 	}, []);
 
 	const snackbarFunc = () =>
@@ -316,8 +326,9 @@ export function Dashboard() {
 				{sidebarItems[12].isOpen && <PurchaseOrderTable />}
 				{sidebarItems[13].isOpen && <PlanSubjectTable />}
 				{sidebarItems[14].isOpen && <RegisterGeneralsTable />}
-				{sidebarItems[15].isOpen && <DeviceTransfer />}
-				{sidebarItems[16].isOpen && <TrainSchedule />}
+				{sidebarItems[15].isOpen && <SuggestNewDevicesTable />}
+				{sidebarItems[16].isOpen && <DeviceTransfer />}
+				{sidebarItems[17].isOpen && <TrainSchedule />}
 			</div>
 			<Snackbar
 				anchorOrigin={{

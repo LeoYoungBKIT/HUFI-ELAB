@@ -115,6 +115,11 @@ export const defaultSidebarItems: ISidebarItem[] = [
 	},
 	{
 		isOpen: false,
+		name: 'Phiếu đề nghị',
+		icon: '',
+	},
+	{
+		isOpen: false,
 		name: 'Điều chuyển thiết bị',
 		icon: '',
 	},

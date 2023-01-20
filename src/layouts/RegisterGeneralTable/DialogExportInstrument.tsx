@@ -296,9 +296,6 @@ const ExportDetail = (props: any) => {
 	return (
 		<>
 			<Box>
-				<Typography variant="button" display="block" gutterBottom>
-					<b>Công cụ - Dụng cụ</b>
-				</Typography>
 				<DataGrid
 					dataSource={dataSourceInstrument}
 					showBorders={true}
@@ -308,6 +305,9 @@ const ExportDetail = (props: any) => {
 					columnMinWidth={50}
 				>
 					<SearchPanel visible={true} width={240} placeholder="Tìm kiếm" />
+
+					<FilterRow visible={true} applyFilter={true} />
+					<HeaderFilter visible={true} />
 					<Column
 						dataField="InstrumentDeptId"
 						headerCellRender={data => renderHeader(data)}
@@ -321,6 +321,14 @@ const ExportDetail = (props: any) => {
 					/>
 					<Column dataField="Quantity" caption="Số lượng" headerCellRender={data => renderHeader(data)} />
 					<Column dataField="LabId" caption="Mã Phòng" headerCellRender={data => renderHeader(data)} />
+					<Toolbar>
+						<Item location="before">
+							<Typography variant="button" display="block" gutterBottom>
+								<b>Công cụ - Dụng cụ</b>
+							</Typography>
+						</Item>
+						<Item name="searchPanel" showText="always" />
+					</Toolbar>
 				</DataGrid>
 			</Box>
 		</>
