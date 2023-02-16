@@ -42,7 +42,7 @@ export const Login: FC = () => {
 	const handleChange = (prop: keyof IloginType) => (event: ChangeEvent<HTMLInputElement>) => {
 		setLoginData({ ...loginData, [prop]: event.target.value });
 	};
-	console.log(loginData);
+	
 	const handleLogin = async () => {
 		try {
 			const res = await login(loginData.type, loginData.username, SHA256(`${loginData.password}`).toString());
@@ -114,7 +114,7 @@ export const Login: FC = () => {
 				</form>
 
 				<div style={{ textDecoration: 'none' }}>
-					<Button onClick={handleLogin} variant="contained">
+					<Button onClick={() => handleLogin()} variant="contained">
 						Đăng nhập
 					</Button>
 				</div>
