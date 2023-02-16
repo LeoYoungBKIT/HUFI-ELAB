@@ -114,7 +114,7 @@ export const Login: FC = () => {
 				</form>
 
 				<div style={{ textDecoration: 'none' }}>
-					<Button onClick={() => handleLogin()} variant="contained">
+					<Button onClick={handleLogin} variant="contained">
 						Đăng nhập
 					</Button>
 				</div>
