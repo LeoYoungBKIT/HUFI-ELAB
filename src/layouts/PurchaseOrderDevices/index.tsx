@@ -26,13 +26,14 @@ import {
   Dialog,
   DialogTitle,
   IconButton,
+  Tab,
+  Tabs,
   Typography,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import FormCmp from "./Form";
 import SuccessToast from "../../components/Success";
 import { Edit as EditIcon, Delete as DeleteIcon } from "@mui/icons-material";
-import AlertDialog from "../../components/AlertDialog";
 import { DeviceEditing, nextStatus } from "./utils";
 
 const renderRow = (key: keyof IDeviceServiceInfo) => {
@@ -44,16 +45,18 @@ const PurchaseOrderDevices = () => {
     purchaseOrderDeviceSelect
   );
   const dispatch = useAppDispatch();
-
+  const [valueTab, setValueTab] = useState("1");
   const [isOpenModalForm, setOpenModalForm] = useState(false);
-
   const [dataForm, setDataForm] = useState<IDeviceServiceInfo>(
     initDeviceServiceInfo
   );
-
   const [typeForm, setTypeForm] = useState<"create" | "update" | "reupdate">(
     "create"
   );
+
+  const handlechangeValueTab = (_e: any, value: string) => {
+    setValueTab(value);
+  };
 
   const handleToggleForm = () => {
     setOpenModalForm(!isOpenModalForm);
@@ -98,9 +101,9 @@ const PurchaseOrderDevices = () => {
     );
   };
 
-  function handleReUpdate(body: IDeviceServiceInfo) {
+  const handleReUpdate = (body: IDeviceServiceInfo) => {
     dispatch(updatePurchaseOrderDeviceAction({ ...body, listAccept: [] }));
-  }
+  };
 
   useEffect(() => {
     dispatch(getAllAction());
@@ -108,6 +111,10 @@ const PurchaseOrderDevices = () => {
 
   return (
     <Box>
+      <Tabs value={valueTab} onChange={handlechangeValueTab}>
+        <Tab value={"1"} label={"Nhập kho – phân phối cấp đơn vị"} />;
+        <Tab value={"2"} label={"Nhập kho – phân phối nội bộ"} />;
+      </Tabs>
       {error && <ErrorComponent errorMessage={error} />}
 
       {successMessage && (
@@ -117,80 +124,86 @@ const PurchaseOrderDevices = () => {
         />
       )}
 
-      <Box sx={{ display: "flex", justifyContent: "space-between", my: 1 }}>
-        <Typography variant="h5">Quản lí phiếu nhập</Typography>
-        <Button
-          onClick={() => handleShowForm(initDeviceServiceInfo, "create")}
-          variant="contained"
-        >
-          Tạo mới
-        </Button>
-      </Box>
-      <Dialog
-        fullScreen
-        open={isOpenModalForm}
-        onClose={handleToggleForm}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
-        <DialogTitle textAlign="left">
-          <b>Form Thông tin</b>
-          <IconButton
-            aria-label="close"
-            onClick={handleToggleForm}
-            sx={{
-              position: "absolute",
-              right: 8,
-              top: 8,
-              color: (theme) => theme.palette.grey[500],
-            }}
-          >
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-        <FormCmp
-          onDeleteOnclick={handleDelete}
-          handleSubmit={handleSubmitForm}
-          dataInit={dataForm}
-          enableUpload={typeForm === "create"}
-          handleOnClickAccept={handleAccept}
-          enableAcceptButton={typeForm === "update"}
-          handleOnclickNoAccept={handleNoAccept}
-          handleReUpdate={handleReUpdate}
-        />
-      </Dialog>
-
-      <MaterialReactTable
-        enableRowActions
-        enableStickyHeader
-        columns={columns}
-        data={data}
-        state={{ isLoading: loading }}
-        enableEditing={true}
-        editingMode="modal"
-        initialState={{
-          density: "compact",
-        }}
-        renderRowActions={({ row }) => (
-          <Box sx={{ display: "flex", flexWrap: "nowrap", gap: "8px" }}>
-            <IconButton
-              onClick={() => {
-                handleShowForm(row.original, "update");
-              }}
+      {valueTab === "1" && (
+        <>
+          <Box sx={{ display: "flex", justifyContent: "space-between", my: 1 }}>
+            <Typography variant="h5">Quản lí phiếu nhập</Typography>
+            <Button
+              onClick={() => handleShowForm(initDeviceServiceInfo, "create")}
+              variant="contained"
             >
-              <EditIcon />
-            </IconButton>
-            <IconButton
-              color="error"
-              onClick={() => {
-                handleShowModalDelete(row);
-              }}
-            >
-              <DeleteIcon />
-            </IconButton>
+              Tạo mới
+            </Button>
           </Box>
-        )}
-      />
+          <Dialog
+            fullScreen
+            open={isOpenModalForm}
+            onClose={handleToggleForm}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+          >
+            <DialogTitle textAlign="left">
+              <b>Form Thông tin</b>
+              <IconButton
+                aria-label="close"
+                onClick={handleToggleForm}
+                sx={{
+                  position: "absolute",
+                  right: 8,
+                  top: 8,
+                  color: (theme) => theme.palette.grey[500],
+                }}
+              >
+                <CloseIcon />
+              </IconButton>
+            </DialogTitle>
+            <FormCmp
+              onDeleteOnclick={handleDelete}
+              handleSubmit={handleSubmitForm}
+              dataInit={dataForm}
+              enableUpload={typeForm === "create"}
+              handleOnClickAccept={handleAccept}
+              enableAcceptButton={typeForm === "update"}
+              handleOnclickNoAccept={handleNoAccept}
+              handleReUpdate={handleReUpdate}
+            />
+          </Dialog>
+
+          <MaterialReactTable
+            enableRowActions
+            enableStickyHeader
+            columns={columns}
+            data={data}
+            state={{ isLoading: loading }}
+            enableEditing={true}
+            editingMode="modal"
+            initialState={{
+              density: "compact",
+            }}
+            renderRowActions={({ row }) => (
+              <Box sx={{ display: "flex", flexWrap: "nowrap", gap: "8px" }}>
+                <IconButton
+                  onClick={() => {
+                    handleShowForm(row.original, "update");
+                  }}
+                >
+                  <EditIcon />
+                </IconButton>
+                <IconButton
+                  color="error"
+                  onClick={() => {
+                    handleShowModalDelete(row);
+                  }}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </Box>
+            )}
+          />
+        </>
+      )}
+
+      {valueTab === "2" && <h1>Phan phoi cap don vi</h1>}
     </Box>
   );
 };
