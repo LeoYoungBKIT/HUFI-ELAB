@@ -17,6 +17,7 @@ export interface IUserOwner extends IEmployeeType, IToken {
 	GroupName: string
 	ReseacherId: Number
 	Organization: string
+	FullName: string
 }
 
 
@@ -37,4 +38,5 @@ export const dummyUserOwner: IUserOwner = {
 	GroupName: '',
 	ReseacherId: -1,
 	Organization: '',
+	FullName: ''
 };

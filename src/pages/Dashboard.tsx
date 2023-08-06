@@ -60,6 +60,7 @@ import { getSchedules } from '../services/scheduleServices';
 import { getSubjects } from '../services/subjectServices';
 import { getSuppliers } from '../services/supplierServices';
 import { getTrainDevices, getTrainer, getTrainInstructors } from '../services/trainServices';
+
 import { RootState } from '../store';
 import { IChemicalType } from '../types/chemicalType';
 import { IChemicalWarehouseType } from '../types/chemicalWarehouseType';
@@ -92,6 +93,10 @@ import { useNavigate } from 'react-router-dom';
 import { getFromLocalStorage } from '../configs/apiHelper';
 import DeviceTable from '../layouts/DeviceTable';
 import ResearchersTable from '../layouts/ResearchTeamTable/ResearcherTable';
+import { getExportManagementForms } from '../services/exportManagementServices';
+import { setListOfExportManagementForms } from '../layouts/ExportManagementTable/exportManagementSlice';
+import { IExportManagementFormType } from '../types/exportManagementType';
+import ExportManagementTable from '../layouts/ExportManagementTable';
 
 export function Dashboard() {
 	const laboratoriesData = useAppSelector((state: RootState) => state.laboratory.listOfLaboratories);
@@ -277,6 +282,13 @@ export function Dashboard() {
 		}
 	};
 
+	const getExportManagementFormsData = async () => {
+		const listOfExportManagementForms: IExportManagementFormType[] = await getExportManagementForms();
+		if(listOfExportManagementForms){
+			dispatch(setListOfExportManagementForms(listOfExportManagementForms));
+		}
+	}
+
 	useEffect(() => {
 		getLaboratoryData();
 		getEmployeeData();
@@ -301,6 +313,7 @@ export function Dashboard() {
 		getTrainInstructorData();
 		getTrainerData();
 		getSuggestNewDevicesData();
+		getExportManagementFormsData();
 	}, []);
 
 	const snackbarFunc = () =>
@@ -341,6 +354,7 @@ export function Dashboard() {
 				{sidebarItems[16].isOpen && <SuggestNewDevicesTable />}
 				{sidebarItems[17].isOpen && <DeviceTransfer />}
 				{sidebarItems[18].isOpen && <TrainSchedule />}
+				{sidebarItems[19].isOpen && <ExportManagementTable />}
 			</div>
 			<Snackbar
 				anchorOrigin={{

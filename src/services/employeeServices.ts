@@ -9,15 +9,20 @@ const API_ENDPOINT = isProd
 	: config.development.api_endpoint;
 
 export const getEmployees = async () => {
-	const url = `${API_ENDPOINT}/api/employees`;
-	const employees: IEmployeeType[] = await API.get<IEmployeeType[]>(url);
+	try {
+		const url = `${API_ENDPOINT}/api/employees`;
+		const employees: IEmployeeType[] = await API.get<IEmployeeType[]>(url);
 
-	return employees.map(item => {
-		return Object.assign({}, {
-			...item,
-			Birthdate: item.Birthdate
-		})
-	});
+		return employees.map(item => {
+			return Object.assign({}, {
+				...item,
+				Birthdate: item.Birthdate
+			})
+		});
+	}
+	catch {
+		return []
+	}
 };
 
 export const getEmployeeById = async (id: String) => {

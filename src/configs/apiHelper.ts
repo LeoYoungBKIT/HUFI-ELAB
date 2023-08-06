@@ -243,7 +243,7 @@ export const deleteResource = async (path: string): Promise<any> => {
 
 export const post = async <TRequest, TResponse>(
 	path: string,
-	payload: TRequest,
+	payload?: TRequest,
 	config?: RequestConfig,
 ): Promise<TResponse> => {
 	try {
