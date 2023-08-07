@@ -1,16 +1,19 @@
 import config from '../configs/app';
 import * as API from '../configs/apiHelper';
-import { IExportManagementFormType } from '../types/exportManagementType';
+import { 
+    IExportToLiquidateManagementFormType, 
+    IExportToOtherDepartmentManagementFormType 
+} from '../types/exportManagementType';
 
 const { isProd } = config;
 const API_ENDPOINT = isProd
     ? config.production.api_endpoint
     : config.development.api_endpoint;
 
-export const getExportManagementForms = async () => {
+export const getExportToOtherDepartmentManagementForms = async () => {
     const url = `${API_ENDPOINT}/api/ExportOuts`;
     try {
-        const exportManagement: IExportManagementFormType[] = await API.get<IExportManagementFormType[]>(url);
+        const exportManagement: IExportToOtherDepartmentManagementFormType[] = await API.get<IExportToOtherDepartmentManagementFormType[]>(url);
         return exportManagement;
     }
     catch {
@@ -18,31 +21,42 @@ export const getExportManagementForms = async () => {
     }
 };
 
-export const postExportManagementForm = async (exportManagementFormData: IExportManagementFormType) => {
+export const postExportToOtherDepartmentManagementForm = async (exportManagementFormData: IExportToOtherDepartmentManagementFormType) => {
     const url = `${API_ENDPOINT}/api/ExportOuts`;
-	const newForm: IExportManagementFormType = await API.post<IExportManagementFormType, IExportManagementFormType>(url, exportManagementFormData);
+	const newForm: IExportToOtherDepartmentManagementFormType = await API.post<IExportToOtherDepartmentManagementFormType, IExportToOtherDepartmentManagementFormType>(url, exportManagementFormData);
 	return newForm;
 };
 
-export const approveExportManagementForm = async (id: string) => {
+export const approveExportToOtherDepartmentManagementForm = async (id: string) => {
     const url = `${API_ENDPOINT}/api/ExportOuts/Accept/${id}`; 
-    const approvedExportManagementForm = await API.post<any, any>(url);
-    return approvedExportManagementForm;
+    const approvedExportToOtherDepartmentManagementFormType = await API.post<any, any>(url);
+    return approvedExportToOtherDepartmentManagementFormType;
 }
 
-export const forwardApproveExportManagementForm = async (exportManagementFormData: IExportManagementFormType, id1: string, id2: string) => {
+export const forwardApproveExportToOtherDepartmentManagementForm = async (exportManagementFormData: IExportToOtherDepartmentManagementFormType, id1: string, id2: string) => {
     const url = `${API_ENDPOINT}/api/ExportOuts/Propose/${id1}/${id2}`; 
-    const approvedExportManagementForm = await API.post<IExportManagementFormType, any>(url, exportManagementFormData);
-    return approvedExportManagementForm;
+    const approvedExportToOtherDepartmentManagementFormType = await API.post<IExportToOtherDepartmentManagementFormType, any>(url, exportManagementFormData);
+    return approvedExportToOtherDepartmentManagementFormType;
 }
 
-export const deleteExportManagementForm = async (id: string) => {
+export const deleteExportToOtherDepartmentManagementForm = async (id: string) => {
     const url = `${API_ENDPOINT}/api/ExportOuts/${id}`; 
     await API.deleteResource(url);
 }
 
-export const rejectExportManagementForm = async (exportManagementFormData: IExportManagementFormType, id1: string, id2: string) => {
+export const rejectExportToOtherDepartmentManagementForm = async (exportManagementFormData: IExportToOtherDepartmentManagementFormType, id1: string, id2: string) => {
     const url = `${API_ENDPOINT}/api/ExportOuts/Reject/${id1}/${id2}`; 
-    const rejectedExportManagementForm = await API.post<IExportManagementFormType, any>(url, exportManagementFormData);
-    return rejectedExportManagementForm;
+    const rejectedExportToOtherDepartmentManagementFormType = await API.post<IExportToOtherDepartmentManagementFormType, any>(url, exportManagementFormData);
+    return rejectedExportToOtherDepartmentManagementFormType;
+}
+
+export const getListOfLiquidateDeviceForms = async () => {
+	try {
+		const url = `${API_ENDPOINT}/api/LiquidateDevices`;
+		const forms: IExportToLiquidateManagementFormType[] = await API.get<IExportToLiquidateManagementFormType[]>(url);
+		return forms;
+	}
+	catch {
+		return [];
+	}
 }

@@ -26,14 +26,15 @@ import DataGrid, {
 } from 'devextreme-react/data-grid'
 import ArrayStore from 'devextreme/data/array_store'
 import DataSource from 'devextreme/data/data_source'
-import { useAppDispatch, useAppSelector } from '../../../hooks'
-import { setSnackbar } from '../../../pages/appSlice'
-import { IExportManagementFormType, dummyExportManagementForm } from '../../../types/exportManagementType'
+import { useAppDispatch, useAppSelector } from '../../../../hooks'
+import { setSnackbar } from '../../../../pages/appSlice'
+import { IExportToOtherDepartmentManagementFormType, dummyExportToOtherDepartmentManagementForm } from '../../../../types/exportManagementType'
 import { DialogProps } from './DialogType'
-import { renderHeader } from '../DetailExportManagementForm'
-import { colorsNotifi } from '../../../configs/color'
-import { getExportManagementForms, postExportManagementForm } from '../../../services/exportManagementServices'
-import { setListOfExportManagementForms } from '../exportManagementSlice'
+import { renderHeader } from '../DetailExportToOtherDepartmentManagementForm'
+import { colorsNotifi } from '../../../../configs/color'
+import { getExportToOtherDepartmentManagementForms, postExportToOtherDepartmentManagementForm } from '../../../../services/exportManagementServices'
+import { setListOfExportToOtherDepartmentManagementForms } from '../exportManagementSlice'
+
 
 
 const commonFieldsShow = [
@@ -54,7 +55,7 @@ const DialogCreate = ({ isOpen, onClose }: DialogProps) => {
 	const departmentList = useAppSelector(selector => selector.department.listOfDepartments)
 	const owner = useAppSelector(state => state.userManager.owner)
 
-	const [currentCreatedForm, setCurrentCreatedForm] = useState<any>(dummyExportManagementForm)
+	const [currentCreatedForm, setCurrentCreatedForm] = useState<any>(dummyExportToOtherDepartmentManagementForm)
 
 	const handleSave = async () => {
 		if (!currentCreatedForm?.Title) {
@@ -135,7 +136,7 @@ const DialogCreate = ({ isOpen, onClose }: DialogProps) => {
 			}
 
 			try {
-				await postExportManagementForm(normalizatedForm);
+				await postExportToOtherDepartmentManagementForm(normalizatedForm);
 				dispatch(
 					setSnackbar({
 						message: 'Tạo phiếu xuất thành công!!!',
@@ -144,9 +145,9 @@ const DialogCreate = ({ isOpen, onClose }: DialogProps) => {
 					})
 				)
 
-				const listOfExportManagementForms: IExportManagementFormType[] = await getExportManagementForms();
-				if (listOfExportManagementForms) {
-					dispatch(setListOfExportManagementForms(listOfExportManagementForms));
+				const listOfExportToOtherDepartmentManagementFormTypes: IExportToOtherDepartmentManagementFormType[] = await getExportToOtherDepartmentManagementForms();
+				if (listOfExportToOtherDepartmentManagementFormTypes) {
+					dispatch(setListOfExportToOtherDepartmentManagementForms(listOfExportToOtherDepartmentManagementFormTypes));
 				}
 				handleClose()
 			}
@@ -163,7 +164,7 @@ const DialogCreate = ({ isOpen, onClose }: DialogProps) => {
 	}
 
 	const handleClose = () => {
-		setCurrentCreatedForm(dummyExportManagementForm)
+		setCurrentCreatedForm(dummyExportToOtherDepartmentManagementForm)
 		onClose()
 	}
 
@@ -213,7 +214,7 @@ const DialogCreate = ({ isOpen, onClose }: DialogProps) => {
 					component="form"
 				>
 					<TextField
-						id="TitleExportManagementForm"
+						id="TitleExportToOtherDepartmentManagementFormType"
 						key="Title"
 						name="Title"
 						label="Tiêu đề"
@@ -224,7 +225,7 @@ const DialogCreate = ({ isOpen, onClose }: DialogProps) => {
 						onChange={handleEditTitle}
 					/>
 					<TextField
-						id="ContnetExportManagementForm"
+						id="ContnetExportToOtherDepartmentManagementFormType"
 						key="Content"
 						name="Content"
 						label="Nội dung"

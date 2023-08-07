@@ -1,6 +1,6 @@
 import { GridSize } from '@mui/material';
-import { DeviceType } from '../../../configs/enums';
-import { IDeviceDepartmentType } from '../../../types/deviceDepartmentType';
+import { DeviceType } from '../../../../configs/enums';
+import { IDeviceDepartmentType } from '../../../../types/deviceDepartmentType';
 
 export type ColumnsType = {
 	id: string;

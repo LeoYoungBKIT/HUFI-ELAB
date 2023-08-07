@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react"
-import { IExportManagementFormType } from "../../types/exportManagementType"
-import { useAppDispatch, useAppSelector } from "../../hooks"
+import { IExportToOtherDepartmentManagementFormType } from "../../../types/exportManagementType"
+import { useAppDispatch, useAppSelector } from "../../../hooks"
 import {
     Dialog,
     DialogContent,
@@ -10,8 +10,6 @@ import {
     TextField,
     Tooltip,
     Button,
-    Paper,
-    Typography,
     Stepper,
     Step,
     StepLabel
@@ -22,7 +20,6 @@ import DataGrid, {
     Column,
     ColumnChooser,
     ColumnFixing,
-    Button as DevButtonGrid,
     FilterPanel,
     FilterRow,
     Grouping,
@@ -37,24 +34,23 @@ import ArrayStore from 'devextreme/data/array_store'
 import DataSource from 'devextreme/data/data_source'
 import { uniqueId } from 'lodash'
 import moment from 'moment'
-import { makeStyles } from '@mui/styles'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import WarningIcon from '@mui/icons-material/Warning'
 import AutorenewIcon from '@mui/icons-material/Autorenew'
 import { StepIconProps } from '@mui/material/StepIcon'
 import {
-    approveExportManagementForm,
-    deleteExportManagementForm,
-    forwardApproveExportManagementForm,
-    getExportManagementForms,
-    rejectExportManagementForm
-} from "../../services/exportManagementServices"
-import { colorsNotifi } from "../../configs/color"
-import { setSnackbar } from "../../pages/appSlice"
-import { setListOfExportManagementForms } from "./exportManagementSlice"
+    approveExportToOtherDepartmentManagementForm,
+    deleteExportToOtherDepartmentManagementForm,
+    forwardApproveExportToOtherDepartmentManagementForm,
+    getExportToOtherDepartmentManagementForms,
+    rejectExportToOtherDepartmentManagementForm
+} from "../../../services/exportManagementServices"
+import { colorsNotifi } from "../../../configs/color"
+import { setSnackbar } from "../../../pages/appSlice"
+import { setListOfExportToOtherDepartmentManagementForms } from "./exportManagementSlice"
 
-type RowExportManagementFormProps = {
-    exportManagementForm: IExportManagementFormType
+type RowExportToOtherDepartmentManagementFormTypeProps = {
+    exportManagementForm: IExportToOtherDepartmentManagementFormType
     isOpen: boolean
     handleClose: () => void
 }
@@ -79,12 +75,12 @@ const commonFieldsShow = [
     { id: 'Status', header: 'Trạng thái' },
 ]
 
-const RowExportManagementForm = ({ exportManagementForm, isOpen, handleClose }: RowExportManagementFormProps) => {
+const RowExportToOtherDepartmentManagementFormType = ({ exportManagementForm, isOpen, handleClose }: RowExportToOtherDepartmentManagementFormTypeProps) => {
     const dispatch = useAppDispatch()
     const dataGridRef = useRef<DataGrid<any, any> | null>(null)
     const owner = useAppSelector(selector => selector.userManager.owner)
 
-    const [progressStep, setProgressStep] = useState<number>(exportManagementForm.listAccept.length + 1)
+    const [progressStep, ] = useState<number>(exportManagementForm.listAccept.length + 1)
     const [contentAccept, setContentAccept] = useState<string>('')
     const [reason, setReason] = useState<string>('')
 
@@ -107,7 +103,7 @@ const RowExportManagementForm = ({ exportManagementForm, isOpen, handleClose }: 
                     EmployeeCreateName: exportManagementForm.EmployeeCreateName,
                     EmployeeCreateId: exportManagementForm.EmployeeCreateId,
                     Status: exportManagementForm?.listAccept?.length > 0 ? exportManagementForm.listAccept[exportManagementForm.listAccept.length - 1].AcceptValue : 'Mới tạo',
-                    Id: uniqueId('ExportManagementFormDetail_')
+                    Id: uniqueId('ExportToOtherDepartmentManagementFormTypeDetail_')
                 })),
                 key: 'Id',
             }),
@@ -126,7 +122,7 @@ const RowExportManagementForm = ({ exportManagementForm, isOpen, handleClose }: 
 
     const handleApprove = async (id: string) => {
         try {
-            await approveExportManagementForm(id);
+            await approveExportToOtherDepartmentManagementForm(id);
             dispatch(
                 setSnackbar({
                     message: 'Duyệt phiếu xuất thành công!!!',
@@ -135,9 +131,9 @@ const RowExportManagementForm = ({ exportManagementForm, isOpen, handleClose }: 
                 })
             )
 
-            const listOfExportManagementForms: IExportManagementFormType[] = await getExportManagementForms();
-            if (listOfExportManagementForms) {
-                dispatch(setListOfExportManagementForms(listOfExportManagementForms));
+            const listOfExportToOtherDepartmentManagementFormTypes: IExportToOtherDepartmentManagementFormType[] = await getExportToOtherDepartmentManagementForms();
+            if (listOfExportToOtherDepartmentManagementFormTypes) {
+                dispatch(setListOfExportToOtherDepartmentManagementForms(listOfExportToOtherDepartmentManagementFormTypes));
             }
             handleClose()
         }
@@ -164,7 +160,7 @@ const RowExportManagementForm = ({ exportManagementForm, isOpen, handleClose }: 
             return;
         } else {
             try {
-                await forwardApproveExportManagementForm(exportManagementForm, id, contentAccept);
+                await forwardApproveExportToOtherDepartmentManagementForm(exportManagementForm, id, contentAccept);
                 dispatch(
                     setSnackbar({
                         message: 'Trình duyệt phiếu xuất thành công!!!',
@@ -173,9 +169,9 @@ const RowExportManagementForm = ({ exportManagementForm, isOpen, handleClose }: 
                     })
                 )
 
-                const listOfExportManagementForms: IExportManagementFormType[] = await getExportManagementForms();
-                if (listOfExportManagementForms) {
-                    dispatch(setListOfExportManagementForms(listOfExportManagementForms));
+                const listOfExportToOtherDepartmentManagementFormTypes: IExportToOtherDepartmentManagementFormType[] = await getExportToOtherDepartmentManagementForms();
+                if (listOfExportToOtherDepartmentManagementFormTypes) {
+                    dispatch(setListOfExportToOtherDepartmentManagementForms(listOfExportToOtherDepartmentManagementFormTypes));
                 }
                 handleClose()
             }
@@ -191,9 +187,9 @@ const RowExportManagementForm = ({ exportManagementForm, isOpen, handleClose }: 
         }
     }
 
-    const handleDeleteExportManagementForm = async (id: string) => {
+    const handleDeleteExportToOtherDepartmentManagementForm = async (id: string) => {
         try {
-            await deleteExportManagementForm(id);
+            await deleteExportToOtherDepartmentManagementForm(id);
             dispatch(
                 setSnackbar({
                     message: 'Xóa phiếu xuất thành công!!!',
@@ -202,9 +198,9 @@ const RowExportManagementForm = ({ exportManagementForm, isOpen, handleClose }: 
                 })
             )
 
-            const listOfExportManagementForms: IExportManagementFormType[] = await getExportManagementForms();
-            if (listOfExportManagementForms) {
-                dispatch(setListOfExportManagementForms(listOfExportManagementForms));
+            const listOfExportToOtherDepartmentManagementFormTypes: IExportToOtherDepartmentManagementFormType[] = await getExportToOtherDepartmentManagementForms();
+            if (listOfExportToOtherDepartmentManagementFormTypes) {
+                dispatch(setListOfExportToOtherDepartmentManagementForms(listOfExportToOtherDepartmentManagementFormTypes));
             }
             handleClose()
         }
@@ -231,7 +227,7 @@ const RowExportManagementForm = ({ exportManagementForm, isOpen, handleClose }: 
             return;
         } else {
             try {
-                await rejectExportManagementForm(exportManagementForm, id, reason);
+                await rejectExportToOtherDepartmentManagementForm(exportManagementForm, id, reason);
                 dispatch(
                     setSnackbar({
                         message: 'Không duyệt phiếu xuất thành công!!!',
@@ -240,9 +236,9 @@ const RowExportManagementForm = ({ exportManagementForm, isOpen, handleClose }: 
                     })
                 )
 
-                const listOfExportManagementForms: IExportManagementFormType[] = await getExportManagementForms();
-                if (listOfExportManagementForms) {
-                    dispatch(setListOfExportManagementForms(listOfExportManagementForms));
+                const listOfExportToOtherDepartmentManagementFormTypes: IExportToOtherDepartmentManagementFormType[] = await getExportToOtherDepartmentManagementForms();
+                if (listOfExportToOtherDepartmentManagementFormTypes) {
+                    dispatch(setListOfExportToOtherDepartmentManagementForms(listOfExportToOtherDepartmentManagementFormTypes));
                 }
                 handleClose()
             }
@@ -300,10 +296,10 @@ const RowExportManagementForm = ({ exportManagementForm, isOpen, handleClose }: 
                                         {exportManagementForm.listAccept.map((label, idx) => (
                                             <Step key={label.AcceptValue} color="success">
                                                 <StepLabel StepIconComponent={(props: StepIconProps) => {
-                                                    if (label.AcceptValue == "Không duyệt") {
+                                                    if (label.AcceptValue === "Không duyệt") {
                                                         return <WarningIcon sx={{ color: "red" }} />;
                                                     }
-                                                    else if (label.AcceptValue == "Hoàn thành") {
+                                                    else if (label.AcceptValue === "Hoàn thành") {
                                                         return <CheckCircleIcon color="success" />;
                                                     }
                                                     else if (idx < exportManagementForm.listAccept.length - 1) {
@@ -398,7 +394,7 @@ const RowExportManagementForm = ({ exportManagementForm, isOpen, handleClose }: 
                             {commonFieldsShow.map(col => {
                                 if (col.id !== "DeviceInfoId" ||
                                     ['Admin', 'Trưởng phòng QTTB', 'Chuyên viên phòng QTTB'].includes(owner.GroupName) ||
-                                    ['Chuyên viên TT TNTH', 'Chuyên viên đơn vị sử dụng'].includes(owner.GroupName) && owner.DepartmentName === exportManagementForm.DepartmentManageName
+                                    (['Chuyên viên TT TNTH', 'Chuyên viên đơn vị sử dụng'].includes(owner.GroupName) && owner.DepartmentName === exportManagementForm.DepartmentManageName)
                                 ) {
                                     return <Column
                                         key={col.id}
@@ -414,6 +410,8 @@ const RowExportManagementForm = ({ exportManagementForm, isOpen, handleClose }: 
                                             </span>
                                         )}
                                     />
+                                } else {
+                                    return <></>
                                 }
                             })}
 
@@ -436,7 +434,7 @@ const RowExportManagementForm = ({ exportManagementForm, isOpen, handleClose }: 
                                     <Tooltip arrow placement="left" title="Xóa phiếu đề nghị">
                                         <Button
                                             variant="contained"
-                                            onClick={() => handleDeleteExportManagementForm(exportManagementForm.ExportOutId)}
+                                            onClick={() => handleDeleteExportToOtherDepartmentManagementForm(exportManagementForm.ExportOutId)}
                                         >
                                             Xóa
                                         </Button>
@@ -473,7 +471,7 @@ const RowExportManagementForm = ({ exportManagementForm, isOpen, handleClose }: 
                                         'Trưởng đơn vị sử dụng',
                                         'Trưởng phòng TT TNTH',
                                     ].includes(owner.GroupName) &&
-                                        owner.DepartmentName == exportManagementForm.DepartmentCreateName &&
+                                        owner.DepartmentName === exportManagementForm.DepartmentCreateName &&
                                         <Box display="flex" alignItems="end">
                                             <Tooltip arrow placement="left" title="Duyệt phiếu đề nghị">
                                                 <Button
@@ -536,4 +534,4 @@ const RowExportManagementForm = ({ exportManagementForm, isOpen, handleClose }: 
     )
 }
 
-export default RowExportManagementForm
+export default RowExportToOtherDepartmentManagementFormType

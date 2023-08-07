@@ -14,7 +14,7 @@ export interface IlistDeviceInfoType {
     OutDetailId: string | number
 }
 
-export interface IExportManagementFormType {
+export interface IExportToOtherDepartmentManagementFormType {
     Content: string
     DateCreate: string
     DepartmentCreateId: string
@@ -32,7 +32,7 @@ export interface IExportManagementFormType {
     listDeviceInfo: IlistDeviceInfoType[]
 }
 
-export const dummyExportManagementForm: IExportManagementFormType = {
+export const dummyExportToOtherDepartmentManagementForm: IExportToOtherDepartmentManagementFormType = {
     Content: "",
     DateCreate: "",
     DepartmentCreateId: "",
@@ -48,4 +48,55 @@ export const dummyExportManagementForm: IExportManagementFormType = {
     Title: "",
     listAccept: [],
     listDeviceInfo: [],
+}
+
+export interface IlistLiquidateDeviceType {
+    DepreciationRate: string
+    DeviceEnglishName: string
+    DeviceId: string
+    DeviceInfoId: string
+    DeviceName: string
+    LinkFileMaintenace: string
+    LinkFileRepair: string
+    Manufacturer: string
+    Model: string
+    Origin: string
+    ResidualValue: string
+    SerialNumber: string
+    Specification: string
+    SupplierId: string
+    SupplierName: string
+    YearStartUsage: number
+}
+
+export interface IExportToLiquidateManagementFormType {
+    Content: string
+    DateCreate: string
+    DepartmentCreateId: string
+    DepartmentCreateName: string
+    DisplayMode: string
+    EmployeeCreateId: string
+    EmployeeCreateName: string
+    LiquidateId: string
+    Lock: string
+    Status: string
+    Title: string
+    listAccept: IListAcceptType[]
+    listDevice: IlistLiquidateDeviceType[]
+}
+
+export const dummyExportToLiquidateManagementForm: IExportToLiquidateManagementFormType = {
+    Content: "",
+    DateCreate: "",
+    DepartmentCreateId: "",
+    DepartmentCreateName: "",
+    DisplayMode: "",
+    EmployeeCreateId: "",
+    EmployeeCreateName: "",
+    LiquidateId: "",
+    Lock: "",
+    Status: "",
+    Title: "",
+    listAccept: [],
+    listDevice: [],
 }
