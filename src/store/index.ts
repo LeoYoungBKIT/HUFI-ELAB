@@ -27,6 +27,7 @@ import suggestNewDeviceReducer, {
 	reset as suggestNewDeviceReset,
 } from '../layouts/SuggestNewDevicesTable/suggestNewDeviceSlice';
 import userManagerReducer from '../layouts/UserManager/userManagerSlice';
+import exportManagementReducer, { reset as exportManagementReset } from '../layouts/ExportManagementTable/ExportToOtherDepartment/exportManagementSlice';
 
 const resetStateMiddleware: Middleware =
 	({ dispatch }) =>
@@ -53,6 +54,7 @@ const resetStateMiddleware: Middleware =
 			dispatch(researchTeamReset());
 			dispatch(trainScheduleReset());
 			dispatch(suggestNewDeviceReset());
+			dispatch(exportManagementReset());
 		}
 		return next(action);
 	};
@@ -81,6 +83,7 @@ export const store = configureStore({
 		managerTrainSchedule: trainScheduleReducer,
 		suggestNewDevice: suggestNewDeviceReducer,
 		userManager: userManagerReducer,
+		exportManagement: exportManagementReducer,
 	},
 	middleware: [resetStateMiddleware],
 });

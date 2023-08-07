@@ -259,7 +259,7 @@ export const deleteData = async <TRequest, TResponse>(path: string, payload: TRe
 
 export const post = async <TRequest, TResponse>(
 	path: string,
-	payload: TRequest,
+	payload?: TRequest,
 	config?: RequestConfig,
 ): Promise<TResponse> => {
 	try {

@@ -60,6 +60,7 @@ import { getSchedules } from '../services/scheduleServices';
 import { getSubjects } from '../services/subjectServices';
 import { getSuppliers } from '../services/supplierServices';
 import { getTrainDevices, getTrainer, getTrainInstructors } from '../services/trainServices';
+
 import { RootState } from '../store';
 import { IChemicalType } from '../types/chemicalType';
 import { IChemicalWarehouseType } from '../types/chemicalWarehouseType';
@@ -92,19 +93,13 @@ import { useNavigate } from 'react-router-dom';
 import { getFromLocalStorage } from '../configs/apiHelper';
 import DeviceTable from '../layouts/DeviceTable';
 import ResearchersTable from '../layouts/ResearchTeamTable/ResearcherTable';
+import { getExportToOtherDepartmentManagementForms } from '../services/exportManagementServices';
+import { setListOfExportToLiquidateManagementForms, setListOfExportToOtherDepartmentManagementForms } from '../layouts/ExportManagementTable/ExportToOtherDepartment/exportManagementSlice';
+import { IExportToLiquidateManagementFormType, IExportToOtherDepartmentManagementFormType } from '../types/exportManagementType';
+import ExportManagementTable from '../layouts/ExportManagementTable';
+import { getListOfLiquidateDeviceForms } from '../services/exportManagementServices';
 
 export function Dashboard() {
-	const laboratoriesData = useAppSelector((state: RootState) => state.laboratory.listOfLaboratories);
-	const deviceSpecData = useAppSelector((state: RootState) => state.device.listOfDeviceSpecs);
-	const employeeData = useAppSelector((state: RootState) => state.employee.listOfEmployees);
-	const departmentData = useAppSelector((state: RootState) => state.department.listOfDepartments);
-	const manufacturersData = useAppSelector((state: RootState) => state.manufacturer.listOfManufacturers);
-	const chemicalData = useAppSelector((state: RootState) => state.chemical.listOfChemicals);
-	const supplierData = useAppSelector((state: RootState) => state.supplier.listOfSuppliers);
-	const deviceData = useAppSelector((state: RootState) => state.device.listOfDevices);
-	const subjectData = useAppSelector((state: RootState) => state.subject.listOfSubjects);
-	const classSubjectData = useAppSelector((state: RootState) => state.classSubject.listOfClassSubjects);
-	const lessonLabData = useAppSelector((state: RootState) => state.lessonLab.listOfLessonLabs);
 	const snackbarState = useAppSelector((state: RootState) => state.app.snackbarState);
 	const sidebarItems = useAppSelector((state: RootState) => state.app.sidebarItems);
 
@@ -278,6 +273,20 @@ export function Dashboard() {
 		}
 	};
 
+	const getExportToOtherDepartmentManagementFormsData = async () => {
+		const listOfExportToOtherDepartmentManagementFormTypes: IExportToOtherDepartmentManagementFormType[] = await getExportToOtherDepartmentManagementForms();
+		if(listOfExportToOtherDepartmentManagementFormTypes){
+			dispatch(setListOfExportToOtherDepartmentManagementForms(listOfExportToOtherDepartmentManagementFormTypes));
+		}
+	}
+
+	const getLiquidateDeviceFormsData = async () => {
+		const listOfLiquidateDeviceForms: IExportToLiquidateManagementFormType[] = await getListOfLiquidateDeviceForms();
+		if(listOfLiquidateDeviceForms){
+			dispatch(setListOfExportToLiquidateManagementForms(listOfLiquidateDeviceForms))
+		}
+	}
+
 	useEffect(() => {
 		getLaboratoryData();
 		getEmployeeData();
@@ -302,6 +311,8 @@ export function Dashboard() {
 		getTrainInstructorData();
 		getTrainerData();
 		getSuggestNewDevicesData();
+		getExportToOtherDepartmentManagementFormsData();
+		getLiquidateDeviceFormsData();
 	}, []);
 
 	const snackbarFunc = () =>
@@ -342,6 +353,7 @@ export function Dashboard() {
 				{sidebarItems[16].isOpen && <SuggestNewDevicesTable />}
 				{sidebarItems[17].isOpen && <DeviceTransfer />}
 				{sidebarItems[18].isOpen && <TrainSchedule />}
+				{sidebarItems[19].isOpen && <ExportManagementTable />}
 			</div>
 			<Snackbar
 				anchorOrigin={{

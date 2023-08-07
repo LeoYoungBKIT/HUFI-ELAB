@@ -1,51 +1,51 @@
 export interface IExportDeviceType {
-	DeviceName: String
-	DeviceInfoId: String
-	ExportLabId?: String
+	DeviceName: string
+	DeviceInfoId: string
+	ExportLabId?: string
 	QuantityOriginal: Number
-	ExpRegGeneralId?: String
-	Unit: String
-	DeviceDetailId?: String
-	SerialNumber?: String
-	ManufacturingDate?: String
-	DateMaintenace?: String
-	StartGuarantee?: String
-	EndGuarantee?: String
+	ExpRegGeneralId?: string
+	Unit: string
+	DeviceDetailId?: string
+	SerialNumber?: string
+	ManufacturingDate?: string
+	DateMaintenace?: string
+	StartGuarantee?: string
+	EndGuarantee?: string
 	YearStartUsage?: Number
 	HoursUsage?: Number
 	Quantity?: Number
-	LabId?: String
-	LabName?: String
-	Location?: String
-	ExportDate?: String
-	DateTranferTo?: String
-	DateStartUsage?: String
+	LabId?: string
+	LabName?: string
+	Location?: string
+	ExportDate?: string
+	DateTranferTo?: string
+	DateStartUsage?: string
 	HoursUsageTotal?: Number
 	PeriodicMaintenance?: Number
-	EmployeeName?: String
-	ExportId?: String
-	WarningMaintenace?: String
-	Status?: String
-	InstrumentDeptId?: String
-	DeviceId: String
-	DeviceEnglishName: String
-	Specification: String
-	Manufacturer: String
-	Origin: String
-	SupplierName: String
+	EmployeeName?: string
+	ExportId?: string
+	WarningMaintenace?: string
+	Status?: string
+	InstrumentDeptId?: string
+	DeviceId: string
+	DeviceEnglishName: string
+	Specification: string
+	Manufacturer: string
+	Origin: string
+	SupplierName: string
 	QuantityImport: Number
 	QuantityDistribute: Number
 	QuantityExport: Number
 	QuantityAvailable: Number
-	DepartmentImportName: String
-	DateImport: String
-	DateMaintenance: String
-	DepartmentImportId: String
-	DepartmentMaintenanceId: String
-	DepartmentMaintenanceName: String
-	Model: String
+	DepartmentImportName: string
+	DateImport: string
+	DateMaintenance: string
+	DepartmentImportId: string
+	DepartmentMaintenanceId: string
+	DepartmentMaintenanceName: string
+	Model: string
 	SupplierId: Number
-	WarningMaintenance: String
+	WarningMaintenance: string
 }
 
 export const dummyExportDevice: IExportDeviceType = {
@@ -97,10 +97,10 @@ export const dummyExportDevice: IExportDeviceType = {
 };
 
 export interface IExportInstrument {
-	ExportId: String;
-	DeviceName: String;
-	InstrumentDeptId: String;
+	ExportId: string;
+	DeviceName: string;
+	InstrumentDeptId: string;
 	QuantityOriginal: Number;
-	Unit: String;
-	DeviceDetailId: String;
+	Unit: string;
+	DeviceDetailId: string;
 }
