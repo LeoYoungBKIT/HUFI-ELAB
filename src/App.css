@@ -47,6 +47,11 @@
 	background-color: #eee;
 }
 
-.dx-datagrid .dx-datagrid-header-panel {
-	background: #fafafa !important;
+.p-0 {
+	padding: 0 !important;
+}
+
+.dx-datagrid-headers .dx-datagrid-table .dx-row > td {
+	font-weight: 700;
+	color: #333;
 }

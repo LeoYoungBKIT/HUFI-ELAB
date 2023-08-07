@@ -13,6 +13,7 @@ export interface IDeviceSerial {
 	EmployeeName: String;
 	InstrumentDeptId?: String;
 	QuantityTotal?: Number;
+	isTransfered?: boolean;
 }
 
 export interface IDeviceTransferHistoryItem {

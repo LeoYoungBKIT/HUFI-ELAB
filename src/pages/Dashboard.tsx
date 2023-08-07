@@ -81,7 +81,7 @@ import { ITrainDevice, ITrainer, ITrainInstructor } from '../types/trainType';
 import { setSnackbarMessage } from './appSlice';
 import './Dashboard.css';
 
-import { loadMessages } from 'devextreme/localization';
+import { loadMessages, locale } from 'devextreme/localization';
 import viMessages from '../configs/devextreme_vi.json';
 import SuggestNewDevicesTable from '../layouts/SuggestNewDevicesTable';
 import { setListOfSuggestNewDevices } from '../layouts/SuggestNewDevicesTable/suggestNewDeviceSlice';
@@ -114,6 +114,7 @@ export function Dashboard() {
 
 	useEffect(() => {
 		loadMessages(viMessages);
+        locale('vi-VN')
 	}, []);
 
 	const getLaboratoryData = async () => {
@@ -306,7 +307,7 @@ export function Dashboard() {
 	const snackbarFunc = () =>
 		setTimeout(() => {
 			dispatch(setSnackbarMessage(''));
-		}, 1000);
+		}, 5000);
 
 	useEffect(() => {
 		if (snackbarState.isOpen) {
@@ -360,5 +361,5 @@ export function Dashboard() {
 				/>
 			</Snackbar>
 		</>
-	);
+	)
 }

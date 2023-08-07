@@ -2,16 +2,10 @@ import { FC } from 'react'
 import { useAppSelector } from '../../hooks'
 import { DeviceTable as DeviceTableWrap } from './context/DeviceOfDepartmentTableContext'
 import DeviceOfDepartmentTable from './DeviceOfDepartmentTable'
-const ALLOWED = [
-	'Admin',
-	'Ban giám hiệu',
-	'Trưởng phòng QTTB',
-	'Chuyên viên phòng QTTB',
-	'Trưởng phòng TT TNTH',
-	'Chuyên viên TT TNTH',
-	'Trưởng đơn vị sử dụng',
-	'Chuyên viên đơn vị sử dụng',
-]
+import ALLOWED from '../../configs/allowed'
+import MaintenanceDeviceTable from '../MaintenanceDeviceTable'
+import RepairDevice from '../RepairDevice'
+
 const DeviceTable: FC = () => {
 	const owner = useAppSelector(state => state.userManager.owner)
 
@@ -24,11 +18,23 @@ const DeviceTable: FC = () => {
 				overflow: 'hidden',
 			}}
 		>
-			{ALLOWED.includes(owner.GroupName) && (
+			{/* <MaintenanceDeviceTable /> */}
+
+			<RepairDevice/>
+			{/* {[
+				ALLOWED.ADMIN,
+				ALLOWED.BOARD_DIRECTORS,
+				ALLOWED.MANAGER_DEVICE_ROOM,
+				ALLOWED.SPECIALIST_DEVICE_ROOM,
+				ALLOWED.MANAGER_EXPERIMENTAL,
+				ALLOWED.SPECIALIST_EXPERIMENTAL,
+				ALLOWED.MANAGER_USE_UNIT,
+				ALLOWED.SPECIALIST_USE_UNIT,
+			].includes(owner.GroupName) && (
 				<DeviceTableWrap id={owner.DepartmentId}>
 					<DeviceOfDepartmentTable />
 				</DeviceTableWrap>
-			)}
+			)} */}
 		</div>
 	)
 }

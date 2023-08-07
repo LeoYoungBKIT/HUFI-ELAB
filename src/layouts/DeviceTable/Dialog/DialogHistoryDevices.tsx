@@ -185,21 +185,16 @@ const DialogHistoryDevices = ({
 						headerCol = historyDeviceHourUsageColumns.current
 						if (isDeviceHistory(historyDevice)) {
 							list =
-								historyDevice?.listHourUsage
-									.sort(
-										(a: IDeviceRecordUsageHours, b: IDeviceRecordUsageHours) =>
-											Number(b.DateInput) - Number(a.DateInput),
-									)
-									.filter(item => {
-										if (keyword?.trim() === '') return true
+								historyDevice?.listHourUsage.sort().filter(item => {
+									if (keyword?.trim() === '') return true
 
-										let searchString: String = ''
+									let searchString: String = ''
 
-										searchString = nestedObject(item, searchString)
-										searchString = removeAccents(searchString.toUpperCase())
+									searchString = nestedObject(item, searchString)
+									searchString = removeAccents(searchString.toUpperCase())
 
-										return searchString.includes(`${keyword}`)
-									}) || []
+									return searchString.includes(`${keyword}`)
+								}) || []
 						}
 						break
 					}
