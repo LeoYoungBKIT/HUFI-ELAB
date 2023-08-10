@@ -33,8 +33,9 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import FormCmp from "./Form";
 import SuccessToast from "../../components/Success";
-import { Edit as EditIcon, Delete as DeleteIcon } from "@mui/icons-material";
+import { Edit as EditIcon } from "@mui/icons-material";
 import { DeviceEditing, nextStatus } from "./utils";
+import InternalDeviceLayout from "./interalDevice/InternalDeviceLayout";
 
 const renderRow = (key: keyof IDeviceServiceInfo) => {
   return (row: IDeviceServiceInfo) => row[key] ?? "trống";
@@ -115,17 +116,17 @@ const PurchaseOrderDevices = () => {
         <Tab value={"1"} label={"Nhập kho – phân phối cấp đơn vị"} />;
         <Tab value={"2"} label={"Nhập kho – phân phối nội bộ"} />;
       </Tabs>
-      {error && <ErrorComponent errorMessage={error} />}
-
-      {successMessage && (
-        <SuccessToast
-          isOpen={successMessage ? true : false}
-          message={successMessage}
-        />
-      )}
 
       {valueTab === "1" && (
         <>
+          {error && <ErrorComponent errorMessage={error} />}
+
+          {successMessage && (
+            <SuccessToast
+              isOpen={successMessage ? true : false}
+              message={successMessage}
+            />
+          )}
           <Box sx={{ display: "flex", justifyContent: "space-between", my: 1 }}>
             <Typography variant="h5">Quản lí phiếu nhập</Typography>
             <Button
@@ -189,21 +190,13 @@ const PurchaseOrderDevices = () => {
                 >
                   <EditIcon />
                 </IconButton>
-                <IconButton
-                  color="error"
-                  onClick={() => {
-                    handleShowModalDelete(row);
-                  }}
-                >
-                  <DeleteIcon />
-                </IconButton>
               </Box>
             )}
           />
         </>
       )}
 
-      {valueTab === "2" && <h1>Phan phoi cap don vi</h1>}
+      {valueTab === "2" && <InternalDeviceLayout />}
     </Box>
   );
 };

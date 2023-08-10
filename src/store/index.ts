@@ -56,9 +56,11 @@ import trainScheduleReducer, {
   reset as trainScheduleReset,
 } from "../layouts/TrainSchedule/TrainScheduleSlice";
 import userManagerReducer from "../layouts/UserManager/userManagerSlice";
+import exportLabReducer from "../layouts/PurchaseOrderDevices/interalDevice/internalDeviceSlice";
 import warehouseReducer, {
   reset as warehouseReset,
 } from "../layouts/WarehouseTable/warehouseSlice";
+
 import appReducer, { reset as appReset } from "../pages/appSlice";
 
 const resetStateMiddleware: Middleware =
@@ -115,6 +117,7 @@ export const store = configureStore({
     suggestNewDevice: suggestNewDeviceReducer,
     userManager: userManagerReducer,
     purchaseOrderDevice: purchaseOrderDeviceReduce,
+    exportLab: exportLabReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(resetStateMiddleware),
