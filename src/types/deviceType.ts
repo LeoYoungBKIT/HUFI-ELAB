@@ -12,6 +12,7 @@ export interface IDeviceType {
     ManufacturerId: Number,
     ManufacturerName?: String,
     Price?: Number,
+    listDeviceInfo?: any[]
 }
 
 export interface ILessonDeviceType {
@@ -33,7 +34,8 @@ export const dummyDeviceData: IDeviceType = {
     "Standard": "",
     "Quantity": 0,
     "HasTrain": 1,
-    "ManufacturerId": 0
+    "ManufacturerId": 0,
+    "listDeviceInfo": []
 }
 
 export interface IDeviceSpecType {

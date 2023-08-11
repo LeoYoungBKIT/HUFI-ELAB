@@ -94,7 +94,7 @@ import { getFromLocalStorage } from '../configs/apiHelper';
 import DeviceTable from '../layouts/DeviceTable';
 import ResearchersTable from '../layouts/ResearchTeamTable/ResearcherTable';
 import { getExportToOtherDepartmentManagementForms } from '../services/exportManagementServices';
-import { setListOfExportToLiquidateManagementForms, setListOfExportToOtherDepartmentManagementForms } from '../layouts/ExportManagementTable/ExportToOtherDepartment/exportManagementSlice';
+import { setListOfExportToLiquidateManagementForms, setListOfExportToOtherDepartmentManagementForms } from '../layouts/ExportManagementTable/exportManagementSlice';
 import { IExportToLiquidateManagementFormType, IExportToOtherDepartmentManagementFormType } from '../types/exportManagementType';
 import ExportManagementTable from '../layouts/ExportManagementTable';
 import { getListOfLiquidateDeviceForms } from '../services/exportManagementServices';
