@@ -16,7 +16,8 @@ import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import { MRT_ColumnDef } from "material-react-table";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
-import { IExportLab } from "../../../types/IInternalDevice";
+import { IDevice, IExportLab } from "../../../types/IInternalDevice";
+import FormSelect from "./FormSelect";
 import TableDevice from "./TableDevice";
 
 interface IProps {
@@ -42,6 +43,8 @@ export default function FormCmp({
   useEffect(() => {
     setValues(initDataForm);
   }, [initDataForm]);
+
+  const handleAddRecord = (device: IDevice) => {};
 
   return (
     <Box
@@ -114,32 +117,7 @@ export default function FormCmp({
         </Stack>
       )}
 
-      <Box sx={{ ...style }}>
-        <FormControl>
-          <InputLabel id="demo-simple-select-label">Thiết bị</InputLabel>
-          <Select
-            labelId="demo-simple-select-label"
-            id="demo-simple-select"
-            label="Thiết bị"
-          >
-            <MenuItem value={10}>Ten</MenuItem>
-            <MenuItem value={20}>Twenty</MenuItem>
-            <MenuItem value={30}>Thirty</MenuItem>
-          </Select>
-        </FormControl>{" "}
-        <FormControl>
-          <InputLabel id="demo-simple-select-label">Vị trí</InputLabel>
-          <Select
-            labelId="demo-simple-select-label"
-            id="demo-simple-select"
-            label="Thiết bị"
-          >
-            <MenuItem value={10}>Ten</MenuItem>
-            <MenuItem value={20}>Twenty</MenuItem>
-            <MenuItem value={30}>Thirty</MenuItem>
-          </Select>
-        </FormControl>{" "}
-      </Box>
+      <FormSelect handleAddRecord={handleAddRecord} />
 
       <TableDevice dataSource={values.listDevice} />
 
@@ -151,12 +129,3 @@ export default function FormCmp({
     </Box>
   );
 }
-
-const style: SxProps = {
-  display: "flex",
-  padding: "1rem",
-  flexWrap: "wrap",
-  borderRadius: "5px",
-  justifyContent: "center",
-  "& .MuiFormControl-root ": { m: 1, minWidth: "300px" },
-};

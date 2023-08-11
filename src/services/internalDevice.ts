@@ -1,6 +1,6 @@
 import config from "../configs/app";
 import * as API from "../configs/apiHelper";
-import { IExportLab } from "../types/IInternalDevice";
+import { IDeviceForCreate, IExportLab } from "../types/IInternalDevice";
 
 const { isProd } = config;
 const API_ENDPOINT = isProd
@@ -12,7 +12,7 @@ export const getAll = async () => {
 };
 
 export const getDeviceForCreate = async () => {
-  return API.get<IExportLab[]>(
+  return API.get<IDeviceForCreate[]>(
     `${API_ENDPOINT}/api/exportLabs/GetDeviceForCreate`
   );
 };

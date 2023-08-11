@@ -61,6 +61,7 @@ import warehouseReducer, {
   reset as warehouseReset,
 } from "../layouts/WarehouseTable/warehouseSlice";
 
+import { reset as purchaseOrderDeviceReset } from "../layouts/PurchaseOrderDevices/purchaseOrderDeviceSlice";
 import appReducer, { reset as appReset } from "../pages/appSlice";
 
 const resetStateMiddleware: Middleware =
@@ -88,6 +89,7 @@ const resetStateMiddleware: Middleware =
       dispatch(researchTeamReset());
       dispatch(trainScheduleReset());
       dispatch(suggestNewDeviceReset());
+      dispatch(purchaseOrderDeviceReset());
     }
     return next(action);
   };

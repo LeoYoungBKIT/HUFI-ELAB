@@ -36,6 +36,7 @@ import SuccessToast from "../../components/Success";
 import { Edit as EditIcon } from "@mui/icons-material";
 import { DeviceEditing, nextStatus } from "./utils";
 import InternalDeviceLayout from "./interalDevice/InternalDeviceLayout";
+import React from "react";
 
 const renderRow = (key: keyof IDeviceServiceInfo) => {
   return (row: IDeviceServiceInfo) => row[key] ?? "trống";
@@ -167,6 +168,7 @@ const PurchaseOrderDevices = () => {
               enableAcceptButton={typeForm === "update"}
               handleOnclickNoAccept={handleNoAccept}
               handleReUpdate={handleReUpdate}
+              enableSaveButton={typeForm === "create"}
             />
           </Dialog>
 
@@ -241,4 +243,4 @@ export const columns: MRT_ColumnDef<IDeviceServiceInfo>[] = [
   },
 ];
 
-export default PurchaseOrderDevices;
+export default React.memo(PurchaseOrderDevices);

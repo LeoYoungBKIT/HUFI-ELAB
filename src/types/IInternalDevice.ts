@@ -13,9 +13,21 @@ export interface IDevice {
   DeviceInfoId: string;
   DeviceName: string | null;
   DeviceEnglishName: string | null;
-  QuantityImport: string;
-  QuantityDistribute: string;
+  QuantityImport: number;
+  QuantityDistribute: number;
   LabId: string;
+}
+
+export interface IDeviceForCreate {
+  listDevice: {
+    DeviceInfoId: string;
+    DeviceName: string;
+    DeviceEnglishName: string | null;
+    QuantityImport: number;
+  }[];
+  DeviceId: string;
+  DeviceName: string;
+  DeviceEnglishName: string | null;
 }
 
 export interface IExportLab {
@@ -48,4 +60,14 @@ export const initExportLab: IExportLab = {
   Lock: "",
   listAccept: [],
   listDevice: [],
+};
+
+export const initDevice: IDevice = {
+  DeviceId: "",
+  DeviceInfoId: "",
+  DeviceName: "",
+  DeviceEnglishName: "",
+  QuantityImport: 0,
+  QuantityDistribute: 0,
+  LabId: "",
 };

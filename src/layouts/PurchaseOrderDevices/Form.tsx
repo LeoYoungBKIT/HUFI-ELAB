@@ -1,5 +1,4 @@
 import {
-  Alert,
   Backdrop,
   Box,
   Button,
@@ -35,6 +34,7 @@ interface IProps {
   ) => void;
   handleReUpdate: (dataForm: IDeviceServiceInfo) => void;
   onDeleteOnclick: (dataForm: IDeviceServiceInfo) => void;
+  enableSaveButton?: boolean;
 }
 
 export default function FormCmp({
@@ -46,6 +46,7 @@ export default function FormCmp({
   handleOnclickNoAccept,
   handleReUpdate,
   onDeleteOnclick,
+  enableSaveButton,
 }: IProps) {
   const {
     owner: { GroupName },
@@ -110,6 +111,7 @@ export default function FormCmp({
           <CircularProgress color="inherit" />
         </Backdrop>
       )}
+
       <Box sx={{ ...style }}>
         {formsControlDeviceServiceInfo.map((x) => {
           const { sourceKey, label } = x;
@@ -235,9 +237,11 @@ export default function FormCmp({
           </Button>
         )}
 
-        <Button type="submit" variant="contained">
-          Lưu lại
-        </Button>
+        {enableSaveButton && (
+          <Button type="submit" variant="contained">
+            Lưu lại
+          </Button>
+        )}
       </Box>
     </Box>
   );
