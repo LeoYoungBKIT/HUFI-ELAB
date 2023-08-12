@@ -30,6 +30,21 @@ export interface IDeviceForCreate {
   DeviceEnglishName: string | null;
 }
 
+export interface IEmployeeManagerLab {
+  listLab: [
+    {
+      LabId: string;
+      LabName: string;
+      Function: string | null;
+      DepartmentManageId: string;
+      EmployeeManageId: string;
+      Location: string;
+    }
+  ];
+  EmployeeId: string;
+  Fullname: string;
+}
+
 export interface IExportLab {
   ExportLabId: string;
   DateCreate: string;
