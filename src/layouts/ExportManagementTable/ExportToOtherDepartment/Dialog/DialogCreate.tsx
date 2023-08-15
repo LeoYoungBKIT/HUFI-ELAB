@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 import CloseIcon from '@mui/icons-material/Close'
 import {
 	Box,
@@ -7,13 +7,8 @@ import {
 	DialogContent,
 	DialogTitle,
 	IconButton,
-	MenuItem,
-	Select,
-	SelectChangeEvent,
 	TextField,
-	Toolbar,
 	Tooltip,
-	Typography
 } from '@mui/material'
 
 import DataGrid, {
@@ -28,14 +23,18 @@ import ArrayStore from 'devextreme/data/array_store'
 import DataSource from 'devextreme/data/data_source'
 import { useAppDispatch, useAppSelector } from '../../../../hooks'
 import { setSnackbar } from '../../../../pages/appSlice'
-import { IExportToOtherDepartmentManagementFormType, dummyExportToOtherDepartmentManagementForm } from '../../../../types/exportManagementType'
+import {
+	IExportToOtherDepartmentManagementFormType,
+	dummyExportToOtherDepartmentManagementForm
+} from '../../../../types/exportManagementType'
 import { DialogProps } from './DialogType'
 import { renderHeader } from '../DetailExportToOtherDepartmentManagementForm'
 import { colorsNotifi } from '../../../../configs/color'
-import { getExportToOtherDepartmentManagementForms, postExportToOtherDepartmentManagementForm } from '../../../../services/exportManagementServices'
-import { setListOfExportToOtherDepartmentManagementForms } from '../exportManagementSlice'
-
-
+import {
+	getExportToOtherDepartmentManagementForms,
+	postExportToOtherDepartmentManagementForm
+} from '../../../../services/exportManagementServices'
+import { setListOfExportToOtherDepartmentManagementForms } from '../../exportManagementSlice'
 
 const commonFieldsShow = [
 	{ id: 'DeviceId', header: 'Mã thiết bị' },
@@ -58,6 +57,7 @@ const DialogCreate = ({ isOpen, onClose }: DialogProps) => {
 	const [currentCreatedForm, setCurrentCreatedForm] = useState<any>(dummyExportToOtherDepartmentManagementForm)
 
 	const handleSave = async () => {
+		console.log("currentCreatedForm :", currentCreatedForm)
 		if (!currentCreatedForm?.Title) {
 			dispatch(
 				setSnackbar({
@@ -80,7 +80,7 @@ const DialogCreate = ({ isOpen, onClose }: DialogProps) => {
 			return;
 		}
 
-		else if (currentCreatedForm?.listDeviceInfo.length == 0) {
+		else if (currentCreatedForm?.listDeviceInfo.length === 0) {
 			dispatch(
 				setSnackbar({
 					message: 'Vui lòng thêm thông tin thiết bị cần xuất',
@@ -92,7 +92,14 @@ const DialogCreate = ({ isOpen, onClose }: DialogProps) => {
 		}
 
 		else {
+			let isHaveAllDeviceIds = true;
+			let isHaveAllDepartmentManageIds = true;
+			let isNotHaveSameDepartmentIds = true;
+
 			currentCreatedForm.listDeviceInfo.forEach((item: any, idx: number) => {
+				if (!isHaveAllDeviceIds) {
+					return;
+				}
 				if (!item?.DeviceId) {
 					dispatch(
 						setSnackbar({
@@ -101,11 +108,14 @@ const DialogCreate = ({ isOpen, onClose }: DialogProps) => {
 							backgroundColor: colorsNotifi['error'].background,
 						})
 					)
-					return;
+					isHaveAllDeviceIds = false;
 				}
 			})
 
 			currentCreatedForm?.DepartmentManageId.forEach((item: any, idx: number) => {
+				if (!isHaveAllDepartmentManageIds) {
+					return;
+				}
 				if (!item) {
 					dispatch(
 						setSnackbar({
@@ -114,51 +124,55 @@ const DialogCreate = ({ isOpen, onClose }: DialogProps) => {
 							backgroundColor: colorsNotifi['error'].background,
 						})
 					)
-					return;
+					isHaveAllDepartmentManageIds = false;
 				}
 			})
-		}
 
-		if (!(currentCreatedForm?.DepartmentManageId.every((item: any) => item === currentCreatedForm?.DepartmentManageId[0]))) {
-			dispatch(
-				setSnackbar({
-					message: 'Vui lòng chọn cùng đơn vị quản lý ở các thiết bị!',
-					color: colorsNotifi['error'].color,
-					backgroundColor: colorsNotifi['error'].background,
-				})
-			)
-			return;
-		}
-		else {
-			let normalizatedForm = {
-				...currentCreatedForm,
-				DepartmentManageId: currentCreatedForm?.DepartmentManageId[0]
-			}
-
-			try {
-				await postExportToOtherDepartmentManagementForm(normalizatedForm);
+			if (!(currentCreatedForm?.DepartmentManageId.every((item: any) => item === currentCreatedForm?.DepartmentManageId[0]))) {
 				dispatch(
 					setSnackbar({
-						message: 'Tạo phiếu xuất thành công!!!',
-						color: colorsNotifi['success'].color,
-						backgroundColor: colorsNotifi['success'].background,
-					})
-				)
-
-				const listOfExportToOtherDepartmentManagementFormTypes: IExportToOtherDepartmentManagementFormType[] = await getExportToOtherDepartmentManagementForms();
-				if (listOfExportToOtherDepartmentManagementFormTypes) {
-					dispatch(setListOfExportToOtherDepartmentManagementForms(listOfExportToOtherDepartmentManagementFormTypes));
-				}
-				handleClose()
-			}
-			catch {
-				dispatch(
-					setSnackbar({
-						message: 'Tạo phiếu xuât thất bại!',
+						message: 'Vui lòng chọn cùng đơn vị quản lý ở các thiết bị!',
 						color: colorsNotifi['error'].color,
 						backgroundColor: colorsNotifi['error'].background,
 					})
 				)
+			} else {
+				isNotHaveSameDepartmentIds = false;
+			}
+			
+			if (!isHaveAllDeviceIds || !isHaveAllDepartmentManageIds || isNotHaveSameDepartmentIds) {
+				return;
+			}
+			else {
+				try {
+					let normalizatedForm = {
+						...currentCreatedForm,
+						DepartmentManageId: currentCreatedForm?.DepartmentManageId[0]
+					}
+					await postExportToOtherDepartmentManagementForm(normalizatedForm);
+					dispatch(
+						setSnackbar({
+							message: 'Tạo phiếu xuất thành công!!!',
+							color: colorsNotifi['success'].color,
+							backgroundColor: colorsNotifi['success'].background,
+						})
+					)
+
+					const listOfExportToOtherDepartmentManagementFormTypes: IExportToOtherDepartmentManagementFormType[] = await getExportToOtherDepartmentManagementForms();
+					if (listOfExportToOtherDepartmentManagementFormTypes) {
+						dispatch(setListOfExportToOtherDepartmentManagementForms(listOfExportToOtherDepartmentManagementFormTypes));
+					}
+					handleClose()
+				}
+				catch {
+					dispatch(
+						setSnackbar({
+							message: 'Tạo phiếu xuât thất bại!',
+							color: colorsNotifi['error'].color,
+							backgroundColor: colorsNotifi['error'].background,
+						})
+					)
+				}
 			}
 		}
 	}
@@ -312,6 +326,7 @@ const DataGridFunc = React.memo(function DataGridFunc({
 	const onContentReady = (e: any) => {
 		let allRows = e.component.getVisibleRows();
 		let newListDeviceInfo = allRows.map((rowItem: any) => Object.assign({}, { DeviceId: rowItem.values[0] }))
+		console.log("allRows :", allRows)
 		setCurrentCreatedForm((prevState: any) => Object.assign({}, {
 			...prevState,
 			DepartmentManageId: allRows.map((row: any) => row.values[5]),
@@ -319,103 +334,104 @@ const DataGridFunc = React.memo(function DataGridFunc({
 		}))
 	}
 
-	return (<DataGrid
-		dataSource={dataSource}
-		ref={dataGridRef}
-		showBorders={true}
-		columnAutoWidth={true}
-		allowColumnResizing={true}
-		onContentReady={onContentReady}
-		columnResizingMode="widget"
-		columnMinWidth={100}
-		searchPanel={{
-			visible: true,
-			width: 240,
-			placeholder: 'Tìm kiếm',
-		}}
-		editing={{
-			confirmDelete: true,
-			allowDeleting: true,
-			allowAdding: true,
-			allowUpdating: true,
-			mode: 'batch',
-		}}
-		elementAttr={{ style: 'height: 100%; padding-bottom: 20px; width: 100%; min-width: 600px' }}
-		onEditorPreparing={onEditorPreparing}
-	>
-		<Paging enabled={true} />
-		<Editing mode="row" allowUpdating={true} allowDeleting={true} allowAdding={true} />
-		<Column
-			key="DeviceId"
-			dataField="DeviceId"
-			caption="Mã thiết bị"
-			dataType="string"
-			allowEditing={false}
-			headerCellRender={data => renderHeader(data)}
+	return (
+		<DataGrid
+			dataSource={dataSource}
+			ref={dataGridRef}
+			showBorders={true}
+			columnAutoWidth={true}
+			allowColumnResizing={true}
+			onContentReady={onContentReady}
+			columnResizingMode="widget"
+			columnMinWidth={100}
+			searchPanel={{
+				visible: true,
+				width: 240,
+				placeholder: 'Tìm kiếm',
+			}}
+			editing={{
+				confirmDelete: true,
+				allowDeleting: true,
+				allowAdding: true,
+				allowUpdating: true,
+				mode: 'batch',
+			}}
+			elementAttr={{ style: 'height: 100%; padding-bottom: 20px; width: 100%; min-width: 600px' }}
+			onEditorPreparing={onEditorPreparing}
 		>
-		</Column>
-		<Column
-			key="DeviceName"
-			dataField="DeviceName"
-			caption="Tên thiết bị"
-			dataType="string"
-			headerCellRender={data => renderHeader(data, true)}
-			setCellValue={setCellValue}
-		>
-			<Lookup dataSource={deviceList} valueExpr="DeviceName" displayExpr="DeviceName" />
-		</Column>
+			<Paging enabled={true} />
+			<Editing mode="row" allowUpdating={true} allowDeleting={true} allowAdding={true} />
+			<Column
+				key="DeviceId"
+				dataField="DeviceId"
+				caption="Mã thiết bị"
+				dataType="string"
+				allowEditing={false}
+				headerCellRender={data => renderHeader(data)}
+			>
+			</Column>
+			<Column
+				key="DeviceName"
+				dataField="DeviceName"
+				caption="Tên thiết bị"
+				dataType="string"
+				headerCellRender={data => renderHeader(data, true)}
+				setCellValue={setCellValue}
+			>
+				<Lookup dataSource={deviceList} valueExpr="DeviceName" displayExpr="DeviceName" />
+			</Column>
 
-		<Column
-			key="DeviceEnglishName"
-			dataField="DeviceEnglishName"
-			caption="Tên tiếng Anh"
-			dataType="string"
-			allowEditing={false}
-			headerCellRender={data => renderHeader(data)}
-		>
-		</Column>
+			<Column
+				key="DeviceEnglishName"
+				dataField="DeviceEnglishName"
+				caption="Tên tiếng Anh"
+				dataType="string"
+				allowEditing={false}
+				headerCellRender={data => renderHeader(data)}
+			>
+			</Column>
 
-		<Column
-			key="EmployeeCreateName"
-			dataField="EmployeeCreateName"
-			caption="Người đề nghị"
-			dataType="string"
-			allowEditing={false}
-			headerCellRender={data => renderHeader(data)}
-			cellRender={data => (
-				<span>
-					{owner.FullName}
-				</span>
-			)}
-		>
-		</Column>
+			<Column
+				key="EmployeeCreateName"
+				dataField="EmployeeCreateName"
+				caption="Người đề nghị"
+				dataType="string"
+				allowEditing={false}
+				headerCellRender={data => renderHeader(data)}
+				cellRender={data => (
+					<span>
+						{owner.FullName}
+					</span>
+				)}
+			>
+			</Column>
 
-		<Column
-			key="DepartmentCreateName"
-			dataField="DepartmentCreateName"
-			caption="Đơn vị đề xuất"
-			dataType="string"
-			allowEditing={false}
-			headerCellRender={data => renderHeader(data)}
-			cellRender={data => (
-				<span>
-					{owner.DepartmentName}
-				</span>
-			)}
-		>
-		</Column>
+			<Column
+				key="DepartmentCreateName"
+				dataField="DepartmentCreateName"
+				caption="Đơn vị đề xuất"
+				dataType="string"
+				allowEditing={false}
+				headerCellRender={data => renderHeader(data)}
+				cellRender={data => (
+					<span>
+						{owner.DepartmentName}
+					</span>
+				)}
+			>
+			</Column>
 
-		<Column
-			key="DepartmentManageName"
-			dataField="DepartmentManageName"
-			caption="Đơn vị quản lý thiết bị"
-			dataType="string"
-			headerCellRender={data => renderHeader(data, true)}
-		>
-			<Lookup dataSource={departmentList} valueExpr="DepartmentId" displayExpr="DepartmentName" />
-		</Column>
-		<Summary recalculateWhileEditing={true}>
-			<TotalItem column="DeviceId" summaryType="count" />
-		</Summary>
-	</DataGrid>)
+			<Column
+				key="DepartmentManageName"
+				dataField="DepartmentManageName"
+				caption="Đơn vị quản lý thiết bị"
+				dataType="string"
+				headerCellRender={data => renderHeader(data, true)}
+			>
+				<Lookup dataSource={departmentList} valueExpr="DepartmentId" displayExpr="DepartmentName" />
+			</Column>
+			<Summary recalculateWhileEditing={true}>
+				<TotalItem column="DeviceId" summaryType="count" />
+			</Summary>
+		</DataGrid>)
 })

@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState } from "react"
-import { IExportToOtherDepartmentManagementFormType } from "../../../types/exportManagementType"
+import { useEffect, useMemo, useRef, useState } from "react"
+import { IExportToLiquidateManagementFormType } from "../../../types/exportManagementType"
 import { useAppDispatch, useAppSelector } from "../../../hooks"
 import {
     Dialog,
@@ -29,7 +29,6 @@ import DataGrid, {
     Pager,
     Paging,
     Toolbar,
-    Lookup,
 } from 'devextreme-react/data-grid'
 import ArrayStore from 'devextreme/data/array_store'
 import DataSource from 'devextreme/data/data_source'
@@ -40,19 +39,18 @@ import WarningIcon from '@mui/icons-material/Warning'
 import AutorenewIcon from '@mui/icons-material/Autorenew'
 import { StepIconProps } from '@mui/material/StepIcon'
 import {
-    approveExportToOtherDepartmentManagementForm,
-    deleteExportToOtherDepartmentManagementForm,
-    forwardApproveExportToOtherDepartmentManagementForm,
-    getDeviceListAccordingToDepartment,
-    getExportToOtherDepartmentManagementForms,
-    rejectExportToOtherDepartmentManagementForm
+    approveExportToLiquidateManagementForm,
+    deleteExportToLiquidateManagementForm,
+    forwardApproveExportToLiquidateManagementForm,
+    getListOfLiquidateDeviceForms,
+    rejectExportToLiquidateManagementForm
 } from "../../../services/exportManagementServices"
 import { colorsNotifi } from "../../../configs/color"
 import { setSnackbar } from "../../../pages/appSlice"
-import { setListOfExportToOtherDepartmentManagementForms } from "../exportManagementSlice"
+import { setListOfExportToLiquidateManagementForms } from "../exportManagementSlice"
 
-type RowExportToOtherDepartmentManagementFormTypeProps = {
-    exportManagementForm: IExportToOtherDepartmentManagementFormType
+type RowExportToLiquidateManagementFormProps = {
+    exportManagementForm: IExportToLiquidateManagementFormType
     isOpen: boolean
     handleClose: () => void
 }
@@ -67,21 +65,27 @@ export const renderHeader = (data: any, isRequired: boolean = false) => {
 
 const commonFieldsShow = [
     { id: 'DeviceId', header: 'Mã thiết bị' },
+    { id: 'DeviceInfoId', header: 'Mã định danh thiết bị' },
     { id: 'DeviceName', header: 'Tên thiết bị' },
     { id: 'DeviceEnglishName', header: 'Tên tiếng Anh' },
-    { id: 'EmployeeCreateName', header: 'Người đề nghị' },
-    { id: 'DepartmentCreateName', header: 'Đơn vị đề xuất' },
-    { id: 'DepartmentManageName', header: 'Đơn vị quản lý Thiết bị' },
-    { id: 'DateCreate', header: 'Ngày đề nghị', type: 'date' },
-    { id: 'DeviceInfoId', header: 'Mã định danh thiết bị' },
+    { id: 'Model', header: 'Số Model' },
+    { id: 'SerialNumber', header: 'Số Serial' },
+    { id: 'Specification', header: 'Thông số kỹ thuật' },
+    { id: 'Manufacturer', header: 'Hãng sản xuất' },
+    { id: 'Origin', header: 'Xuất xứ' },
+    { id: 'SupplierName', header: 'Nhà cung cấp' },
+    { id: 'YearStartUsage', header: 'Năm đưa vào sử dụng' },
+    { id: 'LinkFileRepair', header: 'Biên bản kiểm tra thiết bị từ Đơn vị phụ trách tiếp nhận sửa chữa' },
+    { id: 'LinkFileMaintenace', header: 'Lịch sử bảo trì/sửa chữa' },
+    { id: 'ResidualValue', header: 'Tổng số giờ sử dụng' },
     { id: 'Status', header: 'Trạng thái' },
 ]
 
-const RowExportToOtherDepartmentManagementFormType = ({
+const RowExportToLiquidateManagementForm = ({
     exportManagementForm,
     isOpen,
     handleClose
-}: RowExportToOtherDepartmentManagementFormTypeProps) => {
+}: RowExportToLiquidateManagementFormProps) => {
     const dispatch = useAppDispatch()
     const dataGridRef = useRef<DataGrid<any, any> | null>(null)
     const owner = useAppSelector(selector => selector.userManager.owner)
@@ -89,25 +93,8 @@ const RowExportToOtherDepartmentManagementFormType = ({
     const [progressStep,] = useState<number>(exportManagementForm.listAccept.length + 1)
     const [contentAccept, setContentAccept] = useState<string>('')
     const [reason, setReason] = useState<string>('')
-    const [listOfDeviceInfo, setListOfDeviceInfo] = useState<any[]>()
-    const [currentCreatedForm, setCurrentCreatedForm] = useState<any>(exportManagementForm)
-
-
-    const getDeviceListOfCreateDepartment = async () => {
-        const deviceInfoList = await getDeviceListAccordingToDepartment();
-        if (deviceInfoList?.length > 0) {
-            let normalizatedDeviceInfoList = deviceInfoList.map((item: any) => {
-                return item.listDeviceInfoId.map((x: any) => Object.assign({}, {
-                    DeviceId: item.DeviceId,
-                    DeviceInfoId: x
-                }))
-            })
-            setListOfDeviceInfo(normalizatedDeviceInfoList.flat())
-        }
-    }
 
     useEffect(() => {
-        getDeviceListOfCreateDepartment()
         setContentAccept('')
         setReason('')
     }, [])
@@ -115,20 +102,17 @@ const RowExportToOtherDepartmentManagementFormType = ({
     const dataSource = useMemo(() => {
         return new DataSource({
             store: new ArrayStore({
-                data: (exportManagementForm?.listDeviceInfo || []).map(x => ({
+                data: (exportManagementForm?.listDevice || []).map(x => ({
                     ...x,
-                    ExportOutId: exportManagementForm.ExportOutId,
+                    LiquidateId: exportManagementForm.LiquidateId,
                     DepartmentCreateName: exportManagementForm.DepartmentCreateName,
                     Title: exportManagementForm.Title,
                     Content: exportManagementForm.Content,
-                    DepartmentManageName: exportManagementForm.DepartmentManageName,
                     DateCreate: exportManagementForm.DateCreate,
                     EmployeeCreateName: exportManagementForm.EmployeeCreateName,
                     EmployeeCreateId: exportManagementForm.EmployeeCreateId,
-                    Status: exportManagementForm?.listAccept?.length > 0 ?
-                        exportManagementForm.listAccept[exportManagementForm.listAccept.length - 1].AcceptValue
-                        : 'Mới tạo',
-                    Id: uniqueId('ExportToOtherDepartmentManagementFormTypeDetail_')
+                    Status: exportManagementForm?.listAccept?.length > 0 ? exportManagementForm.listAccept[exportManagementForm.listAccept.length - 1].AcceptValue : 'Mới tạo',
+                    Id: uniqueId('ExportToLiquidateManagementFormTypeDetail_')
                 })),
                 key: 'Id',
             }),
@@ -147,7 +131,7 @@ const RowExportToOtherDepartmentManagementFormType = ({
 
     const handleApprove = async (id: string) => {
         try {
-            await approveExportToOtherDepartmentManagementForm(id);
+            await approveExportToLiquidateManagementForm(id);
             dispatch(
                 setSnackbar({
                     message: 'Duyệt phiếu xuất thành công!!!',
@@ -156,9 +140,9 @@ const RowExportToOtherDepartmentManagementFormType = ({
                 })
             )
 
-            const listOfExportToOtherDepartmentManagementFormTypes: IExportToOtherDepartmentManagementFormType[] = await getExportToOtherDepartmentManagementForms();
-            if (listOfExportToOtherDepartmentManagementFormTypes) {
-                dispatch(setListOfExportToOtherDepartmentManagementForms(listOfExportToOtherDepartmentManagementFormTypes));
+            const listOfExportToLiquidateManagementFormTypes: IExportToLiquidateManagementFormType[] = await getListOfLiquidateDeviceForms();
+            if (listOfExportToLiquidateManagementFormTypes) {
+                dispatch(setListOfExportToLiquidateManagementForms(listOfExportToLiquidateManagementFormTypes));
             }
             handleClose()
         }
@@ -184,90 +168,37 @@ const RowExportToOtherDepartmentManagementFormType = ({
             )
             return;
         } else {
-            let isHaveAllDeviceInfoIds = true;
-            let isHaveSameDeviceInfoIds = false;
+            try {
+                await forwardApproveExportToLiquidateManagementForm(exportManagementForm, id);
+                dispatch(
+                    setSnackbar({
+                        message: 'Trình duyệt phiếu xuất thành công!!!',
+                        color: colorsNotifi['success'].color,
+                        backgroundColor: colorsNotifi['success'].background,
+                    })
+                )
 
-            currentCreatedForm.listDeviceInfo.forEach((item: any, idx: number) => {
-                if (!isHaveAllDeviceInfoIds) {
-                    return;
+                const listOfExportToLiquidateManagementFormTypes: IExportToLiquidateManagementFormType[] = await getListOfLiquidateDeviceForms();
+                if (listOfExportToLiquidateManagementFormTypes) {
+                    dispatch(setListOfExportToLiquidateManagementForms(listOfExportToLiquidateManagementFormTypes));
                 }
-
-                if (!item?.DeviceInfoId) {
-                    dispatch(
-                        setSnackbar({
-                            message: `Vui lòng chọn mã định danh thiết bị ở dòng thứ ${idx + 1}!`,
-                            color: colorsNotifi['error'].color,
-                            backgroundColor: colorsNotifi['error'].background,
-                        })
-                    )
-                }
-            })
-
-            currentCreatedForm.listDeviceInfo.forEach((item: any, idx: number) => {
-                if (isHaveSameDeviceInfoIds) {
-                    return;
-                }
-                currentCreatedForm.listDeviceInfo.slice(idx + 1,).forEach((x: any) => {
-                    if (isHaveSameDeviceInfoIds) {
-                        return;
-                    }
-                    if (x.DeviceId === item.DeviceId && x.DeviceInfoId === item.DeviceInfoId) {
-                        let duplicatedIdx = currentCreatedForm.listDeviceInfo.findIndex((y: any) => y === x);
-                        if (duplicatedIdx) {
-                            dispatch(
-                                setSnackbar({
-                                    message: `Vui lòng chọn mã định danh thiết bị ở dòng thứ ${duplicatedIdx + 1} khác với  mã định danh thiết bị ở dòng thứ ${idx + 1}!`,
-                                    color: colorsNotifi['error'].color,
-                                    backgroundColor: colorsNotifi['error'].background,
-                                })
-                            )
-                            isHaveSameDeviceInfoIds = true;
-                        }
-                    }
-                })
-            })
-
-            if (!isHaveAllDeviceInfoIds || isHaveSameDeviceInfoIds) {
-                return;
+                handleClose()
             }
-            else {
-                try {
-                    let normalizatedForm = {
-                        ...currentCreatedForm,
-                        DepartmentManageId: currentCreatedForm?.DepartmentManageId[0]
-                    }
-
-                    await forwardApproveExportToOtherDepartmentManagementForm(normalizatedForm, id, contentAccept);
-                    dispatch(
-                        setSnackbar({
-                            message: 'Trình duyệt phiếu xuất thành công!!!',
-                            color: colorsNotifi['success'].color,
-                            backgroundColor: colorsNotifi['success'].background,
-                        })
-                    )
-
-                    const listOfExportToOtherDepartmentManagementFormTypes: IExportToOtherDepartmentManagementFormType[] = await getExportToOtherDepartmentManagementForms();
-                    if (listOfExportToOtherDepartmentManagementFormTypes) {
-                        dispatch(setListOfExportToOtherDepartmentManagementForms(listOfExportToOtherDepartmentManagementFormTypes));
-                    }
-                    handleClose()
-                }
-                catch {
-                    dispatch(
-                        setSnackbar({
-                            message: 'Trình duyệt phiếu xuât thất bại!',
-                            color: colorsNotifi['error'].color,
-                            backgroundColor: colorsNotifi['error'].background,
-                        })
-                    )
-                }
+            catch {
+                dispatch(
+                    setSnackbar({
+                        message: 'Trình duyệt phiếu xuât thất bại!',
+                        color: colorsNotifi['error'].color,
+                        backgroundColor: colorsNotifi['error'].background,
+                    })
+                )
             }
         }
     }
 
-    const handleDeleteExportToOtherDepartmentManagementForm = async (id: string) => {
+    const handleDeleteExportToLiquidateManagementForm = async (id: string) => {
         try {
-            await deleteExportToOtherDepartmentManagementForm(id);
+            await deleteExportToLiquidateManagementForm(id);
             dispatch(
                 setSnackbar({
                     message: 'Xóa phiếu xuất thành công!!!',
@@ -276,9 +207,9 @@ const RowExportToOtherDepartmentManagementFormType = ({
                 })
             )
 
-            const listOfExportToOtherDepartmentManagementFormTypes: IExportToOtherDepartmentManagementFormType[] = await getExportToOtherDepartmentManagementForms();
-            if (listOfExportToOtherDepartmentManagementFormTypes) {
-                dispatch(setListOfExportToOtherDepartmentManagementForms(listOfExportToOtherDepartmentManagementFormTypes));
+            const listOfExportToLiquidateManagementFormTypes: IExportToLiquidateManagementFormType[] = await getListOfLiquidateDeviceForms();
+            if (listOfExportToLiquidateManagementFormTypes) {
+                dispatch(setListOfExportToLiquidateManagementForms(listOfExportToLiquidateManagementFormTypes));
             }
             handleClose()
         }
@@ -305,7 +236,7 @@ const RowExportToOtherDepartmentManagementFormType = ({
             return;
         } else {
             try {
-                await rejectExportToOtherDepartmentManagementForm(exportManagementForm, id, reason);
+                await rejectExportToLiquidateManagementForm(exportManagementForm, id, reason);
                 dispatch(
                     setSnackbar({
                         message: 'Không duyệt phiếu xuất thành công!!!',
@@ -314,9 +245,9 @@ const RowExportToOtherDepartmentManagementFormType = ({
                     })
                 )
 
-                const listOfExportToOtherDepartmentManagementFormTypes: IExportToOtherDepartmentManagementFormType[] = await getExportToOtherDepartmentManagementForms();
-                if (listOfExportToOtherDepartmentManagementFormTypes) {
-                    dispatch(setListOfExportToOtherDepartmentManagementForms(listOfExportToOtherDepartmentManagementFormTypes));
+                const listOfExportToLiquidateManagementFormTypes: IExportToLiquidateManagementFormType[] = await getListOfLiquidateDeviceForms();
+                if (listOfExportToLiquidateManagementFormTypes) {
+                    dispatch(setListOfExportToLiquidateManagementForms(listOfExportToLiquidateManagementFormTypes));
                 }
                 handleClose()
             }
@@ -332,6 +263,7 @@ const RowExportToOtherDepartmentManagementFormType = ({
         }
     }
 
+
     return (
         <>
             <Dialog
@@ -342,7 +274,7 @@ const RowExportToOtherDepartmentManagementFormType = ({
                 PaperProps={{ style: { maxWidth: 'unset' } }}
             >
                 <DialogTitle textAlign="left">
-                    <b>Phiếu đề nghị xuất thiết bị {exportManagementForm.ExportOutId}</b>
+                    <b>Phiếu thanh lý thiết bị {exportManagementForm.LiquidateId}</b>
 
                     <IconButton
                         aria-label="close"
@@ -382,7 +314,7 @@ const RowExportToOtherDepartmentManagementFormType = ({
                                                 if (label.AcceptValue === "Không duyệt") {
                                                     return <WarningIcon sx={{ color: "red" }} />;
                                                 }
-                                                else if (label.AcceptValue === "Hoàn thành") {
+                                                else if (label.AcceptValue === "Đã thanh lý") {
                                                     return <CheckCircleIcon color="success" />;
                                                 }
                                                 else if (idx < exportManagementForm.listAccept.length - 1) {
@@ -394,7 +326,7 @@ const RowExportToOtherDepartmentManagementFormType = ({
                                             }}>
                                                 <div style={{ "fontSize": "0.75rem" }}>{label.AcceptValue}</div>
                                                 {label.AcceptValue !== "Không duyệt" &&
-                                                    label.AcceptValue !== "Hoàn thành" &&
+                                                    label.AcceptValue !== "Đã thanh lý" &&
                                                     idx < exportManagementForm.listAccept.length - 1 &&
                                                     <>
                                                         <div style={{ "fontSize": "0.75rem" }}>
@@ -411,8 +343,6 @@ const RowExportToOtherDepartmentManagementFormType = ({
                                 </Stepper>
                             </Grid>
                         </Grid>
-
-
                         <Grid item p={1}>
                             <TextField
                                 label="Tiêu đề"
@@ -434,16 +364,95 @@ const RowExportToOtherDepartmentManagementFormType = ({
                                     value: `${exportManagementForm.Content}`,
                                 }}
                             />
+                            <TextField
+                                label="Người lập"
+                                variant="standard"
+                                type="text"
+                                fullWidth
+                                disabled
+                                inputProps={{
+                                    value: `${exportManagementForm.EmployeeCreateName}`,
+                                }}
+                            />
+                            <TextField
+                                label="Đơn vị đề xuất thanh lý"
+                                variant="standard"
+                                type="text"
+                                fullWidth
+                                disabled
+                                inputProps={{
+                                    value: `${exportManagementForm.DepartmentCreateName}`,
+                                }}
+                            />
                         </Grid>
-
-                        <DataGridFunc
-                            owner={owner}
+                        <DataGrid
                             dataSource={dataSource}
-                            dataGridRef={dataGridRef}
-                            listOfDeviceInfo={listOfDeviceInfo}
-                            exportManagementForm={exportManagementForm}
-                            setCurrentCreatedForm={setCurrentCreatedForm}
-                        />
+                            ref={dataGridRef}
+                            id="gridContainer"
+                            showBorders={true}
+                            columnAutoWidth={true}
+                            allowColumnResizing={true}
+                            columnResizingMode="widget"
+                            columnMinWidth={100}
+                            searchPanel={{
+                                visible: true,
+                                width: 240,
+                                placeholder: 'Tìm kiếm',
+                            }}
+                            // editing={{
+                            //     confirmDelete: true,
+                            //     allowDeleting: true,
+                            //     allowAdding: true,
+                            //     allowUpdating: true,
+                            // }}
+                            elementAttr={{ style: 'height: 100%; padding-bottom: 20px; width: 100%; min-width: 600px' }}
+                        >
+                            <ColumnChooser enabled={true} mode="select" />
+                            <Paging enabled={true} />
+                            <FilterRow visible={true} applyFilter={true} />
+                            <HeaderFilter visible={true} />
+                            <ColumnFixing enabled={true} />
+                            <Grouping contextMenuEnabled={true} expandMode="rowClick" />
+                            <FilterPanel visible={true} />
+                            <Pager
+                                allowedPageSizes={true}
+                                showInfo={true}
+                                showNavigationButtons={true}
+                                showPageSizeSelector={true}
+                                visible={true}
+                            />
+                            <LoadPanel enabled={true} />
+                            <Paging defaultPageSize={30} />
+                            {commonFieldsShow.map(col => {
+                                if (
+                                    ['Admin', 'Trưởng phòng QTTB', 'Chuyên viên phòng QTTB'].includes(owner.GroupName) ||
+                                    ['Chuyên viên TT TNTH', 'Chuyên viên đơn vị sử dụng'].includes(owner.GroupName)
+                                ) {
+                                    return <Column
+                                        key={col.id}
+                                        dataField={col.id}
+                                        dataType="string"
+                                        headerCellRender={data => renderHeader(data)}
+                                        caption={col.header}
+                                        cellRender={data => (
+                                            <span>
+                                                {/* {Number(data.text) && col?.type === 'date' */}
+                                                {/* ? moment.unix(Number(data.text)).format('DD/MM/YYYY') */}
+                                                {/* : */}
+                                                {data.text}
+                                            </span>
+                                        )}
+                                    />
+                                } else {
+                                    return <></>
+                                }
+                            })}
+
+                            <Toolbar>
+                                <Item name="columnChooserButton" />
+                                <Item name="searchPanel" showText="always" />
+                            </Toolbar>
+                        </DataGrid>
 
                         {['Chuyên viên TT TNTH', 'Chuyên viên đơn vị sử dụng'].includes(owner.GroupName) &&
                             owner.DepartmentName === exportManagementForm.DepartmentCreateName &&
@@ -458,7 +467,7 @@ const RowExportToOtherDepartmentManagementFormType = ({
                                     <Tooltip arrow placement="left" title="Xóa phiếu đề nghị">
                                         <Button
                                             variant="contained"
-                                            onClick={() => handleDeleteExportToOtherDepartmentManagementForm(exportManagementForm.ExportOutId)}
+                                            onClick={() => handleDeleteExportToLiquidateManagementForm(exportManagementForm.LiquidateId)}
                                         >
                                             Xóa
                                         </Button>
@@ -500,7 +509,7 @@ const RowExportToOtherDepartmentManagementFormType = ({
                                             <Tooltip arrow placement="left" title="Duyệt phiếu đề nghị">
                                                 <Button
                                                     variant="contained"
-                                                    onClick={() => handleApprove(exportManagementForm.ExportOutId)}
+                                                    onClick={() => handleApprove(exportManagementForm.LiquidateId)}
                                                 >
                                                     Duyệt
                                                 </Button>
@@ -509,13 +518,12 @@ const RowExportToOtherDepartmentManagementFormType = ({
                                     }
 
                                     {(owner.GroupName === 'Chuyên viên phòng QTTB' ||
-                                        (['Chuyên viên TT TNTH', 'Chuyên viên đơn vị sử dụng'].includes(owner.GroupName) &&
-                                            owner.DepartmentName === exportManagementForm.DepartmentManageName)) &&
+                                        ['Chuyên viên TT TNTH', 'Chuyên viên đơn vị sử dụng'].includes(owner.GroupName)) &&
                                         <Box display="flex" alignItems="end">
                                             <Tooltip arrow placement="left" title="Trình duyệt phiếu đề nghị">
                                                 <Button
                                                     variant="contained"
-                                                    onClick={() => handleForwardApprove(exportManagementForm.ExportOutId)}
+                                                    onClick={() => handleForwardApprove(exportManagementForm.LiquidateId)}
                                                 >
                                                     Trình duyệt
                                                 </Button>
@@ -523,14 +531,13 @@ const RowExportToOtherDepartmentManagementFormType = ({
                                         </Box>
                                     }
 
-                                    {(owner.GroupName === 'Trưởng phòng QTTB' ||
-                                        (['Trưởng phòng TT TNTH', 'Trưởng đơn vị sử dụng'].includes(owner.GroupName) &&
-                                            owner.DepartmentName === exportManagementForm.DepartmentManageName)) &&
+                                    {owner.GroupName === 'Trưởng phòng QTTB' ||
+                                        ['Trưởng phòng TT TNTH', 'Trưởng đơn vị sử dụng'].includes(owner.GroupName) &&
                                         <>
                                             <Tooltip arrow placement="left" title="Không duyệt phiếu đề nghị">
                                                 <Button
                                                     variant="contained"
-                                                    onClick={() => handleReject(exportManagementForm.ExportOutId)}
+                                                    onClick={() => handleReject(exportManagementForm.LiquidateId)}
                                                 >
                                                     Không duyệt
                                                 </Button>
@@ -539,7 +546,7 @@ const RowExportToOtherDepartmentManagementFormType = ({
                                             <Tooltip arrow placement="left" title="Duyệt phiếu đề nghị">
                                                 <Button
                                                     variant="contained"
-                                                    onClick={() => handleApprove(exportManagementForm.ExportOutId)}
+                                                    onClick={() => handleApprove(exportManagementForm.LiquidateId)}
                                                     sx={{ marginLeft: '24px' }}>
                                                     Duyệt
                                                 </Button>
@@ -558,168 +565,4 @@ const RowExportToOtherDepartmentManagementFormType = ({
     )
 }
 
-export default RowExportToOtherDepartmentManagementFormType
-
-type IDataGridFuncProps = {
-    owner: any;
-    dataSource: any;
-    dataGridRef: any;
-    exportManagementForm: any;
-    setCurrentCreatedForm: any;
-    listOfDeviceInfo: any;
-}
-
-const DataGridFunc = React.memo(function DataGridFunc({
-    owner,
-    dataSource,
-    dataGridRef,
-    listOfDeviceInfo,
-    exportManagementForm,
-    setCurrentCreatedForm,
-}: IDataGridFuncProps) {
-    const dispatch = useAppDispatch()
-
-    const onContentReady = (e: any) => {
-        let allRows = e.component.getVisibleRows();
-        let newListDeviceInfo = allRows.map((rowItem: any) => Object.assign({}, {
-            DeviceId: rowItem.values[0],
-            DeviceInfoId: rowItem.values[7]
-        }))
-
-        e.component.getVisibleRows().forEach((item: any) => {
-            if (item?.isEditing && listOfDeviceInfo?.length > 0) {
-                let deviceInfoIds = listOfDeviceInfo.find((x: any) => x.DeviceId === item.values[0])
-              
-                if (!deviceInfoIds?.DeviceId) {
-                    dispatch(
-                        setSnackbar({
-                            message: 'Khoa/phòng ban/trung tâm không có thiết bị này!!!',
-                            color: colorsNotifi['success'].color,
-                            backgroundColor: colorsNotifi['success'].background,
-                        })
-                    )
-                }
-
-            }
-            setCurrentCreatedForm((prevState: any) => Object.assign({}, {
-                ...prevState,
-                DepartmentManageId: allRows.map((row: any) => row.values[5]),
-                listDeviceInfo: newListDeviceInfo
-            }))
-        })
-    }
-
-    const getFilteredDeviceInfoIds = (options: any) => {
-        return {
-            store: listOfDeviceInfo,
-            filter: options.data ? ['DeviceId', '=', options.data.DeviceId] : null,
-        };
-    }
-
-    return (
-        <DataGrid
-            dataSource={dataSource}
-            ref={dataGridRef}
-            id="gridContainer"
-            showBorders={true}
-            columnAutoWidth={true}
-            allowColumnResizing={true}
-            onContentReady={onContentReady}
-            columnResizingMode="widget"
-            columnMinWidth={100}
-            searchPanel={{
-                visible: true,
-                width: 240,
-                placeholder: 'Tìm kiếm',
-            }}
-            editing={{
-                // confirmDelete: true,
-                // allowDeleting: true,
-                // allowAdding: true,
-                allowUpdating: ['Chuyên viên TT TNTH', 'Chuyên viên đơn vị sử dụng'].includes(owner.GroupName) &&
-                    owner.DepartmentName === exportManagementForm.DepartmentManageName ? true : false,
-                mode: 'batch',
-            }}
-            elementAttr={{ style: 'height: 100%; padding-bottom: 20px; width: 100%; min-width: 600px' }}
-        >
-            <ColumnChooser enabled={true} mode="select" />
-            <Paging enabled={true} />
-            <FilterRow visible={true} applyFilter={true} />
-            <HeaderFilter visible={true} />
-            <ColumnFixing enabled={true} />
-            <Grouping contextMenuEnabled={true} expandMode="rowClick" />
-            <FilterPanel visible={true} />
-            <Pager
-                allowedPageSizes={true}
-                showInfo={true}
-                showNavigationButtons={true}
-                showPageSizeSelector={true}
-                visible={true}
-            />
-            <LoadPanel enabled={true} />
-            <Paging defaultPageSize={30} />
-            {commonFieldsShow.map(col => {
-                if (col.id !== "DeviceInfoId") {
-                    return <Column
-                        key={col.id}
-                        dataField={col.id}
-                        dataType="string"
-                        headerCellRender={data => renderHeader(data)}
-                        caption={col.header}
-                        allowEditing={false}
-                        cellRender={data => (
-                            <span>
-                                {Number(data.text) && col?.type === 'date'
-                                    ? moment.unix(Number(data.text)).format('DD/MM/YYYY')
-                                    : data.text}
-                            </span>
-                        )}
-                    />
-                }
-
-                else if (
-                    ['Chuyên viên TT TNTH', 'Chuyên viên đơn vị sử dụng'].includes(owner.GroupName) &&
-                    owner.DepartmentName === exportManagementForm.DepartmentManageName
-                ) {
-                    return <Column
-                        key="DeviceInfoId"
-                        dataField="DeviceInfoId"
-                        dataType="string"
-                        caption="Mã định danh thiết bị"
-                        headerCellRender={data => renderHeader(data, true)}
-                    >
-                        {listOfDeviceInfo?.length > 0 && <Lookup
-                            dataSource={getFilteredDeviceInfoIds}
-                            valueExpr="DeviceInfoId"
-                            displayExpr="DeviceInfoId"
-                        />}
-                    </Column>
-                }
-                else if (
-                    ['Admin', 'Trưởng phòng QTTB', 'Chuyên viên phòng QTTB'].includes(owner.GroupName) ||
-                    (['Trưởng đơn vị sử dụng', 'Trưởng phòng TT TNTH'].includes(owner.GroupName) &&
-                        owner.DepartmentName === exportManagementForm.DepartmentManageName)
-                ) {
-                    return <Column
-                        key="DeviceInfoId"
-                        dataField="DeviceInfoId"
-                        dataType="string"
-                        caption="Mã định danh thiết bị"
-                        allowEditing={false}
-                        headerCellRender={data => renderHeader(data)}
-                    >
-                    </Column>
-                }
-                else {
-                    return <></>
-                }
-            }
-            )}
-
-            <Toolbar>
-                <Item name="columnChooserButton" />
-                <Item name="searchPanel" showText="always" />
-            </Toolbar>
-        </DataGrid>
-    )
-})
+export default RowExportToLiquidateManagementForm

@@ -61,16 +61,18 @@ import { ISupplierType } from '../types/supplierType'
 import { ITrainDevice, ITrainer, ITrainInstructor } from '../types/trainType'
 import { setSnackbarMessage } from './appSlice'
 import './Dashboard.css'
-
 import { loadMessages, locale } from 'devextreme/localization'
 import viMessages from '../configs/devextreme_vi.json'
 import Sidebar from '../configs/sidebar'
 import {
 	setListOfExportToLiquidateManagementForms,
 	setListOfExportToOtherDepartmentManagementForms,
-} from '../layouts/ExportManagementTable/ExportToOtherDepartment/exportManagementSlice'
+} from '../layouts/ExportManagementTable/exportManagementSlice'
 import { setListOfSuggestNewDevices } from '../layouts/SuggestNewDevicesTable/suggestNewDeviceSlice'
-import { getExportToOtherDepartmentManagementForms, getListOfLiquidateDeviceForms } from '../services/exportManagementServices'
+import {
+	getExportToOtherDepartmentManagementForms,
+	getListOfLiquidateDeviceForms,
+} from '../services/exportManagementServices'
 import { getSuggestNewDevices } from '../services/suggestNewDeviceServices'
 import {
 	IExportToLiquidateManagementFormType,

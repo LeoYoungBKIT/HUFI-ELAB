@@ -14,6 +14,7 @@ import DataGrid, {
 	Column,
 	ColumnChooser,
 	ColumnFixing,
+	Toolbar as DevToolbar,
 	Editing,
 	FilterRow,
 	Grouping,
@@ -24,7 +25,6 @@ import DataGrid, {
 	RequiredRule,
 	SearchPanel,
 	Selection,
-	Toolbar as DevToolbar,
 } from 'devextreme-react/data-grid';
 
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react';

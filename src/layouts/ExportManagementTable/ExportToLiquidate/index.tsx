@@ -24,8 +24,8 @@ import DataSource from 'devextreme/data/data_source'
 import { uniqueId } from 'lodash'
 import moment from 'moment'
 import { IExportToLiquidateManagementFormType } from '../../../types/exportManagementType'
-// import DialogCreate from './Dialog/DialogCreate'
-// import RowExportToLiquidateManagementFormType from './DetailExportToLiquidateManagementForm'
+import DialogCreate from './Dialog/DialogCreate'
+import RowExportToLiquidateManagementFormType from './DetailExportToLiquidateManagementForm'
 
 
 const ALLOWED = [
@@ -210,7 +210,7 @@ const ExportToLiquidateTable: FC = () => {
                     </Paper>
 
 
-                    {/* <DialogCreate isOpen={isOpenCreateModal} onClose={() => setIsOpenCreateModal(false)} />
+                    <DialogCreate isOpen={isOpenCreateModal} onClose={() => setIsOpenCreateModal(false)} />
 
                     {selectedExportToLiquidateManagementForm && (
                         <RowExportToLiquidateManagementFormType
@@ -218,7 +218,7 @@ const ExportToLiquidateTable: FC = () => {
                             isOpen={!!selectedExportToLiquidateManagementForm}
                             handleClose={() => setSelectedExportToLiquidateManagementForm(undefined)}
                         />
-                    )} */}
+                    )}
                 </>
             )}
 
