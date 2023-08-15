@@ -4,7 +4,7 @@ import {
 	IExportToLiquidateManagementFormType,
 	IExportToOtherDepartmentManagementFormType,
 	dummyExportToOtherDepartmentManagementForm,
-} from '../../../types/exportManagementType';
+} from '../../types/exportManagementType';
 
 // Define a type for the slice state
 interface IExportManagementState {

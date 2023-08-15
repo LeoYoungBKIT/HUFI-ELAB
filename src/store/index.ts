@@ -26,7 +26,7 @@ import suggestNewDeviceReducer, {
 	reset as suggestNewDeviceReset,
 } from '../layouts/SuggestNewDevicesTable/suggestNewDeviceSlice';
 import userManagerReducer from '../layouts/UserManager/userManagerSlice';
-import exportManagementReducer, { reset as exportManagementReset } from '../layouts/ExportManagementTable/ExportToOtherDepartment/exportManagementSlice';
+import exportManagementReducer, { reset as exportManagementReset } from '../layouts/ExportManagementTable/exportManagementSlice';
 
 const resetStateMiddleware: Middleware =
 	({ dispatch }) =>

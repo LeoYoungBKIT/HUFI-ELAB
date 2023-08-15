@@ -1,7 +1,7 @@
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
-import { FC, useEffect, useRef, useState } from 'react';
+import { FC, useState } from 'react';
 import { useAppSelector } from '../../hooks';
 import ExportToOtherDepartmentTable from './ExportToOtherDepartment';
 import ExportToLiquidateTable from './ExportToLiquidate';
@@ -39,6 +39,7 @@ const ExportManagementTable: FC = () => {
         setValue(newValue);
     };
 
+   
     return (
         <>
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
