@@ -24,16 +24,22 @@ import { Column as ExcelCol, Workbook } from 'exceljs'
 import { saveAs } from 'file-saver'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { colorsNotifi } from '../../configs/color'
-import { useAppDispatch } from '../../hooks'
+import { useAppDispatch, useAppSelector } from '../../hooks'
 import { setSnackbar } from '../../pages/appSlice'
 import { getDeviceForCriteria, postMaintenanceSearchForExport } from '../../services/maintenanceDevicesServices'
 import { IMaintenanceDevice } from '../../types/maintenanceDevicesType'
+import Button from 'devextreme-react/button'
+import { ADMIN, EXPERIMENTAL_MANAGEMENT_SPECIALIST, UNIT_UTILIZATION_SPECIALIST } from '../../configs/permissions'
+import LoadIndicator from 'devextreme-react/load-indicator'
+import { useLoading } from '../../hooks/useLoading'
 
 function MaintenanceDeviceTable() {
 	const [deviceForCriteria, setDeviceForCriteria] = useState<IMaintenanceDevice[]>([])
 	const [dateStart, setDateStart] = useState<Date>(new Date())
 	const [dateEnd, setDateEnd] = useState<Date>(new Date())
 	const dispatch = useAppDispatch()
+	const { owner } = useAppSelector(state => state.userManager)
+
 	const columns = useRef([
 		{ id: 'DeviceInfoId', header: 'Mã định danh thiết bị' },
 		{ id: 'DeviceName', header: 'Tên thiết bị' },
@@ -93,11 +99,7 @@ function MaintenanceDeviceTable() {
 		})
 	}, [deviceForCriteria])
 
-	useEffect(() => {
-		getCriteria()
-	}, [])
-
-	const getCriteria = async () => {
+	const [getCriteria, isLoadingGetCriteria] = useLoading(async () => {
 		try {
 			const deviceForCriteria = await getDeviceForCriteria()
 			setDeviceForCriteria(deviceForCriteria)
@@ -110,7 +112,7 @@ function MaintenanceDeviceTable() {
 				}),
 			)
 		}
-	}
+	})
 
 	const onExporting = async (e: ExportingEvent<IMaintenanceDevice, any>) => {
 		const deviceSelected = e.component.getSelectedRowsData()
@@ -171,8 +173,23 @@ function MaintenanceDeviceTable() {
 		e.cancel = true
 	}
 
+	useEffect(() => {
+		getCriteria().catch(console.error)
+	}, [])
+
+	const handleRefresh = () => {
+		getCriteria().catch(console.error)
+	}
+
 	return (
-		<>
+		<div
+			style={{
+				height: '100%',
+				display: 'flex',
+				flexDirection: 'column',
+				overflow: 'hidden',
+			}}
+		>
 			<Box
 				component="div"
 				boxShadow="none"
@@ -186,56 +203,58 @@ function MaintenanceDeviceTable() {
 					Hiệu chuẩn/bảo trì
 				</Typography>
 
-				<Box
-					display="flex"
-					flexWrap="wrap"
-					marginLeft="auto"
-					alignItems="center"
-					justifySelf="right"
-					justifyContent="right"
-				>
-					<div
-						className="dx-field"
-						style={{
-							display: 'flex',
-							alignItems: 'center',
-							marginBottom: '0px',
-						}}
+				{[ADMIN, UNIT_UTILIZATION_SPECIALIST, EXPERIMENTAL_MANAGEMENT_SPECIALIST].includes(owner.GroupName) && (
+					<Box
+						display="flex"
+						flexWrap="wrap"
+						marginLeft="auto"
+						alignItems="center"
+						justifySelf="right"
+						justifyContent="right"
 					>
-						<div style={{ marginRight: '8px' }}>TG bắt đầu: </div>
-						<div>
-							<DateBox
-								onValueChanged={e => {
-									setDateStart(new Date(e?.value || ''))
-								}}
-								value={dateStart}
-								type="date"
-								displayFormat="dd/MM/yyyy"
-							/>
+						<div
+							className="dx-field"
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								marginBottom: '0px',
+							}}
+						>
+							<div style={{ marginRight: '8px' }}>TG bắt đầu: </div>
+							<div>
+								<DateBox
+									onValueChanged={e => {
+										setDateStart(new Date(e?.value || ''))
+									}}
+									value={dateStart}
+									type="date"
+									displayFormat="dd/MM/yyyy"
+								/>
+							</div>
 						</div>
-					</div>
-					<div
-						className="dx-field"
-						style={{
-							display: 'flex',
-							alignItems: 'center',
-							marginLeft: '8px',
-						}}
-					>
-						<div style={{ marginRight: '8px' }}>TG kết thúc: </div>
-						<div>
-							<DateBox
-								onValueChanged={e => {
-									setDateEnd(new Date(e?.value || ''))
-								}}
-								value={dateEnd}
-								defaultValue={new Date()}
-								type="date"
-								displayFormat="dd/MM/yyyy"
-							/>
+						<div
+							className="dx-field"
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								marginLeft: '8px',
+							}}
+						>
+							<div style={{ marginRight: '8px' }}>TG kết thúc: </div>
+							<div>
+								<DateBox
+									onValueChanged={e => {
+										setDateEnd(new Date(e?.value || ''))
+									}}
+									value={dateEnd}
+									defaultValue={new Date()}
+									type="date"
+									displayFormat="dd/MM/yyyy"
+								/>
+							</div>
 						</div>
-					</div>
-				</Box>
+					</Box>
+				)}
 			</Box>
 
 			<Paper
@@ -266,6 +285,7 @@ function MaintenanceDeviceTable() {
 						allowAdding: false,
 						allowUpdating: false,
 					}}
+					noDataText=""
 					elementAttr={{ style: 'height: 100%; padding-bottom: 20px; width: 100%; min-width: 600px' }}
 					onExporting={onExporting}
 					wordWrapEnabled={true}
@@ -280,7 +300,12 @@ function MaintenanceDeviceTable() {
 					<ColumnFixing enabled={false} />
 					<Grouping contextMenuEnabled={true} expandMode="rowClick" />
 					<FilterPanel visible={true} />
-					<Export enabled={true} allowExportSelectedData={true} />
+					<Export
+						enabled={[ADMIN, UNIT_UTILIZATION_SPECIALIST, EXPERIMENTAL_MANAGEMENT_SPECIALIST].includes(
+							owner.GroupName,
+						)}
+						allowExportSelectedData={true}
+					/>
 					<LoadPanel enabled={true} />
 					<Scrolling mode="infinite" />
 					<LoadPanel enabled={true} />
@@ -288,13 +313,30 @@ function MaintenanceDeviceTable() {
 						<Column key={col.id} dataField={col.id} dataType="string" caption={col.header} />
 					))}
 					<Toolbar>
+						<Item location="before">
+							<Button
+								stylingMode="contained"
+								disabled={isLoadingGetCriteria}
+								type="default"
+								onClick={handleRefresh}
+							>
+								<LoadIndicator
+									id="small-indicator"
+									height={20}
+									width={20}
+									visible={isLoadingGetCriteria}
+									elementAttr={{ class: 'indicator-white' }}
+								/>
+								Làm mới
+							</Button>
+						</Item>
 						<Item name="exportButton" />
 						<Item name="columnChooserButton" />
 						<Item name="searchPanel" showText="always" />
 					</Toolbar>
 				</DataGrid>
 			</Paper>
-		</>
+		</div>
 	)
 }
 

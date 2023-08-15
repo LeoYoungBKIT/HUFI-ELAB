@@ -35,3 +35,11 @@ export const StyledTableCell = styled(TableCell)(theme => ({
 		backgroundColor: 'lightgray',
 	},
 }));
+
+export const renderHeader = (data: any, isRequired: boolean = false) => {
+	return (
+		<b style={{ color: 'black' }}>
+			{data.column.caption} {isRequired && <span style={{ color: 'red' }}>*</span>}
+		</b>
+	)
+}

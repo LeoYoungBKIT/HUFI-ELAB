@@ -1,6 +1,6 @@
 import config from '../configs/app';
 import * as API from '../configs/apiHelper';
-import { IDeviceSpecType, IDeviceType, ILessonDeviceType } from '../types/deviceType';
+import { IDeviceGeneral, IDeviceSpecType, IDeviceType, ILessonDeviceType } from '../types/deviceType'
 import { IChemicalType } from '../types/chemicalType';
 
 const { isProd } = config;
@@ -13,6 +13,12 @@ export const getDevices = async () => {
 	const devices: IDeviceType[] = await API.get<IDeviceType[]>(url);
 	return devices;
 };
+
+export const getDeviceGeneral = async () => {
+	const url = `${API_ENDPOINT}/api/Devices/GetDeviceGeneral`
+	const devices: IDeviceGeneral[] = await API.get<IDeviceGeneral[]>(url)
+	return devices
+}
 
 export const getDeviceById = async (id: Number) => {
 	const url = `${API_ENDPOINT}/api/devices/${id}`;

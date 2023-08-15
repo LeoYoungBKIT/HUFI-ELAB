@@ -3,33 +3,15 @@ import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import {
 	Avatar,
 	Button,
-	FormControl,
 	Grid,
-	InputLabel,
-	MenuItem,
 	Paper,
-	Select,
-	SelectChangeEvent,
 	Stack,
-	TextField,
-	Typography,
+	TextField
 } from '@mui/material';
 import { Box } from '@mui/system';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { MRT_ColumnDef } from 'material-react-table';
-import moment from 'moment';
-import React, { useEffect, useMemo, useState } from 'react';
-import { connect } from 'react-redux';
-import { Genders } from '../configs/enums';
-import { useAppDispatch, useAppSelector } from '../hooks';
-import { setListOfEmployees } from '../layouts/EmployeeTable/employeeSlice';
-import { getDepartments } from '../services/departmentServices';
-import { getEmployeeById, updateEmployee } from '../services/employeeServices';
-import { RootState } from '../store';
-import { dummyDepartmentData, IDepartmentType } from '../types/departmentType';
-import { dummyUserOwner, IUserOwner } from '../types/userManagerType';
-import { setSnackbarMessage } from './appSlice';
+import React, { useMemo, useState } from 'react';
+import { useAppSelector } from '../hooks';
 import './Dashboard.css';
 
 const Account: React.FC = () => {
@@ -71,7 +53,7 @@ const Account: React.FC = () => {
 					></KeyboardArrowRightIcon>
 				</b>
 				<span>Thông tin nhân viên</span>
-				<Paper elevation={4} sx={{ "padding": "20px", "margin": "20px" }}>
+				<Paper elevation={4} sx={{ "padding": "20px", "margin": "20px", boxShadow: 'none' }}>
 					<Grid container>
 						<Grid item xs={12} md={10} lg={9} sx={{ margin: 'auto' }}>
 							<form onSubmit={e => e.preventDefault()} style={{ margin: '10px 0 56px 0' }}>
@@ -124,7 +106,9 @@ const Account: React.FC = () => {
 													<TextField
 														label={column.header}
 														name={column.accessorKey}
-														disabled
+														sx={{
+															pointerEvents: 'none'
+														}}
 														value={
 															column.accessorKey &&
 															owner[column.accessorKey as keyof typeof owner]

@@ -31,10 +31,18 @@ import { IExportDeviceType } from '../../types/exportDeviceType'
 import { IInstrumentHistory } from '../../types/instrumentHistoriesType'
 import { IRepairDevice } from '../../types/maintenanceDevicesType'
 import { DialogDeviceUsageHours, DialogRepairDevice } from './Dialog'
-import { renderHeader } from './Dialog/DialogImportDeviceInfo'
-import { ProviderValueType, useDeviceOfDepartmentTableStore } from './context/DeviceOfDepartmentTableContext'
-import ALLOWED from '../../configs/allowed'
-const listDeviceType = ['Thiết bị', 'Công cụ', 'Dụng cụ']
+import {
+	ADMIN,
+	EXPERIMENTAL_MANAGEMENT_HEAD,
+	EXPERIMENTAL_MANAGEMENT_SPECIALIST,
+	UNIT_UTILIZATION_HEAD,
+	UNIT_UTILIZATION_SPECIALIST,
+} from '../../configs/permissions'
+import Button from 'devextreme-react/button'
+import { getDevices } from '../../services/deviceDepartmentServices'
+import { renderHeader } from './Dialog/ultis'
+import { useLoading } from '../../hooks/useLoading'
+import LoadIndicator from 'devextreme-react/load-indicator'
 
 type DeviceColumnType = {
 	id: string
@@ -57,19 +65,20 @@ export function removeAccents(str: string) {
 const DeviceOfDepartmentTable = () => {
 	const dispatch = useAppDispatch()
 	const [selectedDevice, setSelectedDevice] = useState<IDeviceDepartmentType>()
-	const {
-		devices,
-		setDeviceValues,
-		deviceType,
-		setDeviceTypeValues,
-		deviceData,
-		setDeviceDataValues,
-		getDeviceData,
-	}: ProviderValueType = useDeviceOfDepartmentTableStore()
+	const [devices, setDevices] = useState<IDeviceDepartmentType[]>([])
+
+	const [getDeviceData, isLoadingGetDevices] = useLoading(async () => {
+		try {
+			const data: IDeviceDepartmentType[] = await getDevices()
+			setDevices(data)
+		} catch (error) {
+			console.log(error)
+		}
+	})
 
 	useEffect(() => {
-		getDeviceData()
-	}, [deviceType])
+		getDeviceData().catch(console.error)
+	}, [])
 
 	const columns = useRef<DeviceColumnType[]>([
 		{ id: 'DeviceId', header: 'Mã thiết bị' },
@@ -104,6 +113,10 @@ const DeviceOfDepartmentTable = () => {
 		})
 	}, [devices])
 
+	const handleRefresh = () => {
+		getDeviceData().catch(console.error)
+	}
+
 	return (
 		<>
 			<Paper
@@ -123,7 +136,7 @@ const DeviceOfDepartmentTable = () => {
 					columnAutoWidth={true}
 					allowColumnResizing={true}
 					columnResizingMode="widget"
-					columnMinWidth={100}
+					columnMinWidth={60}
 					searchPanel={{
 						visible: true,
 						width: 300,
@@ -137,6 +150,7 @@ const DeviceOfDepartmentTable = () => {
 					}}
 					elementAttr={{ style: 'height: 100%; padding-bottom: 20px; width: 100%; min-width: 600px' }}
 					wordWrapEnabled={true}
+					repaintChangesOnly={true}
 				>
 					<ColumnChooser enabled={true} mode="select">
 						<Position my="right top" at="right top" of=".dx-datagrid-column-chooser-button" />
@@ -161,7 +175,6 @@ const DeviceOfDepartmentTable = () => {
 							key={col.id}
 							dataField={col.id}
 							dataType="string"
-							headerCellRender={data => renderHeader(data)}
 							caption={col.header}
 							cellRender={data => (
 								<span>
@@ -173,7 +186,7 @@ const DeviceOfDepartmentTable = () => {
 						/>
 					))}
 
-					<Column type="buttons" fixed={true}>
+					<Column type="buttons" width={60} fixed={true}>
 						<DevButtonGrid
 							icon="chevrondown"
 							onClick={(e: any) => {
@@ -186,6 +199,18 @@ const DeviceOfDepartmentTable = () => {
 							<Typography fontWeight="bold" variant="h6" whiteSpace="nowrap">
 								Thiết bị
 							</Typography>
+						</Item>
+						<Item location="after">
+							<Button stylingMode="contained" type="default" disabled={isLoadingGetDevices} onClick={handleRefresh}>
+								<LoadIndicator
+									id="small-indicator"
+									height={20}
+									width={20}
+									visible={isLoadingGetDevices}
+									elementAttr={{ class: 'indicator-white' }}
+								/>
+								Làm mới
+							</Button>
 						</Item>
 						<Item name="columnChooserButton" />
 						<Item name="searchPanel" showText="always" />
@@ -291,7 +316,9 @@ const RowDevice = ({ device, isOpen, handleClose }: RowDeviceProps) => {
 				PaperProps={{ style: { maxWidth: 'unset' } }}
 			>
 				<DialogTitle textAlign="left">
-					<b>Chi tiết thiết bị - {device.DeviceId} - {device.DeviceName}</b>
+					<b>
+						Chi tiết thiết bị - {device.DeviceId} - {device.DeviceName}
+					</b>
 
 					<IconButton
 						aria-label="close"
@@ -353,7 +380,6 @@ const RowDevice = ({ device, isOpen, handleClose }: RowDeviceProps) => {
 									key={col.id}
 									dataField={col.id}
 									dataType="string"
-									headerCellRender={data => renderHeader(data)}
 									caption={col.header}
 									fixed={col?.fixed}
 									width={col.width || 150}
@@ -369,11 +395,11 @@ const RowDevice = ({ device, isOpen, handleClose }: RowDeviceProps) => {
 
 							<Column type="buttons">
 								{[
-									ALLOWED.ADMIN,
-									ALLOWED.MANAGER_EXPERIMENTAL,
-									ALLOWED.SPECIALIST_EXPERIMENTAL,
-									ALLOWED.MANAGER_USE_UNIT,
-									ALLOWED.SPECIALIST_USE_UNIT,
+									ADMIN,
+									EXPERIMENTAL_MANAGEMENT_HEAD,
+									EXPERIMENTAL_MANAGEMENT_SPECIALIST,
+									UNIT_UTILIZATION_HEAD,
+									UNIT_UTILIZATION_SPECIALIST,
 								].includes(owner.GroupName) && (
 									<DevButtonGrid
 										icon="edit"

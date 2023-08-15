@@ -23,6 +23,22 @@ export interface ILessonDeviceType {
     Quantity: Number,
     Note: String
 }
+
+export interface IDeviceGeneral {
+	DepartmentImportId?: string
+	DepartmentImportName?: string
+	DeviceInfoId: string
+	DeviceId?: string
+	DeviceName: string
+	DeviceEnglishName?: string
+	Model?: string
+	SerialNumber?: string
+	Specification?: string
+	Manufacturer?: string
+	Origin?: string
+	Status?: string
+}
+
 export const dummyDeviceData: IDeviceType = {
     "DeviceId": "",
     "DeviceName": "",

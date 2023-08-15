@@ -2,7 +2,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { Avatar, IconButton, Menu, MenuItem, Tooltip, Typography } from '@mui/material';
 import Toolbar from '@mui/material/Toolbar';
 import { Box } from '@mui/system';
-import 'devextreme/dist/css/dx.light.css'
+import 'devextreme/dist/css/dx.light.css';
 import React, { useEffect } from 'react';
 import { Link, redirect, Route, Routes, useNavigate } from 'react-router-dom';
 import AppBar from '../src/components/Appbar';

@@ -31,7 +31,6 @@ import ArrayStore from 'devextreme/data/array_store'
 import DataSource from 'devextreme/data/data_source'
 import { EditorPreparingEvent, SavingEvent } from 'devextreme/ui/data_grid'
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react'
-import ALLOWED from '../../../configs/allowed'
 import { colorsNotifi } from '../../../configs/color'
 import { useAppDispatch, useAppSelector } from '../../../hooks'
 import { setSnackbar } from '../../../pages/appSlice'
@@ -44,6 +43,7 @@ import {
 } from '../../../services/deviceUsageHoursServices'
 import { IDeviceRecordUsageHours, IDeviceUsageHours } from '../../../types/deviceUsageHoursType'
 import { DialogProps } from './DialogType'
+import { ADMIN, EXPERIMENTAL_MANAGEMENT_HEAD, EXPERIMENTAL_MANAGEMENT_SPECIALIST, UNIT_UTILIZATION_HEAD, UNIT_UTILIZATION_SPECIALIST } from '../../../configs/permissions'
 
 const DialogDeviceUsageHours = ({ isOpen, onClose, deviceInfoId = '' }: DialogProps) => {
 	const [deviceHours, setDeviceHours] = useState<IDeviceUsageHours>()
@@ -53,11 +53,11 @@ const DialogDeviceUsageHours = ({ isOpen, onClose, deviceInfoId = '' }: DialogPr
 	const [isFileLoading, setIsFileLoading] = useState(false)
 	const readOnly = useRef(
 		[
-			ALLOWED.ADMIN,
-			ALLOWED.MANAGER_EXPERIMENTAL,
-			ALLOWED.SPECIALIST_EXPERIMENTAL,
-			ALLOWED.MANAGER_USE_UNIT,
-			ALLOWED.SPECIALIST_USE_UNIT,
+			ADMIN,
+			EXPERIMENTAL_MANAGEMENT_HEAD,
+			EXPERIMENTAL_MANAGEMENT_SPECIALIST,
+			UNIT_UTILIZATION_HEAD,
+			UNIT_UTILIZATION_SPECIALIST,
 		].includes(owner.GroupName),
 	)
 

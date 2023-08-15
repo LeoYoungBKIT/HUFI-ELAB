@@ -64,3 +64,50 @@ export const getRepairDevices = async () => {
 	const repairDevice: IRepairDevice[] = await API.get<IRepairDevice[]>(url)
 	return repairDevice
 }
+
+export const putRepairDevice = async (id: string, updatedData: FormData) => {
+	const url = `${API_ENDPOINT}/api/Repairs/${id}`
+	const repairDevice = await API.put<FormData, FormData>(url, updatedData)
+	return repairDevice
+}
+
+export const postNewRepairDevice = async (newRepairDeviceData: FormData) => {
+	const url = `${API_ENDPOINT}/api/Repairs`
+	const newRepairDevice = await API.post<FormData, FormData>(url, newRepairDeviceData)
+	return newRepairDevice
+}
+
+export const postRejectRepairDevice = async (id: string, contentRepair: string) => {
+	const url = `${API_ENDPOINT}/api/Repairs/Reject/${id}/${contentRepair}`
+	const repairDevice = await API.post<{}, {}>(url, {})
+	return repairDevice
+}
+
+export const postReceiveRepairDevice = async (id: string) => {
+	const url = `${API_ENDPOINT}/api/Repairs/Receive/${id}`
+	const repairDevice = await API.post<{}, {}>(url, {})
+	return repairDevice
+}
+
+export const postCompleteRepairDevice = async (id: string) => {
+	const url = `${API_ENDPOINT}/api/Repairs/Complete/${id}`
+	const repairDevice = await API.post<{}, {}>(url, {})
+	return repairDevice
+}
+
+export const postProposeLiquidateRepairDevice = async (id: string) => {
+	const url = `${API_ENDPOINT}/api/Repairs/ProposeLiquidate/${id}`
+	const repairDevice = await API.post<{}, {}>(url, {})
+	return repairDevice
+}
+
+export const postAcceptRepairDevice = async (id: string) => {
+	const url = `${API_ENDPOINT}/api/Repairs/Accept/${id}`
+	const repairDevice = await API.post<{}, {}>(url, {})
+	return repairDevice
+}
+
+export const deleteRepairDevice = async (id: string) => {
+	const url = `${API_ENDPOINT}/api/Repairs/${id}`
+	await API.deleteResource(url)
+}

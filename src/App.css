@@ -55,3 +55,80 @@
 	font-weight: 700;
 	color: #333;
 }
+
+.pointer-event-none {
+	pointer-events: none;
+}
+
+.pointer-event-none .dx-texteditor.dx-editor-outlined {
+	border-color: transparent;
+}
+
+.dx-theme-generic-typography,
+.dx-theme-generic-typography input,
+.dx-theme-generic-typography textarea,
+.dx-widget,
+.dx-widget input,
+.dx-widget textarea,
+.dx-field,
+.dx-field input,
+.dx-field textarea,
+.dx-overlay-wrapper,
+.dx-overlay-wrapper input,
+.dx-overlay-wrapper textarea,
+.dx-menu-base,
+.dx-menu-base input,
+.dx-menu-base textarea,
+.dx-datagrid-column-chooser,
+.dx-datagrid-column-chooser input,
+.dx-datagrid-column-chooser textarea,
+.dx-treelist-column-chooser,
+.dx-treelist-column-chooser input,
+.dx-treelist-column-chooser textarea {
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans',
+		'Droid Sans', 'Helvetica Neue', sans-serif !important;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.items-center {
+	align-items: center !important;
+}
+
+.disable-padding-top .dx-fileuploader-input-wrapper::before {
+	padding-top: 0px;
+}
+
+.disable-padding-bottom .dx-fileuploader-input-wrapper::after {
+	padding-bottom: 0px;
+}
+
+.dx-fileuploader-input-wrapper {
+	border: none;
+}
+.disable-padding-left .dx-fileuploader-wrapper {
+	padding-left: 0;
+}
+
+
+.uploader-horizontal.dx-fileuploader-show-file-list .dx-fileuploader-files-container {
+	padding-top: 0;
+	padding-left: 20px;
+}
+
+.uploader-horizontal .dx-fileuploader-content {
+	display: flex;
+	align-items: center;
+}
+
+.uploader-horizontal .dx-fileuploader-input-container {
+	display: none;
+}
+
+.uploader-horizontal .dx-fileuploader-input-wrapper .dx-button {
+	float: none;
+}
+
+.indicator-white .dx-loadindicator-icon .dx-loadindicator-segment{
+	background: white;
+}

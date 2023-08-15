@@ -13,14 +13,34 @@ const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 root.render(
 	<React.StrictMode>
 		<Provider store={store}>
-			<ThemeProvider theme={createTheme({}, viVN)}>
+			<ThemeProvider
+				theme={createTheme(
+					{
+						typography: {
+							fontFamily: [
+								'-apple-system',
+								'BlinkMacSystemFont',
+								'"Segoe UI"',
+								'Roboto',
+								'"Helvetica Neue"',
+								'Arial',
+								'"Apple Color Emoji"',
+								'"Segoe UI Emoji"',
+								'"Segoe UI Symbol"',
+								'sans-serif',
+							].join(','),
+						},
+					},
+					viVN,
+				)}
+			>
 				<BrowserRouter>
 					<App />
 				</BrowserRouter>
 			</ThemeProvider>
 		</Provider>
 	</React.StrictMode>,
-);
+)
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
