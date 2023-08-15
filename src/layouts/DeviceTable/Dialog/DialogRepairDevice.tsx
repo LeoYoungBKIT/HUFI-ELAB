@@ -15,6 +15,7 @@ import DataGrid, {
 	Scrolling,
 	Toolbar,
 } from 'devextreme-react/data-grid'
+import LoadIndicator from 'devextreme-react/load-indicator'
 import ArrayStore from 'devextreme/data/array_store'
 import DataSource from 'devextreme/data/data_source'
 import { SavingEvent } from 'devextreme/ui/data_grid'
@@ -28,7 +29,6 @@ import { IMaintenanceDevice, IRepair } from '../../../types/maintenanceDevicesTy
 import { DialogProps } from './DialogType'
 import { ADMIN, EXPERIMENTAL_MANAGEMENT_SPECIALIST, UNIT_UTILIZATION_SPECIALIST } from '../../../configs/permissions'
 import { useLoading } from '../../../hooks/useLoading'
-import LoadIndicator from 'devextreme-react/load-indicator'
 
 const DialogRepairDevice = ({ isOpen, onClose, deviceInfoId = '' }: DialogProps) => {
 	const dispatch = useAppDispatch()
@@ -212,7 +212,7 @@ const DialogRepairDevice = ({ isOpen, onClose, deviceInfoId = '' }: DialogProps)
 										}
 									}}
 									disabled={isLoadingSaveDateMaintenace}
-									type='default'
+									type="default"
 								>
 									<LoadIndicator
 										id="small-indicator"

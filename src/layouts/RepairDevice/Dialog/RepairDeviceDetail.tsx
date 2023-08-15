@@ -54,6 +54,7 @@ import {
 	UNIT_UTILIZATION_HEAD,
 	UNIT_UTILIZATION_SPECIALIST,
 } from '../../../configs/permissions'
+import { confirm } from 'devextreme/ui/dialog'
 
 type RepairDeviceDetailProps = DialogProps & {
 	data: IRepairDevice
@@ -65,18 +66,18 @@ const RepairDeviceDetail = ({ isOpen, onClose, data, changeData }: RepairDeviceD
 	const [currentData, setCurrentData] = useState<IRepairDevice>(data)
 	const [deviceGenerals, setDeviceGenerals] = useState<IDeviceGeneral[]>([])
 	const contentRepairRef = useRef<HTMLInputElement>()
-	const [popupVisible, setPopupVisible] = useState<boolean>(false)
+	const [popupEditVisible, setPopupEditVisible] = useState<boolean>(false)
 	const stepperRef = useRef<HTMLDivElement>()
 	const { owner } = useAppSelector(state => state.userManager)
 	const dispatch = useAppDispatch()
 
-	const hidePopup = useCallback(() => {
-		setPopupVisible(false)
-	}, [setPopupVisible])
+	const hidePopupEdit = useCallback(() => {
+		setPopupEditVisible(false)
+	}, [setPopupEditVisible])
 
-	const showPopup = useCallback(() => {
-		setPopupVisible(true)
-	}, [setPopupVisible])
+	const showPopupEdit = useCallback(() => {
+		setPopupEditVisible(true)
+	}, [setPopupEditVisible])
 
 	const getDeviceInfo = async () => {
 		const devicesInfo = await getDeviceGeneral()
@@ -122,7 +123,7 @@ const RepairDeviceDetail = ({ isOpen, onClose, data, changeData }: RepairDeviceD
 				width: 200,
 				allowEditing: true,
 			},
-			{ dataField: 'DeviceName', caption: 'Tên Thiết bị', width: 200, allowEditing: false },
+			{ dataField: 'DeviceName', caption: 'Tên Thiết bị', minWidth: 200, allowEditing: false },
 			{ dataField: 'Location', caption: 'Vị trí', width: 100, allowEditing: false },
 			{ dataField: 'YearstartUsage', caption: 'Năm đưa vào sử dụng', width: 120, allowEditing: false },
 			{
@@ -180,7 +181,7 @@ const RepairDeviceDetail = ({ isOpen, onClose, data, changeData }: RepairDeviceD
 				),
 				width: 100,
 			},
-			{ dataField: 'Status', caption: 'Trạng thái' },
+			{ dataField: 'Status', caption: 'Trạng thái', width: 100 },
 		],
 		[currentData],
 	)
@@ -205,16 +206,22 @@ const RepairDeviceDetail = ({ isOpen, onClose, data, changeData }: RepairDeviceD
 
 	const [handleRejectRepair, isLoadingRejectRepair] = useLoading(async () => {
 		try {
-			await postRejectRepairDevice(currentData.RepairId, contentRepairRef?.current?.value || 'Trống')
-
-			dispatch(
-				setSnackbar({
-					message: 'Không tiếp nhận phiếu sửa chữa thành công',
-					color: colorsNotifi['success'].color,
-					backgroundColor: colorsNotifi['success'].background,
-				}),
+			let result = await confirm(
+				'<p>Bạn chắc chắn từ chối tiếp nhận phiếu sửa chữa này?</p>',
+				'Từ chối tiếp nhận',
 			)
-			changeData()
+			if (result) {
+				await postRejectRepairDevice(currentData.RepairId, contentRepairRef?.current?.value || 'Trống')
+
+				dispatch(
+					setSnackbar({
+						message: 'Không tiếp nhận phiếu sửa chữa thành công',
+						color: colorsNotifi['success'].color,
+						backgroundColor: colorsNotifi['success'].background,
+					}),
+				)
+				changeData()
+			}
 		} catch (error) {
 			dispatch(
 				setSnackbar({
@@ -229,16 +236,19 @@ const RepairDeviceDetail = ({ isOpen, onClose, data, changeData }: RepairDeviceD
 
 	const [handleReceiveRepair, isLoadingReceiveRepair] = useLoading(async () => {
 		try {
-			await postReceiveRepairDevice(currentData.RepairId)
+			let result = await confirm('<p>Bạn chắc chắn đồng ý tiếp nhận phiếu sửa chữa này?</p>', 'Tiếp nhận')
+			if (result) {
+				await postReceiveRepairDevice(currentData.RepairId)
 
-			dispatch(
-				setSnackbar({
-					message: 'Tiếp nhận phiếu sửa chữa thành công',
-					color: colorsNotifi['success'].color,
-					backgroundColor: colorsNotifi['success'].background,
-				}),
-			)
-			changeData()
+				dispatch(
+					setSnackbar({
+						message: 'Tiếp nhận phiếu sửa chữa thành công',
+						color: colorsNotifi['success'].color,
+						backgroundColor: colorsNotifi['success'].background,
+					}),
+				)
+				changeData()
+			}
 		} catch (error) {
 			dispatch(
 				setSnackbar({
@@ -253,15 +263,18 @@ const RepairDeviceDetail = ({ isOpen, onClose, data, changeData }: RepairDeviceD
 
 	const [handleProposeLiquidateRepair, isLoadingProposeLiquidateRepair] = useLoading(async () => {
 		try {
-			await postProposeLiquidateRepairDevice(currentData.RepairId)
-			dispatch(
-				setSnackbar({
-					message: 'Đề xuất thanh lý thành công',
-					color: colorsNotifi['success'].color,
-					backgroundColor: colorsNotifi['success'].background,
-				}),
-			)
-			changeData()
+			let result = await confirm('<p>Bạn chắc chắn đề xuất thanh lý phiếu sửa chữa này?</p>', 'Đề xuất thanh lý')
+			if (result) {
+				await postProposeLiquidateRepairDevice(currentData.RepairId)
+				dispatch(
+					setSnackbar({
+						message: 'Đề xuất thanh lý thành công',
+						color: colorsNotifi['success'].color,
+						backgroundColor: colorsNotifi['success'].background,
+					}),
+				)
+				changeData()
+			}
 		} catch (error) {
 			dispatch(
 				setSnackbar({
@@ -276,15 +289,21 @@ const RepairDeviceDetail = ({ isOpen, onClose, data, changeData }: RepairDeviceD
 
 	const [handleCompleteRepair, isLoadingCompleteRepair] = useLoading(async () => {
 		try {
-			await postCompleteRepairDevice(currentData.RepairId)
-			dispatch(
-				setSnackbar({
-					message: 'Xác nhận hoàn thành thành công',
-					color: colorsNotifi['success'].color,
-					backgroundColor: colorsNotifi['success'].background,
-				}),
+			let result = await confirm(
+				'<p>Bạn chắc chắn xác nhận hoàn thành phiếu sửa chữa này?</p>',
+				'Xác nhận hoàn thành',
 			)
-			changeData()
+			if (result) {
+				await postCompleteRepairDevice(currentData.RepairId)
+				dispatch(
+					setSnackbar({
+						message: 'Xác nhận hoàn thành thành công',
+						color: colorsNotifi['success'].color,
+						backgroundColor: colorsNotifi['success'].background,
+					}),
+				)
+				changeData()
+			}
 		} catch (error) {
 			dispatch(
 				setSnackbar({
@@ -299,16 +318,22 @@ const RepairDeviceDetail = ({ isOpen, onClose, data, changeData }: RepairDeviceD
 
 	const [handleAcceptRepair, isLoadingAcceptRepair] = useLoading(async () => {
 		try {
-			await postAcceptRepairDevice(currentData.RepairId)
-
-			dispatch(
-				setSnackbar({
-					message: 'Duyệt thành công',
-					color: colorsNotifi['success'].color,
-					backgroundColor: colorsNotifi['success'].background,
-				}),
+			let result = await confirm(
+				'<p>Bạn chắc chắn xác nhận duyệt phiếu sửa chữa này?</p>',
+				'Xác nhận duyệt',
 			)
-			changeData()
+			if (result) {
+				await postAcceptRepairDevice(currentData.RepairId)
+
+				dispatch(
+					setSnackbar({
+						message: 'Duyệt thành công',
+						color: colorsNotifi['success'].color,
+						backgroundColor: colorsNotifi['success'].background,
+					}),
+				)
+				changeData()
+			}
 		} catch (error) {
 			dispatch(
 				setSnackbar({
@@ -322,16 +347,21 @@ const RepairDeviceDetail = ({ isOpen, onClose, data, changeData }: RepairDeviceD
 	})
 
 	const [handleDeleteRepair, isLoadingDeleteRepair] = useLoading(async () => {
-		try {
-			await deleteRepairDevice(currentData.RepairId)
-			dispatch(
-				setSnackbar({
-					message: 'Xóa phiếu sửa chữa thành công',
-					color: colorsNotifi['success'].color,
-					backgroundColor: colorsNotifi['success'].background,
-				}),
+		try {let result = await confirm(
+				'<p>Bạn chắc chắn xác nhận xóa phiếu sửa chữa này?</p>',
+				'Xác nhận xóa',
 			)
-			onClose()
+			if (result) {
+				await deleteRepairDevice(currentData.RepairId)
+				dispatch(
+					setSnackbar({
+						message: 'Xóa phiếu sửa chữa thành công',
+						color: colorsNotifi['success'].color,
+						backgroundColor: colorsNotifi['success'].background,
+					}),
+				)
+				onClose()
+			}
 		} catch (error) {
 			dispatch(
 				setSnackbar({
@@ -349,21 +379,8 @@ const RepairDeviceDetail = ({ isOpen, onClose, data, changeData }: RepairDeviceD
 			e.preventDefault()
 			const form = e.target as HTMLFormElement
 			const formData = new FormData(form)
-			console.log(formData.values())
-			const putFormData = new FormData()
 
-			columnsEdit.current.forEach(col => {
-				if (col?.typeCreate === 'textbox') {
-					const text = formData.get(col?.dataField)
-					text && putFormData.append(col?.dataField || '', text)
-				}
-				if (col?.typeCreate === 'file') {
-					const file = formData.get(col?.dataField) as File
-					if (file.name !== '' && file.size > 0) putFormData.append(col?.dataField || '', file)
-				}
-			})
-
-			await putRepairDevice(currentData.RepairId, putFormData)
+			await putRepairDevice(currentData.RepairId, formData)
 
 			dispatch(
 				setSnackbar({
@@ -684,7 +701,7 @@ const RepairDeviceDetail = ({ isOpen, onClose, data, changeData }: RepairDeviceD
 													Xóa
 												</Button>
 												<Button
-													onClick={showPopup}
+													onClick={showPopupEdit}
 													type="default"
 													elementAttr={{ style: 'margin-left: 8px;' }}
 												>
@@ -711,7 +728,7 @@ const RepairDeviceDetail = ({ isOpen, onClose, data, changeData }: RepairDeviceD
 													Xóa
 												</Button>
 												<Button
-													onClick={showPopup}
+													onClick={showPopupEdit}
 													type="default"
 													elementAttr={{ style: 'margin-left: 8px;' }}
 												>
@@ -725,8 +742,8 @@ const RepairDeviceDetail = ({ isOpen, onClose, data, changeData }: RepairDeviceD
 					</Box>
 
 					<Popup
-						visible={popupVisible}
-						onHiding={hidePopup}
+						visible={popupEditVisible}
+						onHiding={hidePopupEdit}
 						dragEnabled={true}
 						hideOnOutsideClick={false}
 						showCloseButton={true}
@@ -787,6 +804,9 @@ const RepairDeviceDetail = ({ isOpen, onClose, data, changeData }: RepairDeviceD
 													elementAttr={{
 														class: 'uploader-horizontal',
 													}}
+													inputAttr={{
+														required: 'required',
+													}}
 													accept="application/pdf,application/vnd.ms-excel"
 													uploadMode="useForm"
 													name={col.dataField}
@@ -796,6 +816,9 @@ const RepairDeviceDetail = ({ isOpen, onClose, data, changeData }: RepairDeviceD
 									}
 								})}
 							</Form>
+							<Typography fontStyle="italic" fontSize="14px" my={2}>
+								(<span style={{ color: '#c9302c' }}>*</span>) Bắt buộc phải điền
+							</Typography>
 							<Box display="flex">
 								<ButtonDevextreme
 									type="default"
@@ -816,7 +839,7 @@ const RepairDeviceDetail = ({ isOpen, onClose, data, changeData }: RepairDeviceD
 								<ButtonDevextreme
 									type="normal"
 									text="Hủy"
-									onClick={hidePopup}
+									onClick={hidePopupEdit}
 									elementAttr={{ style: 'margin-left: 16px; width: 80px' }}
 									width={80}
 								/>
