@@ -6,7 +6,6 @@ import DataGrid, {
 	Button as DevButtonGrid,
 	FilterPanel,
 	FilterRow,
-	GroupPanel,
 	Grouping,
 	HeaderFilter,
 	IColumnProps,
@@ -14,10 +13,11 @@ import DataGrid, {
 	LoadPanel,
 	Paging,
 	Scrolling,
-	Toolbar,
+	Toolbar
 } from 'devextreme-react/data-grid'
 import FileUploader from 'devextreme-react/file-uploader'
 import Form, { Item as FormItem } from 'devextreme-react/form'
+import LoadIndicator from 'devextreme-react/load-indicator'
 import Popup from 'devextreme-react/popup'
 import { RequiredRule } from 'devextreme-react/validator'
 import ArrayStore from 'devextreme/data/array_store'
@@ -26,16 +26,15 @@ import { ColumnCellTemplateData } from 'devextreme/ui/data_grid'
 import moment from 'moment'
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { colorsNotifi } from '../../configs/color'
+import { ADMIN, UNIT_UTILIZATION_SPECIALIST } from '../../configs/permissions'
 import { useAppDispatch, useAppSelector } from '../../hooks'
+import { useLoading } from '../../hooks/useLoading'
 import { setSnackbar } from '../../pages/appSlice'
 import { getDeviceGeneral } from '../../services/deviceServices'
 import { getRepairDevices, postNewRepairDevice } from '../../services/maintenanceDevicesServices'
 import { IDeviceGeneral } from '../../types/deviceType'
 import { IRepairDevice } from '../../types/maintenanceDevicesType'
 import RepairDeviceDetail from './Dialog/RepairDeviceDetail'
-import { useLoading } from '../../hooks/useLoading'
-import LoadIndicator from 'devextreme-react/load-indicator'
-import { ADMIN, UNIT_UTILIZATION_SPECIALIST } from '../../configs/permissions'
 
 const RepairDevice = () => {
 	const [repairs, setRepairs] = useState<IRepairDevice[]>([])

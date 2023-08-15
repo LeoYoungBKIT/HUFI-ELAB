@@ -4,6 +4,7 @@ import { Box } from '@mui/system'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useAppDispatch, useAppSelector } from '../../hooks'
 
+import Button from 'devextreme-react/button'
 import DataGrid, {
 	Column,
 	ColumnChooser,
@@ -20,17 +21,11 @@ import DataGrid, {
 	Position,
 	Toolbar,
 } from 'devextreme-react/data-grid'
+import LoadIndicator from 'devextreme-react/load-indicator'
 import ArrayStore from 'devextreme/data/array_store'
 import DataSource from 'devextreme/data/data_source'
 import { uniqueId } from 'lodash'
 import moment from 'moment'
-import { getMaintenanceDeviceById } from '../../services/maintenanceDevicesServices'
-import { IDeviceDepartmentType } from '../../types/deviceDepartmentType'
-import { IDeviceHistory } from '../../types/deviceHistoriesType'
-import { IExportDeviceType } from '../../types/exportDeviceType'
-import { IInstrumentHistory } from '../../types/instrumentHistoriesType'
-import { IRepairDevice } from '../../types/maintenanceDevicesType'
-import { DialogDeviceUsageHours, DialogRepairDevice } from './Dialog'
 import {
 	ADMIN,
 	EXPERIMENTAL_MANAGEMENT_HEAD,
@@ -38,11 +33,10 @@ import {
 	UNIT_UTILIZATION_HEAD,
 	UNIT_UTILIZATION_SPECIALIST,
 } from '../../configs/permissions'
-import Button from 'devextreme-react/button'
-import { getDevices } from '../../services/deviceDepartmentServices'
-import { renderHeader } from './Dialog/ultis'
 import { useLoading } from '../../hooks/useLoading'
-import LoadIndicator from 'devextreme-react/load-indicator'
+import { getDevices } from '../../services/deviceDepartmentServices'
+import { IDeviceDepartmentType } from '../../types/deviceDepartmentType'
+import { DialogDeviceUsageHours, DialogRepairDevice } from './Dialog'
 
 type DeviceColumnType = {
 	id: string

@@ -15,20 +15,20 @@ import DataGrid, {
 	Scrolling,
 	Toolbar,
 } from 'devextreme-react/data-grid'
+import LoadIndicator from 'devextreme-react/load-indicator'
 import ArrayStore from 'devextreme/data/array_store'
 import DataSource from 'devextreme/data/data_source'
 import { SavingEvent } from 'devextreme/ui/data_grid'
 import moment from 'moment'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { colorsNotifi } from '../../../configs/color'
+import { ADMIN, EXPERIMENTAL_MANAGEMENT_SPECIALIST, UNIT_UTILIZATION_SPECIALIST } from '../../../configs/permissions'
 import { useAppDispatch, useAppSelector } from '../../../hooks'
+import { useLoading } from '../../../hooks/useLoading'
 import { setSnackbar } from '../../../pages/appSlice'
 import { getMaintenanceDeviceById, postDateMaintenace } from '../../../services/maintenanceDevicesServices'
 import { IMaintenanceDevice, IRepair } from '../../../types/maintenanceDevicesType'
 import { DialogProps } from './DialogType'
-import { ADMIN, EXPERIMENTAL_MANAGEMENT_SPECIALIST, UNIT_UTILIZATION_SPECIALIST } from '../../../configs/permissions'
-import { useLoading } from '../../../hooks/useLoading'
-import LoadIndicator from 'devextreme-react/load-indicator'
 
 const DialogRepairDevice = ({ isOpen, onClose, deviceInfoId = '' }: DialogProps) => {
 	const dispatch = useAppDispatch()
