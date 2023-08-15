@@ -32,6 +32,7 @@ import {
 	UNIT_UTILIZATION_HEAD,
 	UNIT_UTILIZATION_SPECIALIST,
 } from './permissions'
+import DeviceCategory from '../layouts/DeviceTable/DeviceCategory'
 
 export interface ISidebarItem {
 	id: string
@@ -175,7 +176,8 @@ const Sidebar = {
 						id: 'TB - Danh mục thiết bị',
 						name: 'Danh mục thiết bị',
 						icon: null,
-						comp: null,
+						comp: <DeviceCategory />,
+						permissions: [ADMIN, EQUIPMENT_MANAGEMENT_HEAD],
 					},
 				],
 			},

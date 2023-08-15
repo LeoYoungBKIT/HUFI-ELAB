@@ -85,7 +85,7 @@ const RepairDevice = () => {
 
 	const columns = useRef<(IColumnProps & { typeCreate?: string })[]>([
 		{ dataField: 'RepairId', caption: 'Mã sửa chữa', width: 100 },
-		{ dataField: 'Title', caption: 'Tiêu đề', width: 200, typeCreate: 'textbox' },
+		{ dataField: 'Title', caption: 'Tiêu đề', minWidth: 200, typeCreate: 'textbox' },
 		{ dataField: 'ContentRepair', caption: 'Nội dung sửa chữa', width: 280, typeCreate: 'textbox' },
 		{ dataField: 'ContentReport', caption: 'Nội dung tường trình', width: 280, typeCreate: 'textbox' },
 		{ dataField: 'DateCreate', caption: 'Ngày tạo', width: 100 },
@@ -107,7 +107,7 @@ const RepairDevice = () => {
 		{ dataField: 'LinkReportFile', caption: 'Bản tường trình', visible: false, typeCreate: 'file' },
 		{ dataField: 'LinkCheckFile', caption: 'Biên bản kiểm tra', visible: false, typeCreate: 'file' },
 		{ dataField: 'LinkHandoverFile', caption: 'Biên bản bàn giao', visible: false, typeCreate: 'file' },
-		{ dataField: 'Status', caption: 'Trạng thái' },
+		{ dataField: 'Status', caption: 'Trạng thái', width: 150 },
 	])
 
 	const [handleSaving, isLoadingHanleSaving] = useLoading(async (e: FormEvent<HTMLFormElement>) => {

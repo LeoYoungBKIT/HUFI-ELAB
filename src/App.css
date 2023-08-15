@@ -110,7 +110,6 @@
 	padding-left: 0;
 }
 
-
 .uploader-horizontal.dx-fileuploader-show-file-list .dx-fileuploader-files-container {
 	padding-top: 0;
 	padding-left: 20px;
@@ -129,6 +128,11 @@
 	float: none;
 }
 
-.indicator-white .dx-loadindicator-icon .dx-loadindicator-segment{
+.indicator-white .dx-loadindicator-icon .dx-loadindicator-segment {
 	background: white;
+}
+
+.dx-datagrid-rowsview .dx-data-row .dx-validator.dx-datagrid-invalid.dx-focused.dx-cell-modified::after,
+.dx-datagrid-rowsview .dx-data-row .dx-validator.dx-datagrid-invalid.dx-focused.dx-datagrid-invalid::after {
+	border: 2px solid #d9534f;
 }
