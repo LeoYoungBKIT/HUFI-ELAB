@@ -1,27 +1,27 @@
-import * as React from 'react'
-import { styled, useTheme, Theme, CSSObject } from '@mui/material/styles'
-import Box from '@mui/material/Box'
-import CssBaseline from '@mui/material/CssBaseline'
-import List from '@mui/material/List'
-import Divider from '@mui/material/Divider'
-import IconButton from '@mui/material/IconButton'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
-import ListItem from '@mui/material/ListItem'
+import ExpandLessOutlinedIcon from '@mui/icons-material/ExpandLessOutlined'
+import ExpandMoreOutlinedIcon from '@mui/icons-material/ExpandMoreOutlined'
+import { Collapse, Tooltip, Typography } from '@mui/material'
+import Box from '@mui/material/Box'
+import CssBaseline from '@mui/material/CssBaseline'
+import Divider from '@mui/material/Divider'
+import MuiDrawer from '@mui/material/Drawer'
+import IconButton from '@mui/material/IconButton'
+import List from '@mui/material/List'
 import ListItemButton from '@mui/material/ListItemButton'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
-import InboxIcon from '@mui/icons-material/MoveToInbox'
-import MailIcon from '@mui/icons-material/Mail'
-import MuiDrawer from '@mui/material/Drawer'
+import { CSSObject, Theme, styled, useTheme } from '@mui/material/styles'
+import { memo, useEffect, useState } from 'react'
 import HufiLogoExtended from '../../assets/img/logo-hufi-extended.png'
+import Sidebar, { ISidebarItem } from '../../configs/sidebar'
 import { useAppDispatch, useAppSelector } from '../../hooks'
+import { setAppState, setIsOpenDrawer } from '../../pages/appSlice'
 import { RootState } from '../../store'
-import { defaultSidebarItems, setIsOpenDrawer, setSidebarItems } from '../../pages/appSlice'
-import { Tooltip } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 
-const drawerWidth = 240
+export const drawerWidth = 300
 
 const openedMixin = (theme: Theme): CSSObject => ({
 	width: drawerWidth,
@@ -29,7 +29,6 @@ const openedMixin = (theme: Theme): CSSObject => ({
 		easing: theme.transitions.easing.sharp,
 		duration: theme.transitions.duration.enteringScreen,
 	}),
-	overflowX: 'hidden',
 })
 
 const closedMixin = (theme: Theme): CSSObject => ({
@@ -37,11 +36,8 @@ const closedMixin = (theme: Theme): CSSObject => ({
 		easing: theme.transitions.easing.sharp,
 		duration: theme.transitions.duration.leavingScreen,
 	}),
-	overflowX: 'hidden',
-	width: `calc(${theme.spacing(7)} + 1px)`,
-	[theme.breakpoints.up('sm')]: {
-		width: `calc(${theme.spacing(8)} + 1px)`,
-	},
+	// overflowX: 'hidden',
+	width: `0px`,
 })
 
 const DrawerHeader = styled('div')(({ theme }) => ({
@@ -49,6 +45,10 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 	alignItems: 'center',
 	justifyContent: 'flex-end',
 	padding: theme.spacing(0, 1),
+	position: 'sticky',
+	top: 0,
+	zIndex: 9999,
+	background: 'white',
 	// necessary for content to be below app bar
 	...theme.mixins.toolbar,
 }))
@@ -71,9 +71,8 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: prop => prop !== 'open' })
 function PersistentDrawerLeft() {
 	const dispatch = useAppDispatch()
 	const theme = useTheme()
-	const { isOpenDrawer, sidebarItems } = useAppSelector((state: RootState) => state.app)
-	const navigate = useNavigate()
-
+	const { isOpenDrawer } = useAppSelector((state: RootState) => state.app)
+	const { owner } = useAppSelector((state: RootState) => state.userManager)
 	const handleDrawerClose = () => {
 		dispatch(setIsOpenDrawer(false))
 	}
@@ -82,7 +81,15 @@ function PersistentDrawerLeft() {
 		<Box sx={{ display: 'flex' }}>
 			<CssBaseline />
 
-			<Drawer variant="permanent" open={isOpenDrawer}>
+			<Drawer
+				PaperProps={{
+					sx: {
+						overflow: 'overlay',
+					},
+				}}
+				variant="permanent"
+				open={isOpenDrawer}
+			>
 				<DrawerHeader>
 					<img
 						src={HufiLogoExtended}
@@ -94,91 +101,131 @@ function PersistentDrawerLeft() {
 					</IconButton>
 				</DrawerHeader>
 				<Divider />
+				{isOpenDrawer && (
+					<List disablePadding>
+						{Sidebar.get().map((route, index) => {
+							if (route.permissions === undefined || route.permissions?.includes(owner.GroupName)) {
+								if (route?.children?.length === 0) return null
 
-				<List>
-					{defaultSidebarItems.map((item, index) => (
-						<React.Fragment key={item.name.toString()}>
-							{[9, 12].includes(index) && <div style={{ paddingTop: '7px' }} />}
-							<ListItem key={item.name.toString()} disablePadding sx={{ display: 'block' }}>
-								{!isOpenDrawer ? (
-									<Tooltip arrow placement="right" title={item.name}>
-										<ListItemButton
-											sx={{
-												minHeight: 48,
-												justifyContent: isOpenDrawer ? 'initial' : 'center',
-												px: 2.5,
-											}}
-											style={{
-												backgroundColor: sidebarItems[index].isOpen ? '#DEE1E6' : 'white',
-											}}
-											onClick={() => {
-												navigate('/')
-												dispatch(setSidebarItems(index))
-											}}
-										>
-											<ListItemIcon
-												sx={{
-													minWidth: 0,
-													mr: isOpenDrawer ? 3 : 'auto',
-													justifyContent: 'center',
-												}}
-											>
-												{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-											</ListItemIcon>
-											<ListItemText
-												primary={item.name}
-												sx={{ opacity: 0 }}
-												onClick={() => {
-													navigate('/')
-													dispatch(setSidebarItems(index))
-												}}
-											/>
-										</ListItemButton>
-									</Tooltip>
+								return route?.children ? (
+									<SidebarItemCollapse item={route} key={index} indentLevel={0} />
 								) : (
-									<ListItemButton
-										sx={{
-											minHeight: 48,
-											justifyContent: isOpenDrawer ? 'initial' : 'center',
-											px: 2.5,
-										}}
-										style={{ backgroundColor: sidebarItems[index].isOpen ? '#DEE1E6' : 'white' }}
-										onClick={() => {
-											navigate('/')
-											dispatch(setSidebarItems(index))
-										}}
-									>
-										<ListItemIcon
-											sx={{
-												minWidth: 0,
-												mr: isOpenDrawer ? 3 : 'auto',
-												justifyContent: 'center',
-											}}
-										>
-											{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-										</ListItemIcon>
-										<ListItemText
-											primary={item.name}
-											sx={{ opacity: 1 }}
-											onClick={() => {
-												navigate('/')
-												dispatch(setSidebarItems(index))
-											}}
-										/>
-									</ListItemButton>
-								)}
-							</ListItem>
-							{[8, 11].includes(index) && (
-								<div style={{ paddingTop: '7px' }}>
-									<Divider />
-								</div>
-							)}
-						</React.Fragment>
-					))}
-				</List>
+									<SidebarItem item={route} key={index} indentLevel={0} />
+								)
+							} else return null
+						})}
+					</List>
+				)}
 			</Drawer>
 		</Box>
 	)
 }
 
-export default React.memo(PersistentDrawerLeft)
+type Props = {
+	item: ISidebarItem
+	indentLevel: number
+}
+
+const SidebarItemCollapse = ({ item, indentLevel }: Props) => {
+	const [open, setOpen] = useState(false)
+
+	const { appState } = useAppSelector((state: RootState) => state.app)
+	const { isOpenDrawer } = useAppSelector((state: RootState) => state.app)
+	const { owner } = useAppSelector((state: RootState) => state.userManager)
+
+	useEffect(() => {
+		if (appState.includes(item.id)) {
+			setOpen(true)
+		}
+	}, [appState, item])
+
+	return item.id ? (
+		<>
+			<Tooltip title={item.id} placement="right" arrow={true}>
+				<ListItemButton
+					onClick={() => setOpen(!open)}
+					sx={{
+						minHeight: 48,
+						justifyContent: isOpenDrawer ? 'initial' : 'center',
+						px: 2.5,
+					}}
+				>
+					<ListItemIcon
+						sx={{
+							minWidth: '24px',
+							marginLeft: isOpenDrawer ? indentLevel * 20 + 'px' : 'auto',
+							justifyContent: 'center',
+						}}
+					>
+						{item.icon && item.icon}
+					</ListItemIcon>
+					<ListItemText
+						disableTypography
+						primary={<Typography whiteSpace="normal">{item.name}</Typography>}
+					/>
+
+					{open ? <ExpandLessOutlinedIcon /> : <ExpandMoreOutlinedIcon />}
+				</ListItemButton>
+			</Tooltip>
+			<Collapse in={open} timeout="auto">
+				<List>
+					{item?.children?.map((route, index) => {
+						if (route.permissions === undefined || route.permissions?.includes(owner.GroupName)) {
+							if (route?.children?.length === 0) return null
+
+							return route?.children ? (
+								<SidebarItemCollapse item={route} key={index} indentLevel={indentLevel + 1} />
+							) : (
+								<SidebarItem item={route} key={index} indentLevel={indentLevel + 1} />
+							)
+						} else return null
+					})}
+				</List>
+			</Collapse>
+		</>
+	) : null
+}
+
+const SidebarItem = ({ item, indentLevel }: Props) => {
+	const { appState } = useAppSelector((state: RootState) => state.app)
+	const { isOpenDrawer } = useAppSelector((state: RootState) => state.app)
+	const dispatch = useAppDispatch()
+	const navigate = useNavigate()
+
+	return item.id ? (
+		<Tooltip title={item.id} placement="right" arrow={true}>
+			<ListItemButton
+				sx={{
+					minHeight: 48,
+					justifyContent: isOpenDrawer ? 'initial' : 'center',
+					px: 2.5,
+				}}
+				onClick={() => {
+					navigate('/')
+					dispatch(setAppState(item.id))
+				}}
+				style={{
+					backgroundColor: appState === item.id ? '#DEE1E6' : 'white',
+				}}
+			>
+				<ListItemIcon
+					sx={{
+						minWidth: '24px',
+						marginLeft: isOpenDrawer ? indentLevel * 20 + 'px' : 'auto',
+						justifyContent: 'center',
+					}}
+				>
+					{item.icon && item.icon}
+				</ListItemIcon>
+				{isOpenDrawer && (
+					<ListItemText
+						disableTypography
+						primary={<Typography whiteSpace="normal">{item.name}</Typography>}
+					/>
+				)}
+			</ListItemButton>
+		</Tooltip>
+	) : null
+}
+
+export default memo(PersistentDrawerLeft)

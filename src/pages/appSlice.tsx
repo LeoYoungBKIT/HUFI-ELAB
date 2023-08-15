@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
+import { ReactNode } from 'react'
 
 interface ISnackbarMessage {
 	isOpen?: boolean
@@ -15,121 +16,17 @@ export const defaultSnackbarMessage: ISnackbarMessage = {
 	backgroundColor: 'white',
 }
 
-interface ISidebarItem {
-	isOpen: boolean
-	name: String
-	icon: String
-}
-
 interface IAppState {
 	isOpenDrawer: boolean
-	sidebarItems: ISidebarItem[]
 	snackbarState: ISnackbarMessage
+	appState: string
 }
-
-export const defaultSidebarItems: ISidebarItem[] = [
-	{
-		isOpen: true,
-		name: 'Phòng lab',
-		icon: '',
-	},
-	{
-		isOpen: false,
-		name: 'Phòng ban',
-		icon: '',
-	},
-	{
-		isOpen: false,
-		name: 'Nhân viên',
-		icon: '',
-	},
-	{
-		isOpen: false,
-		name: 'Nhà nghiên cứu',
-		icon: '',
-	},
-	{
-		isOpen: false,
-		name: 'nhóm nghiên cứu',
-		icon: '',
-	},
-	{
-		isOpen: false,
-		name: 'Hoá chất',
-		icon: '',
-	},
-	{
-		isOpen: false,
-		name: 'Thiết bị',
-		icon: '',
-	},
-	{
-		isOpen: false,
-		name: 'Nhà sản xuất',
-		icon: '',
-	},
-	{
-		isOpen: false,
-		name: 'Nhà cung cấp',
-		icon: '',
-	},
-	{
-		isOpen: false,
-		name: 'Thời khóa biểu',
-		icon: '',
-	},
-	{
-		isOpen: false,
-		name: 'Môn học',
-		icon: '',
-	},
-	{
-		isOpen: false,
-		name: 'Lớp học phần',
-		icon: '',
-	},
-	{
-		isOpen: false,
-		name: 'Xuất',
-		icon: '',
-	},
-	{
-		isOpen: false,
-		name: 'Nhập',
-		icon: '',
-	},
-	{
-		isOpen: false,
-		name: 'Phiếu dự trù',
-		icon: '',
-	},
-	{
-		isOpen: false,
-		name: 'Phiếu đăng ký',
-		icon: '',
-	},
-	{
-		isOpen: false,
-		name: 'Phiếu đề nghị',
-		icon: '',
-	},
-	{
-		isOpen: false,
-		name: 'Điều chuyển thiết bị',
-		icon: '',
-	},
-	{
-		isOpen: false,
-		name: 'Lịch tập huấn',
-		icon: '',
-	},
-]
 
 // Define the initial state using that type
 const initialState: IAppState = {
-	isOpenDrawer: false,
-	sidebarItems: defaultSidebarItems,
+	isOpenDrawer: true,
 	snackbarState: defaultSnackbarMessage,
+	appState: 'Phòng lab',
 }
 
 export const appSlice = createSlice({
@@ -141,26 +38,6 @@ export const appSlice = createSlice({
 			return {
 				...state,
 				isOpenDrawer: action.payload,
-			}
-		},
-		setSidebarItems: (state: IAppState, action: PayloadAction<Number>) => {
-			let newSidebarItems: ISidebarItem[] = state.sidebarItems.map((item: ISidebarItem, idx) => {
-				if (idx === action.payload) {
-					return {
-						...item,
-						isOpen: true,
-					}
-				} else {
-					return {
-						...item,
-						isOpen: false,
-					}
-				}
-			})
-
-			return {
-				...state,
-				sidebarItems: newSidebarItems,
 			}
 		},
 		setSnackbarMessage: (state: IAppState, action: PayloadAction<string>) => {
@@ -189,13 +66,16 @@ export const appSlice = createSlice({
 		reset: () => {
 			return {
 				isOpenDrawer: false,
-				sidebarItems: defaultSidebarItems,
 				snackbarState: defaultSnackbarMessage,
+				appState: '',
 			}
+		},
+		setAppState: (state, action: PayloadAction<string>) => {
+			state.appState = action.payload
 		},
 	},
 })
 
-export const { setIsOpenDrawer, setSnackbarMessage, setSidebarItems, setSnackbar, reset } = appSlice.actions
+export const { setIsOpenDrawer, setSnackbarMessage, setSnackbar, reset, setAppState } = appSlice.actions
 
 export default appSlice.reducer

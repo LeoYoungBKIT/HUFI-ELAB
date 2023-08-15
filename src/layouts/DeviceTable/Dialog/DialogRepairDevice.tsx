@@ -21,16 +21,20 @@ import { SavingEvent } from 'devextreme/ui/data_grid'
 import moment from 'moment'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { colorsNotifi } from '../../../configs/color'
-import { useAppDispatch } from '../../../hooks'
+import { useAppDispatch, useAppSelector } from '../../../hooks'
 import { setSnackbar } from '../../../pages/appSlice'
 import { getMaintenanceDeviceById, postDateMaintenace } from '../../../services/maintenanceDevicesServices'
 import { IMaintenanceDevice, IRepair } from '../../../types/maintenanceDevicesType'
 import { DialogProps } from './DialogType'
+import { ADMIN, EXPERIMENTAL_MANAGEMENT_SPECIALIST, UNIT_UTILIZATION_SPECIALIST } from '../../../configs/permissions'
+import { useLoading } from '../../../hooks/useLoading'
+import LoadIndicator from 'devextreme-react/load-indicator'
 
 const DialogRepairDevice = ({ isOpen, onClose, deviceInfoId = '' }: DialogProps) => {
 	const dispatch = useAppDispatch()
 	const [deviceMaintenance, setDeviceMaintenance] = useState<IMaintenanceDevice>()
 	const [isAddMaintenaceDate, setIsAddMaintenaceDate] = useState(false)
+	const { owner } = useAppSelector(state => state.userManager)
 
 	const dataGridRepairRef = useRef<DataGrid<IRepair, any> | null>(null)
 	const dataSourceRepair = useMemo(() => {
@@ -94,31 +98,33 @@ const DialogRepairDevice = ({ isOpen, onClose, deviceInfoId = '' }: DialogProps)
 		}
 	}
 
-	const saveDateMaintenace = async (e: SavingEvent<{ Date: Date }, string>) => {
-		try {
-			if (e.changes.length > 0 && e.changes[0].data.Date?.getTime) {
-				const date = e.changes[0].data.Date?.getTime() / 1000
-				console.log(date)
-				await postDateMaintenace(deviceInfoId, `${date}`)
-			}
+	const [saveDateMaintenace, isLoadingSaveDateMaintenace] = useLoading(
+		async (e: SavingEvent<{ Date: Date }, string>) => {
+			try {
+				if (e.changes.length > 0 && e.changes[0].data.Date?.getTime) {
+					const date = e.changes[0].data.Date?.getTime() / 1000
+					console.log(date)
+					await postDateMaintenace(deviceInfoId, `${date}`)
+				}
 
-			if (e.changes.length > 0 || e.changes[0].data.Date?.getTime) {
+				if (e.changes.length > 0 || e.changes[0].data.Date?.getTime) {
+					e.cancel = true
+					e.component.cancelEditData()
+				}
+			} catch (error) {
+				console.log(error)
 				e.cancel = true
 				e.component.cancelEditData()
+				dispatch(
+					setSnackbar({
+						message: 'Đã xảy ra lỗi!!!',
+						color: colorsNotifi['error'].color,
+						backgroundColor: colorsNotifi['error'].background,
+					}),
+				)
 			}
-		} catch (error) {
-			console.log(error)
-			e.cancel = true
-			e.component.cancelEditData()
-			dispatch(
-				setSnackbar({
-					message: 'Đã xảy ra lỗi!!!',
-					color: colorsNotifi['error'].color,
-					backgroundColor: colorsNotifi['error'].background,
-				}),
-			)
-		}
-	}
+		},
+	)
 
 	useEffect(() => {
 		getMaintenanceDevice()
@@ -192,21 +198,33 @@ const DialogRepairDevice = ({ isOpen, onClose, deviceInfoId = '' }: DialogProps)
 								<b style={{ fontSize: '18px' }}>Danh sách ngày định chuẩn</b>
 							</div>
 						</Item>
-						<Item location="after">
-							<DevButton
-								text={isAddMaintenaceDate ? 'Lưu ' : 'Cập nhật ngày định chuẩn'}
-								onClick={() => {
-									setIsAddMaintenaceDate(!isAddMaintenaceDate)
-									if (isAddMaintenaceDate) {
-										dataGridMaintenaceRef.current?.instance.saveEditData()
-									} else {
-										dataGridMaintenaceRef.current?.instance.addRow()
-									}
-								}}
-							>
-								{isAddMaintenaceDate ? 'Lưu ' : 'Cập nhật ngày định chuẩn'}
-							</DevButton>
-						</Item>
+						{[ADMIN, UNIT_UTILIZATION_SPECIALIST, EXPERIMENTAL_MANAGEMENT_SPECIALIST].includes(
+							owner.GroupName,
+						) && (
+							<Item location="after">
+								<DevButton
+									onClick={() => {
+										setIsAddMaintenaceDate(!isAddMaintenaceDate)
+										if (isAddMaintenaceDate) {
+											dataGridMaintenaceRef.current?.instance.saveEditData()
+										} else {
+											dataGridMaintenaceRef.current?.instance.addRow()
+										}
+									}}
+									disabled={isLoadingSaveDateMaintenace}
+									type='default'
+								>
+									<LoadIndicator
+										id="small-indicator"
+										height={20}
+										width={20}
+										visible={isLoadingSaveDateMaintenace}
+										elementAttr={{ class: 'indicator-white' }}
+									/>
+									{isAddMaintenaceDate ? 'Lưu ' : 'Cập nhật ngày định chuẩn'}
+								</DevButton>
+							</Item>
+						)}
 					</Toolbar>
 				</DataGrid>
 				<DataGrid

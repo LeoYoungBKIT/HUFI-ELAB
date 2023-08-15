@@ -14,7 +14,6 @@ import deviceReducer, { reset as deviceReset } from '../layouts/DeviceTable/devi
 import subjectReducer, { reset as subjectReset } from '../layouts/SubjectTable/subjectSlice';
 import classSubjectReducer, { reset as classSubjectReset } from '../layouts/ClassSubjectTable/classSubjectSlice';
 import lessonLabReducer, { reset as lessonLabReset } from '../layouts/LessonLabTable/lessonLabSlice';
-import warehouseReducer, { reset as warehouseReset } from '../layouts/WarehouseTable/warehouseSlice';
 import registerGeneralReducer, {
 	reset as registerGeneralReset,
 } from '../layouts/RegisterGeneralTable/registerGeneralSlice';
@@ -27,6 +26,7 @@ import suggestNewDeviceReducer, {
 	reset as suggestNewDeviceReset,
 } from '../layouts/SuggestNewDevicesTable/suggestNewDeviceSlice';
 import userManagerReducer from '../layouts/UserManager/userManagerSlice';
+import exportManagementReducer, { reset as exportManagementReset } from '../layouts/ExportManagementTable/exportManagementSlice';
 
 const resetStateMiddleware: Middleware =
 	({ dispatch }) =>
@@ -45,7 +45,6 @@ const resetStateMiddleware: Middleware =
 			dispatch(subjectReset());
 			dispatch(classSubjectReset());
 			dispatch(lessonLabReset());
-			dispatch(warehouseReset());
 			dispatch(registerGeneralReset());
 			dispatch(purchaseOrderReset());
 			dispatch(scheduleReset());
@@ -53,6 +52,7 @@ const resetStateMiddleware: Middleware =
 			dispatch(researchTeamReset());
 			dispatch(trainScheduleReset());
 			dispatch(suggestNewDeviceReset());
+			dispatch(exportManagementReset());
 		}
 		return next(action);
 	};
@@ -72,7 +72,6 @@ export const store = configureStore({
 		subject: subjectReducer,
 		classSubject: classSubjectReducer,
 		lessonLab: lessonLabReducer,
-		warehouse: warehouseReducer,
 		registerGeneral: registerGeneralReducer,
 		purchaseOrder: purchaseOrderReducer,
 		schedule: scheduleReducer,
@@ -81,6 +80,7 @@ export const store = configureStore({
 		managerTrainSchedule: trainScheduleReducer,
 		suggestNewDevice: suggestNewDeviceReducer,
 		userManager: userManagerReducer,
+		exportManagement: exportManagementReducer,
 	},
 	middleware: [resetStateMiddleware],
 });

@@ -9,7 +9,7 @@ export interface IRepairDevice {
 	DisplayMode: string
 	EmployeeCreateId: string
 	EmployeeCreateName: string
-	LInkHandoverFile: string
+	LinkHandoverFile: string
 	LinkCheckFile: string
 	LinkReportFile: string
 	Location: string
@@ -19,6 +19,8 @@ export interface IRepairDevice {
 	Title: string
 	YearstartUsage: number
 	listAccept: IRepairAccept[]
+	DeviceInfoId: string
+	DeviceName: string
 }
 
 export interface IRepairAccept {

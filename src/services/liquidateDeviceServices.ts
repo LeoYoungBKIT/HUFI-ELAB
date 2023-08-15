@@ -10,9 +10,14 @@ const API_ENDPOINT = isProd
 	: config.development.api_endpoint;
 
 export const getLiquidateDeptDevices = async (id: Number) => {
-	const url = `${API_ENDPOINT}/api/ExportLiquidateDeptDevices/device/${id}`;
-	const devices: ILiquidateDeptDevice[] = await API.get<ILiquidateDeptDevice[]>(url);
-	return devices;
+	try {
+		const url = `${API_ENDPOINT}/api/ExportLiquidateDeptDevices/device/${id}`;
+		const devices: ILiquidateDeptDevice[] = await API.get<ILiquidateDeptDevice[]>(url);
+		return devices;
+	}
+	catch {
+		return [];
+	}
 };
 
 export const getLiquidateDeptInstruments = async (id: Number) => {
@@ -22,9 +27,14 @@ export const getLiquidateDeptInstruments = async (id: Number) => {
 };
 
 export const getLiquidateDept = async (id: Number) => {
-	const url = `${API_ENDPOINT}/api/ExportLiquidateDeptDevices/${id}`;
-	const liquidates: ILiquidateDept[] = await API.get<ILiquidateDept[]>(url);
-	return liquidates;
+	try {
+		const url = `${API_ENDPOINT}/api/ExportLiquidateDeptDevices/${id}`;
+		const liquidates: ILiquidateDept[] = await API.get<ILiquidateDept[]>(url);
+		return liquidates;
+	}
+	catch {
+		return [];
+	}
 };
 
 export const postLiquidateDept = async (newData: ILiquidateDept) => {
