@@ -139,3 +139,5 @@ export const dummyLiquidateDept: ILiquidateDept = {
 	Accept: '',
 	UserAccept: '',
 }
+
+export type IDeviceSimpleType = Pick<IDeviceDepartmentType, 'DeviceId' | 'DeviceName' | 'DeviceEnglishName'>
