@@ -1,33 +1,35 @@
-import { styled } from "@mui/material/styles";
 import {
   Button,
   Paper,
   Table,
   TableBody,
   TableCell,
-  tableCellClasses,
   TableContainer,
   TableHead,
   TableRow,
+  tableCellClasses,
 } from "@mui/material";
-import { IDevice } from "../../../types/IInternalDevice";
+import { InstrumentInfo } from "../../types/IPurchaseOrderInstruments";
+import { styled } from "@mui/material/styles";
 
 interface IProps {
-  dataSource: IDevice[];
-  handleDelete: (device: IDevice) => void;
+  dataSource: InstrumentInfo[];
+  onEditRow?: (row: InstrumentInfo) => void;
 }
 
-const TableDevice = ({ dataSource, handleDelete }: IProps) => {
+const TableInstrumentInfo = ({ dataSource, onEditRow }: IProps) => {
+  function handleDelete(row: InstrumentInfo): void {
+    throw new Error("Function not implemented.");
+  }
+
   return (
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
         <TableHead>
           <TableRow>
-            <StyledTableCell>Mã thiết bị</StyledTableCell>
-            <StyledTableCell>Mã định danh thiết bị</StyledTableCell>
-            <StyledTableCell>Tên thiết bị</StyledTableCell>
-            <StyledTableCell>Tên tiếng anh</StyledTableCell>
-            <StyledTableCell>Vị trí</StyledTableCell>
+            {columns.map((x) => {
+              return <StyledTableCell key={x}>{x}</StyledTableCell>;
+            })}
             <StyledTableCell>Thao tác</StyledTableCell>
           </TableRow>
         </TableHead>
@@ -38,19 +40,28 @@ const TableDevice = ({ dataSource, handleDelete }: IProps) => {
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
               <StyledTableCell component="th" scope="row">
-                {row.DeviceId}
+                {row.QuantityDistribute}
               </StyledTableCell>
               <StyledTableCell component="th" scope="row">
-                {row.DeviceInfoId}
+                {row.Status}
               </StyledTableCell>
               <StyledTableCell component="th" scope="row">
-                {row.DeviceName}
+                {row.DepartmentImportId}
               </StyledTableCell>
               <StyledTableCell component="th" scope="row">
-                {row.DeviceEnglishName}
+                {row.DepartmentImportName}
               </StyledTableCell>
               <StyledTableCell component="th" scope="row">
-                {row.LabId}
+                {row.InstrumentId}
+              </StyledTableCell>
+              <StyledTableCell component="th" scope="row">
+                {row.InstrumentName}
+              </StyledTableCell>
+              <StyledTableCell component="th" scope="row">
+                {row.Specification}
+              </StyledTableCell>
+              <StyledTableCell component="th" scope="row">
+                {row.Unit}
               </StyledTableCell>
               <StyledTableCell component="th" scope="row">
                 <Button
@@ -86,5 +97,15 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
     border: "1px solid #eee",
   },
 }));
+const columns = [
+  "So Luong",
+  "Tình trạng ",
+  "Mã khoa",
+  "Tên khoa",
+  "Mã dụng cụ",
+  "Tên dụng cụ",
+  "Thể tích",
+  "dv tính",
+];
 
-export default TableDevice;
+export default TableInstrumentInfo;

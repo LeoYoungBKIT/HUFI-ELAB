@@ -102,6 +102,7 @@ import { ISuggestNewDeviceType } from "../types/suggestNewDeviceType";
 import DeviceTable from "../layouts/DeviceTable";
 import ResearchersTable from "../layouts/ResearchTeamTable/ResearcherTable";
 import PurchaseOrderDevices from "../layouts/PurchaseOrderDevices";
+import PurchaseOrderIntrument from "../layouts/PurchaseOrderIntrument";
 
 export function Dashboard() {
   const snackbarState = useAppSelector(
@@ -355,6 +356,7 @@ export function Dashboard() {
         {sidebarItems[17].isOpen && <DeviceTransfer />}
         {sidebarItems[18].isOpen && <TrainSchedule />}
         {sidebarItems[19].isOpen && <PurchaseOrderDevices />}
+        {sidebarItems[20].isOpen && <PurchaseOrderIntrument />}
       </div>
       <Snackbar
         anchorOrigin={{

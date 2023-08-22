@@ -143,6 +143,7 @@ export const PurchaseOrderTable: FC = () => {
       );
       setTableData(formatedPurchaseOrderData);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [purchaseOrdersData]);
 
   useEffect(() => {
@@ -212,6 +213,7 @@ export const PurchaseOrderTable: FC = () => {
         size: 100,
       },
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [getCommonEditTextFieldProps]
   );
 

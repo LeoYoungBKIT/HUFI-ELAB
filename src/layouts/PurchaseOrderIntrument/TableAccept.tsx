@@ -1,34 +1,30 @@
-import { styled } from "@mui/material/styles";
 import {
   Button,
   Paper,
   Table,
   TableBody,
   TableCell,
-  tableCellClasses,
   TableContainer,
   TableHead,
   TableRow,
+  tableCellClasses,
 } from "@mui/material";
-import { IDevice } from "../../../types/IInternalDevice";
+import { IAccept } from "../../types/IPurchaseOrderInstruments";
+import { styled } from "@mui/material/styles";
 
 interface IProps {
-  dataSource: IDevice[];
-  handleDelete: (device: IDevice) => void;
+  dataSource: IAccept[];
 }
 
-const TableDevice = ({ dataSource, handleDelete }: IProps) => {
+const TableAccept = ({ dataSource }: IProps) => {
   return (
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
         <TableHead>
           <TableRow>
-            <StyledTableCell>Mã thiết bị</StyledTableCell>
-            <StyledTableCell>Mã định danh thiết bị</StyledTableCell>
-            <StyledTableCell>Tên thiết bị</StyledTableCell>
-            <StyledTableCell>Tên tiếng anh</StyledTableCell>
-            <StyledTableCell>Vị trí</StyledTableCell>
-            <StyledTableCell>Thao tác</StyledTableCell>
+            {columns.map((x) => {
+              return <StyledTableCell key={x}>{x}</StyledTableCell>;
+            })}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -38,29 +34,19 @@ const TableDevice = ({ dataSource, handleDelete }: IProps) => {
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
               <StyledTableCell component="th" scope="row">
-                {row.DeviceId}
+                {row.AcceptDate}
               </StyledTableCell>
               <StyledTableCell component="th" scope="row">
-                {row.DeviceInfoId}
+                {row.AcceptValue}
               </StyledTableCell>
               <StyledTableCell component="th" scope="row">
-                {row.DeviceName}
+                {row.ContentAccept}
               </StyledTableCell>
               <StyledTableCell component="th" scope="row">
-                {row.DeviceEnglishName}
+                {row.EmployeeAcceptId}
               </StyledTableCell>
               <StyledTableCell component="th" scope="row">
-                {row.LabId}
-              </StyledTableCell>
-              <StyledTableCell component="th" scope="row">
-                <Button
-                  onClick={() => handleDelete(row)}
-                  size="small"
-                  color="error"
-                  variant="contained"
-                >
-                  delete
-                </Button>
+                {row.EmployeeAcceptName}
               </StyledTableCell>
             </StyledTableRow>
           ))}
@@ -86,5 +72,12 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
     border: "1px solid #eee",
   },
 }));
+const columns = [
+  "ngày xác nhận",
+  "giá trị xác nhận ",
+  "nội dung",
+  "mã nhân viên",
+  "Tên nhân viên",
+];
 
-export default TableDevice;
+export default TableAccept;

@@ -129,6 +129,11 @@ export const defaultSidebarItems: ISidebarItem[] = [
     name: "QL Nhập khoa - Phân phối",
     icon: "",
   },
+  {
+    isOpen: false,
+    name: "PHÂN PHỐI DỤNG CỤ - CÔNG CỤ",
+    icon: "",
+  },
 ];
 
 // Define the initial state using that type

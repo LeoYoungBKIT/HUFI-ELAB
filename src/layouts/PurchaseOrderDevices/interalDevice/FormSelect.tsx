@@ -1,13 +1,16 @@
 import {
+  Backdrop,
   Box,
   Button,
+  CircularProgress,
   FormControl,
   InputLabel,
   MenuItem,
   Select,
   SxProps,
+  TextField,
 } from "@mui/material";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   getDeviceForCreate,
   getEmployeeManageLab,
@@ -18,54 +21,83 @@ import {
   IEmployeeManagerLab,
   initDevice,
 } from "../../../types/IInternalDevice";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import _ from "lodash";
 
 interface IProps {
   handleAddRecord: (device: IDevice) => void;
+  handleChoiceEmployee?: (employee: IEmployeeManagerLab) => void;
+  loading: boolean;
 }
-export default function FormSelect({}: IProps) {
+
+export default function FormSelect({
+  handleAddRecord,
+  handleChoiceEmployee,
+  loading,
+}: IProps) {
   const [devices, setDevices] = useState<IDeviceForCreate[]>([]);
   const [deviceSelected, setDeviceSelected] = useState<IDevice>(initDevice);
+  const [deviceCur, setDeviceCur] = useState<IDeviceForCreate>();
   const [employeeCur, setEmployeeCur] = useState<IEmployeeManagerLab>();
   const [employees, setEmployees] = useState<IEmployeeManagerLab[]>([]);
-
-  const listDevices = useMemo(() => {
-    return (
-      devices.find((x) => x.DeviceId === deviceSelected.DeviceId)?.listDevice ||
-      []
-    );
-  }, [deviceSelected.DeviceId]);
 
   useEffect(() => {
     getDeviceForCreate().then((data) => {
       if (!_.isEmpty(data)) {
         setDevices(data);
+        if (data.length) {
+          const device = data[0];
+          setDeviceCur(device);
+          setDeviceSelected({
+            ...deviceSelected,
+            QuantityImport: device.listDevice[0]?.QuantityImport ?? 0,
+            QuantityDistribute: 1,
+            DeviceName: device.listDevice[0]?.DeviceName ?? "",
+            DeviceEnglishName: device.listDevice[0]?.DeviceEnglishName ?? "",
+            DeviceId: device.DeviceId ?? "",
+            DeviceInfoId: device.listDevice[0]?.DeviceInfoId ?? "",
+          });
+        }
       }
     });
 
     getEmployeeManageLab().then((data) => {
       if (!_.isEmpty(data)) {
         setEmployees(data);
-        data.length && setEmployeeCur(data[0]);
       }
     });
   }, []);
 
+  useEffect(() => {
+    if (employeeCur && handleChoiceEmployee) handleChoiceEmployee(employeeCur);
+  }, [employeeCur, handleChoiceEmployee]);
+
   return (
     <Box sx={{ ...style }}>
+      {loading && (
+        <Backdrop
+          sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+          open={true}
+        >
+          <CircularProgress color="inherit" />
+        </Backdrop>
+      )}
       <FormControl>
         <InputLabel>Thiết bị</InputLabel>
         <Select
           label="Thiết bị"
-          value={deviceSelected.DeviceId}
+          value={deviceSelected.DeviceId || deviceCur?.DeviceId || ""}
           onChange={(e) => {
-            const deviceId = e.target.value as string;
+            const deviceCur = devices.find(
+              (x) => x.DeviceId === e.target.value
+            );
+            setDeviceCur(deviceCur);
             setDeviceSelected({
               ...deviceSelected,
-              DeviceId: deviceId,
-              DeviceInfoId:
-                devices.find((x) => x.DeviceId === deviceId)?.listDevice[0]
-                  ?.DeviceInfoId || "",
+              DeviceId: deviceCur?.DeviceId || "",
+              DeviceName: deviceCur?.DeviceName || "",
+              DeviceInfoId: deviceCur?.listDevice[0]?.DeviceInfoId || "",
+              QuantityImport: deviceCur?.listDevice[0]?.QuantityImport ?? 0,
             });
           }}
         >
@@ -81,15 +113,25 @@ export default function FormSelect({}: IProps) {
         <InputLabel>DS Thiet bi</InputLabel>
         <Select
           label="DS Thiet bi"
-          value={deviceSelected.DeviceInfoId}
+          value={
+            deviceSelected.DeviceInfoId ||
+            deviceCur?.listDevice[0]?.DeviceInfoId ||
+            ""
+          }
           onChange={(e) => {
+            const deviceInfo = deviceCur?.listDevice.find(
+              (x) => x.DeviceInfoId === e.target.value
+            );
             setDeviceSelected({
               ...deviceSelected,
-              DeviceInfoId: e.target.value as string,
+              DeviceInfoId: deviceInfo?.DeviceInfoId ?? "",
+              DeviceName: deviceInfo?.DeviceName ?? "",
+              DeviceEnglishName: deviceInfo?.DeviceEnglishName ?? "",
+              QuantityImport: deviceInfo?.QuantityImport ?? 0,
             });
           }}
         >
-          {listDevices.map((x) => (
+          {deviceCur?.listDevice.map((x) => (
             <MenuItem key={x.DeviceInfoId} value={x.DeviceInfoId}>
               {x.DeviceName}
             </MenuItem>
@@ -98,14 +140,44 @@ export default function FormSelect({}: IProps) {
       </FormControl>
 
       <FormControl>
+        <TextField
+          disabled
+          label="số lượng nhập"
+          value={deviceSelected.QuantityImport}
+          onChange={() => {}}
+        />
+      </FormControl>
+
+      <FormControl>
+        <TextField
+          type="number"
+          label="số lượng phân phối"
+          value={deviceSelected.QuantityDistribute}
+          onChange={(e) => {
+            setDeviceSelected({
+              ...deviceSelected,
+              QuantityDistribute: Number(e.target.value),
+            });
+          }}
+        />
+      </FormControl>
+
+      <FormControl>
         <InputLabel>Danh sach nhan vien</InputLabel>
         <Select
           label="Danh sach nhan vien"
           value={employeeCur?.EmployeeId || ""}
           onChange={(e) => {
-            setEmployeeCur(
-              employees.find((x) => x.EmployeeId === e.target.value)
+            const empoloyeeCur = employees.find(
+              (x) => x.EmployeeId === e.target.value
             );
+
+            setEmployeeCur(empoloyeeCur);
+
+            setDeviceSelected({
+              ...deviceSelected,
+              LabId: empoloyeeCur?.listLab[0]?.LabId || "",
+            });
           }}
         >
           {employees.map((x) => (
@@ -120,11 +192,12 @@ export default function FormSelect({}: IProps) {
         <InputLabel>Danh sach phong lab</InputLabel>
         <Select
           label="Danh sach phong lab"
-          value={deviceSelected.LabId || employeeCur?.listLab[0]?.LabId || ""}
+          value={deviceSelected.LabId}
           onChange={(e) => {
-            setEmployeeCur(
-              employees.find((x) => x.EmployeeId === e.target.value)
-            );
+            setDeviceSelected({
+              ...deviceSelected,
+              LabId: e.target.value as string,
+            });
           }}
         >
           {employeeCur?.listLab.map((x) => (
@@ -136,7 +209,14 @@ export default function FormSelect({}: IProps) {
       </FormControl>
 
       <FormControl>
-        <Button color="success">Thêm vào danh sách</Button>
+        <Button
+          onClick={() => handleAddRecord(deviceSelected)}
+          color="success"
+          variant="contained"
+          startIcon={<ArrowDownwardIcon />}
+        >
+          Thêm vào danh sách
+        </Button>
       </FormControl>
     </Box>
   );

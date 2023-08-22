@@ -6,20 +6,24 @@ import {
   IconButton,
   Typography,
 } from "@mui/material";
-import MaterialReactTable, {
-  MRT_ColumnDef,
-  MRT_Row,
-} from "material-react-table";
+import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import CloseIcon from "@mui/icons-material/Close";
 import { Edit as EditIcon } from "@mui/icons-material";
 import moment from "moment";
 import { IExportLab, initExportLab } from "../../../types/IInternalDevice";
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../../hooks";
-import { getAllAction } from "./internalDeviceSlice";
+import {
+  updateExportLabAction,
+  addExportLabAction,
+  getAllAction,
+  unAcceptExportLabAction,
+  acceptExportLabAction,
+} from "./internalDeviceSlice";
 import ErrorComponent from "../../../components/ErrorToast";
 import SuccessToast from "../../../components/Success";
 import FormCmp from "./Form";
+import { exportLabStatusEditing, nextStatus } from "./utils";
 
 export default function InternalDeviceLayout() {
   const { data, loading, error, successMessage } = useAppSelector(
@@ -40,14 +44,44 @@ export default function InternalDeviceLayout() {
     setTypeForm(type);
   };
 
+  const handleSave = (dataExport: IExportLab) => {
+    if (typeForm === "create")
+      dispatch(addExportLabAction(dataExport)).then(handleToggleForm);
+    else if (typeForm === "update")
+      dispatch(
+        updateExportLabAction({
+          ...dataExport,
+          Status: nextStatus[dataExport.Status],
+        })
+      ).then(handleToggleForm);
+  };
+
   useEffect(() => {
     dispatch(getAllAction());
-  }, []);
+  }, [dispatch]);
+
+  function handleAccept(exportLab: IExportLab) {
+    dispatch(
+      acceptExportLabAction({
+        ...exportLab,
+        Status: nextStatus[exportLab.Status],
+      })
+    ).then(handleToggleForm);
+  }
+
+  function handleUnAcceps(dataForm: IExportLab, message: string): void {
+    dispatch(
+      unAcceptExportLabAction({
+        body: { ...dataForm, Status: exportLabStatusEditing },
+        message,
+      })
+    ).then(handleToggleForm);
+  }
 
   return (
     <Box>
       <Box sx={{ display: "flex", justifyContent: "space-between", my: 1 }}>
-        <Typography variant="h5"></Typography>
+        <Typography variant="h5">Quản lí xuất thiết bị</Typography>
         <Button
           onClick={() => handleForm(initExportLab, "create")}
           variant="contained"
@@ -79,9 +113,14 @@ export default function InternalDeviceLayout() {
           </IconButton>
         </DialogTitle>
         <FormCmp
+          handleSave={handleSave}
           columnsForm={columns}
           initDataForm={dataForm}
           showAllForm={typeForm === "update"}
+          loading={loading}
+          showFormCreate={typeForm === "create"}
+          handleAccept={handleAccept}
+          handleOnclickNoAccept={handleUnAcceps}
         />
       </Dialog>
 
@@ -92,6 +131,7 @@ export default function InternalDeviceLayout() {
           message={successMessage}
         />
       )}
+
       <MaterialReactTable
         enableRowActions
         enableStickyHeader

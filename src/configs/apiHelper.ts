@@ -144,6 +144,7 @@ const createAxiosClient = (
       dispatch(setIsLogined(false));
     }
   );
+
   return newInstance;
 };
 

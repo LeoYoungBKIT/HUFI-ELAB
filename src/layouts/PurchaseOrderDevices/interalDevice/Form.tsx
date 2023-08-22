@@ -3,22 +3,25 @@ import {
   Box,
   Button,
   CircularProgress,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
   Stack,
-  SxProps,
   TextField,
 } from "@mui/material";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import { MRT_ColumnDef } from "material-react-table";
 import moment from "moment";
-import React, { useEffect, useState } from "react";
-import { IDevice, IExportLab } from "../../../types/IInternalDevice";
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  IDevice,
+  IEmployeeManagerLab,
+  IExportLab,
+} from "../../../types/IInternalDevice";
 import FormSelect from "./FormSelect";
 import TableDevice from "./TableDevice";
+import { useAppSelector } from "../../../hooks";
+import AlertDialog from "../../../components/AlertDialog";
+import { doneStatus, exportLabStatusEditing, matchAccept } from "./utils";
+import { GroupNames } from "../../../types/userManagerType";
 
 interface IProps {
   loading?: boolean;
@@ -26,6 +29,9 @@ interface IProps {
   columnsForm: MRT_ColumnDef<IExportLab>[];
   showAllForm?: boolean;
   initDataForm: IExportLab;
+  handleAccept?: (exportLab: IExportLab) => void;
+  handleOnclickNoAccept?: (dataForm: IExportLab, message: string) => void;
+  showFormCreate: boolean;
 }
 
 export default function FormCmp({
@@ -33,7 +39,14 @@ export default function FormCmp({
   columnsForm,
   initDataForm,
   showAllForm,
+  handleSave,
+  handleAccept,
+  handleOnclickNoAccept,
+  showFormCreate,
 }: IProps) {
+  const { owner } = useAppSelector((state) => state.userManager);
+  const [showBox, setShowBox] = useState(false);
+
   const [values, setValues] = useState(initDataForm);
 
   const onsubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
@@ -44,7 +57,28 @@ export default function FormCmp({
     setValues(initDataForm);
   }, [initDataForm]);
 
-  const handleAddRecord = (device: IDevice) => {};
+  const handleDeleteRowDevice = (device: IDevice) => {
+    setValues({
+      ...values,
+      listDevice: values.listDevice.filter(
+        (x) => x.DeviceInfoId !== device.DeviceInfoId
+      ),
+    });
+  };
+
+  const handleChoiceEmployee = useMemo(
+    () => (employee: IEmployeeManagerLab) => {
+      setValues((values) => ({
+        ...values,
+        EmployeeManageLabId: employee.EmployeeId,
+      }));
+    },
+    []
+  );
+
+  const handleAddRecord = (device: IDevice) => {
+    setValues({ ...values, listDevice: [device, ...values.listDevice] });
+  };
 
   return (
     <Box
@@ -53,6 +87,9 @@ export default function FormCmp({
         border: "1px solid  rgba(0,0,0,0.2)",
         m: 2,
         padding: 1,
+        display: "flex",
+        flexDirection: "column",
+        gap: 2,
       }}
       noValidate
       autoComplete="off"
@@ -117,14 +154,69 @@ export default function FormCmp({
         </Stack>
       )}
 
-      <FormSelect handleAddRecord={handleAddRecord} />
-
-      <TableDevice dataSource={values.listDevice} />
+      <AlertDialog
+        head="Form xác nhận"
+        message="nhập nội dung đính kèm"
+        isOpen={showBox}
+        handleClose={() => setShowBox(false)}
+        handleOk={(text) => {
+          if (handleOnclickNoAccept) handleOnclickNoAccept(values, text || "");
+        }}
+        showBoxInput
+        boxInputProps={{
+          label: "nội dung",
+        }}
+      />
+      {owner.GroupName === GroupNames["Chuyên viên đơn vị sử dụng"] &&
+        (values.Status === exportLabStatusEditing || showFormCreate) && (
+          <FormSelect
+            loading={loading ?? false}
+            handleAddRecord={handleAddRecord}
+            handleChoiceEmployee={handleChoiceEmployee}
+          />
+        )}
+      <TableDevice
+        dataSource={values.listDevice}
+        handleDelete={handleDeleteRowDevice}
+      />
 
       <Box sx={{ my: 2, gap: 2, display: "flex", justifyContent: "end" }}>
-        <Button type="submit" variant="contained">
-          Lưu lại
-        </Button>
+        {matchAccept(owner.GroupName, values.Status) && (
+          <Button
+            type="submit"
+            variant="contained"
+            onClick={() => {
+              setShowBox(true);
+            }}
+            color="error"
+          >
+            không xác nhận
+          </Button>
+        )}
+        {matchAccept(owner.GroupName, values.Status) && (
+          <Button
+            type="submit"
+            variant="contained"
+            onClick={() => {
+              handleAccept && handleAccept(values);
+            }}
+          >
+            xác nhận
+          </Button>
+        )}
+
+        {owner.GroupName === GroupNames["Chuyên viên đơn vị sử dụng"] &&
+          (values.Status === exportLabStatusEditing || showFormCreate) && (
+            <Button
+              type="submit"
+              variant="contained"
+              onClick={() => {
+                handleSave && handleSave(values);
+              }}
+            >
+              Lưu lại
+            </Button>
+          )}
       </Box>
     </Box>
   );
