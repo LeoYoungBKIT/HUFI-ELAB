@@ -33,6 +33,7 @@ import {
 	UNIT_UTILIZATION_SPECIALIST,
 } from './permissions'
 import DeviceCategory from '../layouts/DeviceTable/DeviceCategory'
+import InstrumentTable from '../layouts/InstrumentTable'
 
 export interface ISidebarItem {
 	id: string
@@ -177,7 +178,68 @@ const Sidebar = {
 						name: 'Danh mục thiết bị',
 						icon: null,
 						comp: <DeviceCategory />,
-						permissions: [ADMIN, EQUIPMENT_MANAGEMENT_HEAD],
+					},
+				],
+			},
+			{
+				id: 'Công cụ - Dụng cụ',
+				name: 'Công cụ - Dụng cụ',
+				icon: <BiotechIcon />,
+				comp: null,
+				children: [
+					{
+						id: 'CC-DC - Quản lý Công cụ - Dụng cụ',
+						name: 'Quản lý Công cụ - Dụng cụ',
+						icon: null,
+						comp: <InstrumentTable />,
+						permissions: [
+							ADMIN,
+							BOARD_DIRECTORS,
+							EQUIPMENT_MANAGEMENT_HEAD,
+							EQUIPMENT_MANAGEMENT_SPECIALIST,
+							EXPERIMENTAL_MANAGEMENT_HEAD,
+							EXPERIMENTAL_MANAGEMENT_SPECIALIST,
+							UNIT_UTILIZATION_HEAD,
+							UNIT_UTILIZATION_SPECIALIST,
+						],
+					},
+					{
+						id: 'CC-DC - Quản lý nhập kho - phân phối',
+						name: 'Quản lý nhập kho - phân phối',
+						icon: null,
+						comp: null,
+					},
+					{
+						id: 'CC-DC - Quản lý xuất',
+						name: 'Quản lý xuất',
+						icon: null,
+						children: [
+							{
+								id: 'CC-DC - Xuất ngoài đơn vị quản lý',
+								name: 'Xuất ngoài đơn vị quản lý',
+								icon: null,
+								comp: null,
+							},
+							{
+								id: 'CC-DC - Xuất thanh lý',
+								name: 'Xuất thanh lý',
+								icon: null,
+								comp: null,
+							},
+						],
+						comp: null,
+					},
+					{
+						id: 'CC-DC - Báo cáo thống kê',
+						name: 'Báo cáo thống kê',
+						icon: null,
+						comp: null,
+					},
+					{
+						id: 'CC-DC - Điều chuyển nội bộ',
+						name: 'Điều chuyển nội bộ',
+						icon: null,
+						comp: null,
 					},
 				],
 			},

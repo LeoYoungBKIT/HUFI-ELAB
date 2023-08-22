@@ -2,27 +2,47 @@ import config from '../configs/app'
 import * as API from '../configs/apiHelper'
 import { IDeviceGeneral, IDeviceSpecType, IDeviceType, ILessonDeviceType } from '../types/deviceType'
 import { IChemicalType } from '../types/chemicalType'
+import { IInstrumentGeneral, IInstrumentType } from '../types/instrumentType'
 
 const { isProd } = config
 const API_ENDPOINT = isProd ? config.production.api_endpoint : config.development.api_endpoint
 
-export const getDevices = async () => {
-	const url = `${API_ENDPOINT}/api/devices`
-	const devices: IDeviceType[] = await API.get<IDeviceType[]>(url)
+export const getInstruments = async () => {
+	const url = `${API_ENDPOINT}/api/Instruments`
+	const devices: IInstrumentType[] = await API.get<IInstrumentType[]>(url)
 	return devices
 }
 
-export const getDeviceGeneral = async () => {
-	const url = `${API_ENDPOINT}/api/Devices/GetDeviceGeneral`
+export const getInstrumentsGeneral = async () => {
+	const url = `${API_ENDPOINT}/api/Instruments/GetInstrumentGeneral`
+	const devices: IInstrumentGeneral[] = await API.get<IInstrumentGeneral[]>(url)
+	return devices
+}
+
+export const getDeviceGeneralDept = async () => {
+	const url = `${API_ENDPOINT}/api/Instruments/GetDeviceGeneralDept`
 	const devices: IDeviceGeneral[] = await API.get<IDeviceGeneral[]>(url)
 	return devices
 }
 
-export const getDeviceGeneralDept = async (id: string) => {
-	const url = `${API_ENDPOINT}/api/Devices/GetDeviceGeneralDept/${id}`
-	const devices: IDeviceGeneral[] = await API.get<IDeviceGeneral[]>(url)
-	return devices
+export const updateInstrument = async (updatedData: IInstrumentGeneral) => {
+	const url = `${API_ENDPOINT}/api/Instruments`
+	const updatedDevice: any = await API.put<IInstrumentGeneral, IInstrumentGeneral>(url, updatedData)
+	return updatedDevice
 }
+
+export const deleteInstrument = async (id: string) => {
+	const url = `${API_ENDPOINT}/api/Instruments/${id}`
+	const data = await API.deleteResource(url)
+	return data
+}
+
+export const postInstrument = async (newLabData: IInstrumentGeneral) => {
+	const url = `${API_ENDPOINT}/api/Instruments`
+	const newDevice = await API.post<IInstrumentGeneral, IInstrumentGeneral>(url, newLabData)
+	return newDevice
+}
+
 
 export const getDeviceById = async (id: Number) => {
 	const url = `${API_ENDPOINT}/api/devices/${id}`
