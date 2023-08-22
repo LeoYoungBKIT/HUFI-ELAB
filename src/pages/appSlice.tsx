@@ -65,9 +65,9 @@ export const appSlice = createSlice({
 
 		reset: () => {
 			return {
-				isOpenDrawer: false,
+				isOpenDrawer: true,
 				snackbarState: defaultSnackbarMessage,
-				appState: '',
+				appState: 'Phòng lab',
 			}
 		},
 		setAppState: (state, action: PayloadAction<string>) => {
