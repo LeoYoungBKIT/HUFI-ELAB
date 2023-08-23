@@ -28,6 +28,7 @@ import { uniqueId } from 'lodash'
 import moment from 'moment'
 import {
 	ADMIN,
+	EQUIPMENT_MANAGEMENT_HEAD,
 	EXPERIMENTAL_MANAGEMENT_HEAD,
 	EXPERIMENTAL_MANAGEMENT_SPECIALIST,
 	UNIT_UTILIZATION_HEAD,
@@ -37,6 +38,7 @@ import { useLoading } from '../../hooks/useLoading'
 import { getDevices } from '../../services/deviceDepartmentServices'
 import { IDeviceDepartmentType } from '../../types/deviceDepartmentType'
 import { DialogDeviceUsageHours, DialogRepairDevice } from './Dialog'
+import DeviceCategory from './Dialog/DialogEditDevice'
 
 type DeviceColumnType = {
 	id: string
@@ -59,7 +61,9 @@ export function removeAccents(str: string) {
 const DeviceOfDepartmentTable = () => {
 	const dispatch = useAppDispatch()
 	const [selectedDevice, setSelectedDevice] = useState<IDeviceDepartmentType>()
+	const [popupEditVisible, setPopupEditVisible] = useState<boolean>(false)
 	const [devices, setDevices] = useState<IDeviceDepartmentType[]>([])
+	const owner = useAppSelector(selector => selector.userManager.owner)
 
 	const [getDeviceData, isLoadingGetDevices] = useLoading(async () => {
 		try {
@@ -162,7 +166,7 @@ const DeviceOfDepartmentTable = () => {
 						showPageSizeSelector={true}
 						visible={true}
 					/>
-					<LoadPanel enabled={true} />
+					<LoadPanel enabled={true} showPane={isLoadingGetDevices} />
 					<Paging defaultPageSize={30} />
 					{columns.current.map(col => (
 						<Column
@@ -195,7 +199,12 @@ const DeviceOfDepartmentTable = () => {
 							</Typography>
 						</Item>
 						<Item location="after">
-							<Button stylingMode="contained" type="default" disabled={isLoadingGetDevices} onClick={handleRefresh}>
+							<Button
+								stylingMode="contained"
+								type="default"
+								disabled={isLoadingGetDevices}
+								onClick={handleRefresh}
+							>
 								<LoadIndicator
 									id="small-indicator"
 									height={20}
@@ -206,6 +215,11 @@ const DeviceOfDepartmentTable = () => {
 								Làm mới
 							</Button>
 						</Item>
+						{[ADMIN, EQUIPMENT_MANAGEMENT_HEAD].includes(owner.GroupName) && (
+							<Item location="after">
+								<Button stylingMode="contained" onClick={() => setPopupEditVisible(true)} icon="add" />
+							</Item>
+						)}
 						<Item name="columnChooserButton" />
 						<Item name="searchPanel" showText="always" />
 					</Toolbar>
@@ -218,6 +232,9 @@ const DeviceOfDepartmentTable = () => {
 					isOpen={!!selectedDevice}
 					handleClose={() => setSelectedDevice(undefined)}
 				/>
+			)}
+			{popupEditVisible && (
+				<DeviceCategory isOpen={popupEditVisible} onClose={() => setPopupEditVisible(false)} />
 			)}
 		</>
 	)

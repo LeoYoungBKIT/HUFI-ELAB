@@ -111,22 +111,38 @@ const RepairDevice = () => {
 	])
 
 	const [handleSaving, isLoadingHanleSaving] = useLoading(async (e: FormEvent<HTMLFormElement>) => {
-		console.dir(e)
-		try {
-			e.preventDefault()
-			const form = e.target as HTMLFormElement
-			const formData = new FormData(form)
-			await postNewRepairDevice(formData)
-		} catch (error) {
-			dispatch(
-				setSnackbar({
-					message: 'Đã xảy ra lỗi!!!',
-					color: colorsNotifi['error'].color,
-					backgroundColor: colorsNotifi['error'].background,
-				}),
-			)
-			console.log(error)
-		}
+		e.preventDefault()
+		const form = e.target as HTMLFormElement
+		console.dir(form)
+		form.reset()
+		// try {
+		// 	e.preventDefault()
+		// 	const form = e.target as HTMLFormElement
+		// 	form.reset();
+		// 	const formData = new FormData(form)
+		// 	await postNewRepairDevice(formData)
+
+		// 	dispatch(
+		// 		setSnackbar({
+		// 			message: 'Tạo phiếu thành công!!!',
+		// 			color: colorsNotifi['success'].color,
+		// 			backgroundColor: colorsNotifi['success'].background,
+		// 		}),
+		// 	)
+		// 	setPopupVisible(false)
+		// 	getRepair().catch(console.error)
+		// } catch (error) {
+		// 	dispatch(
+		// 		setSnackbar({
+		// 			message: 'Đã xảy ra lỗi!!!',
+		// 			color: colorsNotifi['error'].color,
+		// 			backgroundColor: colorsNotifi['error'].background,
+		// 		}),
+		// 	)
+		// 	console.log(error)
+		// } finally {
+		// 	console.log(e);
+		// }
 	})
 
 	const handleRefresh = useCallback(() => {
@@ -203,7 +219,7 @@ const RepairDevice = () => {
 					<Grouping contextMenuEnabled={true} />
 					<FilterPanel visible={true} />
 					<Scrolling mode="infinite" />
-					<LoadPanel enabled={true} />
+					<LoadPanel enabled={true} showPane={isLoadingGetRepair} />
 					{columns.current.map(col => (
 						<Column key={col.dataField} {...col} />
 					))}
@@ -248,7 +264,6 @@ const RepairDevice = () => {
 					</Toolbar>
 				</DataGrid>
 			</Box>
-
 			{selectedDevice && isOpenDetail && (
 				<RepairDeviceDetail
 					data={selectedDevice}
@@ -262,112 +277,113 @@ const RepairDevice = () => {
 					}}
 				/>
 			)}
-
-			<Popup
-				visible={popupVisible}
-				onHiding={hidePopup}
-				dragEnabled={true}
-				hideOnOutsideClick={false}
-				showCloseButton={true}
-				showTitle={true}
-				title="Thêm phiếu sửa chữa"
-				height="auto"
-				resizeEnabled={true}
-				width={700}
-			>
-				<form onSubmit={handleSaving} encType="multipart/form-data">
-					<Form>
-						{columns.current.map(col => {
-							if (col?.typeCreate === 'textbox') {
-								return (
-									<FormItem
-										key={col.dataField}
-										dataField={col.dataField}
-										caption={col.caption}
-										colSpan={2}
-										label={{
-											text: col.caption,
-										}}
-									>
-										<RequiredRule />
-									</FormItem>
-								)
-							}
-							if (col?.typeCreate === 'selectbox') {
-								return (
-									<FormItem
-										key={col.dataField}
-										dataField={col.dataField}
-										caption={col.caption}
-										editorType="dxSelectBox"
-										editorOptions={{ ...col.editorOptions, dataSource: deviceGenerals }}
-										colSpan={2}
-										label={{
-											text: col.caption,
-										}}
-									>
-										<RequiredRule />
-									</FormItem>
-								)
-							}
-							if (col?.typeCreate === 'file') {
-								return (
-									<FormItem
-										key={col.dataField}
-										cssClass="items-center disable-padding-top  disable-padding-bottom disable-padding-left"
-										dataField={col.dataField}
-										caption={col.caption}
-										colSpan={2}
-										label={{
-											text: col.caption,
-										}}
-									>
-										<RequiredRule />
-										<FileUploader
-											selectButtonText="Chọn file"
-											labelText=""
-											elementAttr={{
-												class: 'uploader-horizontal',
+			{popupVisible && (
+				<Popup
+					visible={popupVisible}
+					onHiding={hidePopup}
+					dragEnabled={true}
+					hideOnOutsideClick={false}
+					showCloseButton={true}
+					showTitle={true}
+					title="Thêm phiếu sửa chữa"
+					height="auto"
+					resizeEnabled={true}
+					width={700}
+				>
+					<form onSubmit={handleSaving} encType="multipart/form-data" noValidate={true}>
+						<Form>
+							{columns.current.map(col => {
+								if (col?.typeCreate === 'textbox') {
+									return (
+										<FormItem
+											key={col.dataField}
+											dataField={col.dataField}
+											caption={col.caption}
+											colSpan={2}
+											label={{
+												text: col.caption,
 											}}
-											inputAttr={{
-												required: 'required',
+										>
+											<RequiredRule />
+										</FormItem>
+									)
+								}
+								if (col?.typeCreate === 'selectbox') {
+									return (
+										<FormItem
+											key={col.dataField}
+											dataField={col.dataField}
+											caption={col.caption}
+											editorType="dxSelectBox"
+											editorOptions={{ ...col.editorOptions, dataSource: deviceGenerals }}
+											colSpan={2}
+											label={{
+												text: col.caption,
 											}}
-											accept="application/pdf,application/vnd.ms-excel"
-											uploadMode="useForm"
-											name={col.dataField}
-										/>
-									</FormItem>
-								)
-							}
-						})}
-					</Form>
-					<Box display="flex">
-						<Button
-							type="default"
-							elementAttr={{ style: 'margin-left: auto; width: 120px;' }}
-							width={120}
-							useSubmitBehavior={true}
-							disabled={isLoadingHanleSaving}
-						>
-							<LoadIndicator
-								id="small-indicator"
-								height={20}
-								width={20}
-								visible={isLoadingHanleSaving}
-								elementAttr={{ class: 'indicator-white' }}
+										>
+											<RequiredRule />
+										</FormItem>
+									)
+								}
+								if (col?.typeCreate === 'file') {
+									return (
+										<FormItem
+											key={col.dataField}
+											cssClass="items-center disable-padding-top  disable-padding-bottom disable-padding-left"
+											dataField={col.dataField}
+											caption={col.caption}
+											colSpan={2}
+											label={{
+												text: col.caption,
+											}}
+										>
+											<RequiredRule />
+											<FileUploader
+												selectButtonText="Chọn file"
+												labelText=""
+												elementAttr={{
+													class: 'uploader-horizontal',
+												}}
+												inputAttr={{
+													required: 'required',
+												}}
+												accept="application/pdf,application/vnd.ms-excel"
+												uploadMode="useForm"
+												name={col.dataField}
+											/>
+										</FormItem>
+									)
+								}
+							})}
+						</Form>
+						<Box display="flex">
+							<Button
+								type="default"
+								elementAttr={{ style: 'margin-left: auto; width: 120px;' }}
+								width={120}
+								useSubmitBehavior={true}
+								disabled={isLoadingHanleSaving}
+							>
+								<LoadIndicator
+									id="small-indicator"
+									height={20}
+									width={20}
+									visible={isLoadingHanleSaving}
+									elementAttr={{ class: 'indicator-white' }}
+								/>
+								Lưu
+							</Button>
+							<Button
+								type="normal"
+								text="Hủy"
+								onClick={hidePopup}
+								elementAttr={{ style: 'margin-left: 16px; width: 80px' }}
+								width={80}
 							/>
-							Lưu
-						</Button>
-						<Button
-							type="normal"
-							text="Hủy"
-							onClick={hidePopup}
-							elementAttr={{ style: 'margin-left: 16px; width: 80px' }}
-							width={80}
-						/>
-					</Box>
-				</form>
-			</Popup>
+						</Box>
+					</form>
+				</Popup>
+			)}
 		</div>
 	)
 }

@@ -308,7 +308,7 @@ function MaintenanceDeviceTable() {
 					/>
 					<LoadPanel enabled={true} />
 					<Scrolling mode="infinite" />
-					<LoadPanel enabled={true} />
+					<LoadPanel enabled={true} showPane={isLoadingGetCriteria} />
 					{columns.current.map(col => (
 						<Column key={col.id} dataField={col.id} dataType="string" caption={col.header} />
 					))}

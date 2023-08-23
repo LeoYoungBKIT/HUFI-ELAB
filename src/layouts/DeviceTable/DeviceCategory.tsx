@@ -1,15 +1,9 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { useLoading } from '../../hooks/useLoading'
-import { deleteDevice, getDevices, postDevice, updateDevice } from '../../services/deviceDepartmentServices'
-import { IDeviceDepartmentType } from '../../types/deviceDepartmentType'
-import DataSource from 'devextreme/data/data_source'
-import ArrayStore from 'devextreme/data/array_store'
-import { uniqueId } from 'lodash'
+import { Box, Typography } from '@mui/material'
+import Button from 'devextreme-react/button'
 import DataGrid, {
 	Column,
 	ColumnChooser,
 	ColumnFixing,
-	Button as DevButtonGrid,
 	FilterPanel,
 	FilterRow,
 	Grouping,
@@ -23,21 +17,30 @@ import DataGrid, {
 	RequiredRule,
 	Toolbar,
 } from 'devextreme-react/data-grid'
-import { Box, Typography } from '@mui/material'
-import Button from 'devextreme-react/button'
 import LoadIndicator from 'devextreme-react/load-indicator'
-import moment from 'moment'
-import { SavingEvent } from 'devextreme/ui/data_grid'
-import { useAppDispatch } from '../../hooks'
-import { setSnackbar } from '../../pages/appSlice'
-import { colorsNotifi } from '../../configs/color'
+import SelectBox from 'devextreme-react/select-box'
+import ArrayStore from 'devextreme/data/array_store'
+import DataSource from 'devextreme/data/data_source'
+import { ValueChangedEvent } from 'devextreme/ui/select_box'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useAppSelector } from '../../hooks'
+import { useLoading } from '../../hooks/useLoading'
+import { getDeviceGeneral, getDeviceGeneralDept } from '../../services/deviceServices'
+import { IDeviceGeneral } from '../../types/deviceType'
 
 const DeviceCategory = () => {
-	const [devices, setDevices] = useState<IDeviceDepartmentType[]>([])
-	const dispatch = useAppDispatch()
+	const [devices, setDevices] = useState<IDeviceGeneral[]>([])
+	const departments = useAppSelector(state => state.department.listOfDepartments)
+	const [department, setDepartment] = useState<string>('all')
+
 	const [getDeviceData, isLoadingGetDevices] = useLoading(async () => {
 		try {
-			const data: IDeviceDepartmentType[] = await getDevices()
+			let data: IDeviceGeneral[] = []
+			if (department === 'all' || department === '') {
+				data = await getDeviceGeneral()
+			} else {
+				data = await getDeviceGeneralDept(department)
+			}
 			setDevices(data)
 		} catch (error) {
 			console.log(error)
@@ -46,7 +49,7 @@ const DeviceCategory = () => {
 
 	useEffect(() => {
 		getDeviceData().catch(console.error)
-	}, [])
+	}, [department])
 
 	const dataGridRef = useRef<DataGrid<any, any> | null>(null)
 
@@ -58,120 +61,27 @@ const DeviceCategory = () => {
 			}),
 		})
 	}, [devices])
+
 	const handleRefresh = () => {
 		getDeviceData().catch(console.error)
 	}
-	const columns = useRef<(IColumnProps & { required?: boolean })[]>([
-		{ dataField: 'DeviceId', caption: 'Mã thiết bị', required: true },
-		{ dataField: 'DeviceName', caption: 'Tên thiết bị' },
-		{ dataField: 'DeviceEnglishName', caption: 'Tên tiếng anh' },
-	])
-
-	const handleSaving = async (e: SavingEvent<IDeviceDepartmentType, string>) => {
-		try {
-			if (e.changes.length > 0) {
-				const insertDevices = e.changes.filter(change => change.type === 'insert')
-				const updateDevices = e.changes.filter(change => change.type === 'update')
-				const removeDevices = e.changes.filter(change => change.type === 'remove')
-
-				if (insertDevices.length > 0) {
-					try {
-						await postDevice(
-							insertDevices.map(device => ({
-								DeviceId: device.data?.DeviceId || '',
-								DeviceName: device.data?.DeviceName || '',
-								DeviceEnglishName: device.data?.DeviceEnglishName || '',
-							})),
-						)
-
-						dispatch(
-							setSnackbar({
-								message: 'Thêm thành công!!!',
-								color: colorsNotifi['success'].color,
-								backgroundColor: colorsNotifi['success'].background,
-							}),
-						)
-					} catch (error) {
-						console.log(error)
-
-						dispatch(
-							setSnackbar({
-								message: 'Thêm không thành công!!!',
-								color: colorsNotifi['error'].color,
-								backgroundColor: colorsNotifi['error'].background,
-							}),
-						)
-					}
-				}
-
-				if (updateDevices.length > 0) {
-					const updatePromises = updateDevices.map(device => {
-						return updateDevice({
-							DeviceId: device.key || '',
-							DeviceName:
-								device.data?.DeviceName ||
-								devices.find(x => x.DeviceId === device.key)?.DeviceName ||
-								'',
-							DeviceEnglishName:
-								device.data?.DeviceEnglishName ||
-								devices.find(x => x.DeviceId === device.key)?.DeviceEnglishName ||
-								'',
-						})
-					})
-
-					Promise.all(updatePromises)
-						.then(() => {
-							dispatch(
-								setSnackbar({
-									message: 'Sửa thành công!!!',
-									color: colorsNotifi['success'].color,
-									backgroundColor: colorsNotifi['success'].background,
-								}),
-							)
-						})
-						.catch(() => {
-							dispatch(
-								setSnackbar({
-									message: 'Sửa không thành công!!!',
-									color: colorsNotifi['error'].color,
-									backgroundColor: colorsNotifi['error'].background,
-								}),
-							)
-						})
-				}
-
-				if (removeDevices.length > 0) {
-					const removePromises = removeDevices.map(device => {
-						return deleteDevice(device.key)
-					})
-
-					Promise.all(removePromises)
-						.then(() => {
-							dispatch(
-								setSnackbar({
-									message: 'Xóa thành công!!!',
-									color: colorsNotifi['success'].color,
-									backgroundColor: colorsNotifi['success'].background,
-								}),
-							)
-						})
-						.catch(() => {
-							dispatch(
-								setSnackbar({
-									message: 'Xóa không thành công!!!',
-									color: colorsNotifi['error'].color,
-									backgroundColor: colorsNotifi['error'].background,
-								}),
-							)
-						})
-				}
-			}
-		} catch (error) {
-			console.log(error)
-		} finally {
-			getDeviceData().catch(console.error)
-		}
-	}
+	const columns = useMemo<IColumnProps[]>(
+		() => [
+			{ dataField: 'DeviceId', caption: 'Mã thiết bị' },
+			{ dataField: 'DeviceInfoId', caption: 'Mã định danh thiết bị', fixed: true },
+			{ dataField: 'DeviceName', caption: 'Tên thiết bị', fixed: true },
+			{ dataField: 'DeviceEnglishName', caption: 'Tên tiếng anh' },
+			{ dataField: 'Model', caption: 'Số Model' },
+			{ dataField: 'SerialNumber', caption: 'Số Serial' },
+			{ dataField: 'Specification', caption: 'Thông số kỹ thuật' },
+			{ dataField: 'Manufacturer', caption: 'Hãng sản xuất' },
+			{ dataField: 'Origin', caption: 'Xuất xứ' },
+			{ dataField: 'DeviceLocation', caption: 'Vị trí', visible: department !== 'all' },
+			{ dataField: 'DepartmentImportName', caption: 'Đơn vị nhập', visible: department === 'all' },
+			{ dataField: 'Status', caption: 'Tình trạng' },
+		],
+		[department],
+	)
 
 	return (
 		<div
@@ -189,13 +99,25 @@ const DeviceCategory = () => {
 				justifyContent="space-between"
 				display="flex"
 				flexWrap="wrap"
-				flexDirection="column"
 				overflow="auto"
 				m={2}
 			>
 				<Typography fontWeight="bold" align="left" variant="h6" whiteSpace="nowrap">
 					Danh mục thiết bị
 				</Typography>
+				<SelectBox
+					items={[{ DepartmentId: 'all', DepartmentName: 'Toàn trường' }, ...departments]}
+					displayExpr="DepartmentName"
+					valueExpr="DepartmentId"
+					placeholder="Chọn phòng..."
+					defaultValue="all"
+					onValueChanged={(e: ValueChangedEvent) => {
+						setDepartment(e.value || '')
+					}}
+					width={320}
+					value={department}
+					searchEnabled={true}
+				/>
 			</Box>
 			<Box
 				sx={{
@@ -214,24 +136,15 @@ const DeviceCategory = () => {
 					columnAutoWidth={true}
 					allowColumnResizing={true}
 					columnResizingMode="widget"
-					columnMinWidth={60}
+					columnMinWidth={150}
 					searchPanel={{
 						visible: true,
 						width: 300,
 						placeholder: 'Tìm kiếm',
 					}}
-					editing={{
-						mode: 'batch',
-						confirmDelete: true,
-						allowDeleting: true,
-						allowAdding: true,
-						allowUpdating: true,
-						useIcons: true,
-					}}
 					elementAttr={{ style: 'height: 100%; padding-bottom: 20px; width: 100%; min-width: 600px' }}
 					wordWrapEnabled={true}
 					repaintChangesOnly={true}
-					onSaving={handleSaving}
 				>
 					<ColumnChooser enabled={true} mode="select">
 						<Position my="right top" at="right top" of=".dx-datagrid-column-chooser-button" />
@@ -249,12 +162,10 @@ const DeviceCategory = () => {
 						showPageSizeSelector={true}
 						visible={true}
 					/>
-					<LoadPanel enabled={true} />
+					<LoadPanel enabled={true} showPane={isLoadingGetDevices} />
 					<Paging defaultPageSize={30} />
-					{columns.current.map(col => (
-						<Column key={col.dataField} {...col}>
-							{col.required && <RequiredRule />}
-						</Column>
+					{columns.map(col => (
+						<Column key={col.dataField} {...col}></Column>
 					))}
 
 					<Toolbar>
