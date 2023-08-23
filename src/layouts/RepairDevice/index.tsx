@@ -111,38 +111,34 @@ const RepairDevice = () => {
 	])
 
 	const [handleSaving, isLoadingHanleSaving] = useLoading(async (e: FormEvent<HTMLFormElement>) => {
-		e.preventDefault()
 		const form = e.target as HTMLFormElement
-		console.dir(form)
-		form.reset()
-		// try {
-		// 	e.preventDefault()
-		// 	const form = e.target as HTMLFormElement
-		// 	form.reset();
-		// 	const formData = new FormData(form)
-		// 	await postNewRepairDevice(formData)
+		try {
+			e.preventDefault()
+			const formData = new FormData(form)
+			await postNewRepairDevice(formData)
 
-		// 	dispatch(
-		// 		setSnackbar({
-		// 			message: 'Tạo phiếu thành công!!!',
-		// 			color: colorsNotifi['success'].color,
-		// 			backgroundColor: colorsNotifi['success'].background,
-		// 		}),
-		// 	)
-		// 	setPopupVisible(false)
-		// 	getRepair().catch(console.error)
-		// } catch (error) {
-		// 	dispatch(
-		// 		setSnackbar({
-		// 			message: 'Đã xảy ra lỗi!!!',
-		// 			color: colorsNotifi['error'].color,
-		// 			backgroundColor: colorsNotifi['error'].background,
-		// 		}),
-		// 	)
-		// 	console.log(error)
-		// } finally {
-		// 	console.log(e);
-		// }
+			dispatch(
+				setSnackbar({
+					message: 'Tạo phiếu thành công!!!',
+					color: colorsNotifi['success'].color,
+					backgroundColor: colorsNotifi['success'].background,
+				}),
+			)
+			setPopupVisible(false)
+			getRepair().catch(console.error)
+		} catch (error) {
+			dispatch(
+				setSnackbar({
+					message: 'Đã xảy ra lỗi!!!',
+					color: colorsNotifi['error'].color,
+					backgroundColor: colorsNotifi['error'].background,
+				}),
+			)
+			console.log(error)
+		} finally {
+			console.log(e);
+			form.reset()
+		}
 	})
 
 	const handleRefresh = useCallback(() => {

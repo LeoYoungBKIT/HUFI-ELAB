@@ -3,6 +3,7 @@ import * as API from '../configs/apiHelper'
 import { IDeviceGeneral, IDeviceSpecType, IDeviceType, ILessonDeviceType } from '../types/deviceType'
 import { IChemicalType } from '../types/chemicalType'
 import { IInstrumentGeneral, IInstrumentType } from '../types/instrumentType'
+import { IDeviceTransfer } from '../types/deviceTransferType'
 
 const { isProd } = config
 const API_ENDPOINT = isProd ? config.production.api_endpoint : config.development.api_endpoint
@@ -122,4 +123,19 @@ export const getChemicalPlanningByLesson = async (id: Number) => {
 	const url = `${API_ENDPOINT}/api/lessonchemicals/${id}`
 	const chemicalPlanningData: IChemicalType[] = await API.get<IChemicalType[]>(url)
 	return chemicalPlanningData
+}
+
+export const getInstrumentsTransfer = async () => {
+	const url = `${API_ENDPOINT}/api/InstrumentTransfers`
+	const chemicalPlanningData: IDeviceTransfer[] = await API.get<IDeviceTransfer[]>(url)
+	return chemicalPlanningData
+}
+
+export const postInstrumentsTransfer = async (newData: [IDeviceTransfer, IDeviceTransfer]) => {
+	const url = `${API_ENDPOINT}/api/InstrumentTransfers`
+	const newDeviceSpec: IDeviceTransfer[] = await API.post<
+		[IDeviceTransfer, IDeviceTransfer],
+		[IDeviceTransfer, IDeviceTransfer]
+	>(url, newData)
+	return newDeviceSpec
 }
