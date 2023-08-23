@@ -34,6 +34,7 @@ import {
 } from './permissions'
 import DeviceCategory from '../layouts/DeviceTable/DeviceCategory'
 import InstrumentTable from '../layouts/InstrumentTable'
+import InstrumentTransfer from '../layouts/InstrumentTransfer'
 
 export interface ISidebarItem {
 	id: string
@@ -239,7 +240,7 @@ const Sidebar = {
 						id: 'CC-DC - Điều chuyển nội bộ',
 						name: 'Điều chuyển nội bộ',
 						icon: null,
-						comp: null,
+						comp: <InstrumentTransfer />,
 					},
 				],
 			},

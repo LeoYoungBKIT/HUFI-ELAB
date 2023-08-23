@@ -27,6 +27,13 @@ export interface IInstrumentType {
 	listInstrumentDistribute: IInstrumentDetailType[]
 }
 
+export interface IInstrumentSerial {
+	InstrumentId: string
+	InstrumentName: string
+	QuantityTotal: number
+	isTransfered?: boolean
+}
+
 export interface IInstrumentDetailType {
 	InstrumentId: string
 	InstrumentName: string
