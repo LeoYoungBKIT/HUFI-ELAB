@@ -171,7 +171,7 @@ export const get = async <TResponse>(path: string): Promise<TResponse> => {
     const response = await newAxios.get<TResponse>(path);
     return response.data;
   } catch (error) {
-    // handleServiceError(error);
+    throw new Error(JSON.stringify(error));
   }
   return {} as TResponse;
 };
@@ -188,7 +188,7 @@ export const put = async <TRequest, TResponse>(
     const response = await newAxios.put<TRequest, TResponse>(path, payload);
     return response;
   } catch (error) {
-    // handleServiceError(error);
+    throw new Error(JSON.stringify(error));
   }
   return {} as TResponse;
 };
@@ -202,13 +202,32 @@ export const deleteResource = async (path: string): Promise<any> => {
     const response = await newAxios.delete(path);
     return response;
   } catch (error) {
-    // handleServiceError(error);
+    throw new Error(JSON.stringify(error));
   }
+};
+
+export const deleteData = async <TRequest, TResponse>(
+  path: string,
+  payload: TRequest
+): Promise<TResponse> => {
+  try {
+    const userStorage = await getFromLocalStorage("user");
+    const newAxios = createAxiosClient({
+      accessToken: userStorage?.AccessToken,
+    });
+    const response = await newAxios.delete<TRequest, TResponse>(path, {
+      data: payload,
+    });
+    return response;
+  } catch (error) {
+    throw new Error(JSON.stringify(error));
+  }
+  return {} as TResponse;
 };
 
 export const post = async <TRequest, TResponse>(
   path: string,
-  payload: TRequest,
+  payload?: TRequest,
   config?: RequestConfig
 ): Promise<TResponse> => {
   try {
@@ -222,7 +241,7 @@ export const post = async <TRequest, TResponse>(
 
     return response;
   } catch (error) {
-    // handleServiceError(error);
+    throw new Error(JSON.stringify(error));
   }
   return {} as TResponse;
 };

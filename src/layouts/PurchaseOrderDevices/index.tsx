@@ -1,14 +1,28 @@
-import { useEffect, useState } from "react";
+import CloseIcon from "@mui/icons-material/Close";
+import {
+  Button as ButtonMui,
+  Dialog,
+  DialogTitle,
+  IconButton,
+  Tab,
+  Tabs,
+  Typography,
+} from "@mui/material";
+import { Box } from "@mui/system";
+import DataGrid, { Column, Button } from "devextreme-react/data-grid";
+
+import { MRT_Row } from "material-react-table";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import ErrorComponent from "../../components/ErrorToast";
+import SuccessToast from "../../components/Success";
+import { useAppDispatch } from "../../hooks";
 import {
   IDeviceServiceInfo,
   initDeviceServiceInfo,
 } from "../../types/IDeviceServiceInfo";
-import MaterialReactTable, {
-  MRT_ColumnDef,
-  MRT_Row,
-} from "material-react-table";
-import moment from "moment";
-import { useSelector } from "react-redux";
+import FormCmp from "./Form";
+import InternalDeviceLayout from "./interalDevice/InternalDeviceLayout";
 import {
   acceptPurchaseOrderDeviceAction,
   deletePurchaseOrderDeviceAction,
@@ -18,25 +32,8 @@ import {
   savePurchaseOrderDeviceAction,
   updatePurchaseOrderDeviceAction,
 } from "./purchaseOrderDeviceSlice";
-import { useAppDispatch } from "../../hooks";
-import { Box } from "@mui/system";
-import ErrorComponent from "../../components/ErrorToast";
-import {
-  Button,
-  Dialog,
-  DialogTitle,
-  IconButton,
-  Tab,
-  Tabs,
-  Typography,
-} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import FormCmp from "./Form";
-import SuccessToast from "../../components/Success";
-import { Edit as EditIcon } from "@mui/icons-material";
 import { DeviceEditing, nextStatus } from "./utils";
-import InternalDeviceLayout from "./interalDevice/InternalDeviceLayout";
-import React from "react";
+import moment from "moment";
 
 const renderRow = (key: keyof IDeviceServiceInfo) => {
   return (row: IDeviceServiceInfo) => row[key] ?? "trống";
@@ -130,12 +127,12 @@ const PurchaseOrderDevices = () => {
           )}
           <Box sx={{ display: "flex", justifyContent: "space-between", my: 1 }}>
             <Typography variant="h5">Quản lí phiếu nhập</Typography>
-            <Button
+            <ButtonMui
               onClick={() => handleShowForm(initDeviceServiceInfo, "create")}
               variant="contained"
             >
               Tạo mới
-            </Button>
+            </ButtonMui>
           </Box>
           <Dialog
             fullScreen
@@ -172,29 +169,50 @@ const PurchaseOrderDevices = () => {
             />
           </Dialog>
 
-          <MaterialReactTable
-            enableRowActions
-            enableStickyHeader
-            columns={columns}
-            data={data}
-            state={{ isLoading: loading }}
-            enableEditing={true}
-            editingMode="modal"
-            initialState={{
-              density: "compact",
+          <DataGrid
+            dataSource={data}
+            allowColumnReordering={true}
+            rowAlternationEnabled={true}
+            showBorders={true}
+            loadPanel={{
+              enabled: loading,
             }}
-            renderRowActions={({ row }) => (
-              <Box sx={{ display: "flex", flexWrap: "nowrap", gap: "8px" }}>
-                <IconButton
-                  onClick={() => {
-                    handleShowForm(row.original, "update");
-                  }}
-                >
-                  <EditIcon />
-                </IconButton>
-              </Box>
-            )}
-          />
+            allowColumnResizing={true}
+          >
+            <Column type="buttons" width={110} caption={"Thao tác"}>
+              <Button
+                name="edit"
+                visible={true}
+                icon={"edit"}
+                onClick={(e: any) => handleShowForm(e.row.data, "update")}
+              />
+              <Button name="delete" />
+            </Column>
+            {Object.keys(columnHeads).map((x) => {
+              const key = x as keyof IDeviceServiceInfo;
+
+              if (key === "listAccept" || key === "listDeviceInfo")
+                return <React.Fragment key={x}></React.Fragment>;
+
+              if (key === "DateCreate")
+                return (
+                  <Column
+                    key={key}
+                    dataField={key}
+                    caption={columnHeads[key]}
+                    calculateCellValue={(row: any) => {
+                      return moment
+                        .unix(Number(row.DateCreate))
+                        .format("DD/MM/YYYY");
+                    }}
+                  />
+                );
+
+              return (
+                <Column key={key} dataField={key} caption={columnHeads[key]} />
+              );
+            })}
+          </DataGrid>
         </>
       )}
 
@@ -203,44 +221,19 @@ const PurchaseOrderDevices = () => {
   );
 };
 
-export const columns: MRT_ColumnDef<IDeviceServiceInfo>[] = [
-  {
-    accessorFn: renderRow("OrderId"),
-    header: "Mã phiếu nhập",
-  },
-  {
-    accessorFn: renderRow("Status"),
-    header: "Trạng Thái",
-  },
-  {
-    accessorFn: renderRow("Content"),
-    header: "Nội dung",
-  },
-  {
-    accessorFn: (row) =>
-      moment.unix(Number(row.DateCreate)).format("DD/MM/YYYY"),
-    header: "Ngày Tạo",
-  },
-  {
-    accessorFn: renderRow("DepartmentImportId"),
-    header: "Phòng nhập (id)",
-  },
-  {
-    accessorFn: renderRow("DepartmentImportName"),
-    header: "Phòng nhập(name)",
-  },
-  {
-    accessorFn: renderRow("EmployeeCreateId"),
-    header: "Người Tạo(id)",
-  },
-  {
-    accessorFn: renderRow("EmployeeCreateName"),
-    header: "người tạo(name)",
-  },
-  {
-    accessorFn: (row) => row.Title ?? "trống",
-    header: "Tiêu đề",
-  },
-];
+const columnHeads: { [key in keyof IDeviceServiceInfo]: string } = {
+  OrderId: "Mã phiếu nhập",
+  Status: "Trạng Thái",
+  Content: "Nội dung",
+  DepartmentImportId: "Phòng nhập (id)",
+  DepartmentImportName: "Phòng nhập(name)",
+  EmployeeCreateId: "Người Tạo(id)",
+  EmployeeCreateName: "người tạo(name)",
+  DateCreate: "Ngày tạo",
+  Lock: "Khoá",
+  Title: "Tiều dề",
+  listAccept: "danh sách xác nhân",
+  listDeviceInfo: "danh sách thiết bị",
+};
 
 export default React.memo(PurchaseOrderDevices);
