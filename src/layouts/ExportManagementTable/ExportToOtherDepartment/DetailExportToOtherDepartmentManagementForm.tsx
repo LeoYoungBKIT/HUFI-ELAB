@@ -43,7 +43,7 @@ import {
     approveExportToOtherDepartmentManagementForm,
     deleteExportToOtherDepartmentManagementForm,
     forwardApproveExportToOtherDepartmentManagementForm,
-    getDeviceListAccordingToDepartment,
+    getDeviceInfoListAccordingToDepartment,
     getExportToOtherDepartmentManagementForms,
     rejectExportToOtherDepartmentManagementForm
 } from "../../../services/exportManagementServices"
@@ -94,7 +94,7 @@ const RowExportToOtherDepartmentManagementFormType = ({
 
 
     const getDeviceListOfCreateDepartment = async () => {
-        const deviceInfoList = await getDeviceListAccordingToDepartment();
+        const deviceInfoList = await getDeviceInfoListAccordingToDepartment();
         if (deviceInfoList?.length > 0) {
             let normalizatedDeviceInfoList = deviceInfoList.map((item: any) => {
                 return item.listDeviceInfoId.map((x: any) => Object.assign({}, {
@@ -122,6 +122,7 @@ const RowExportToOtherDepartmentManagementFormType = ({
                     Title: exportManagementForm.Title,
                     Content: exportManagementForm.Content,
                     DepartmentManageName: exportManagementForm.DepartmentManageName,
+                    DepartmentManageId: exportManagementForm.DepartmentManageId,
                     DateCreate: exportManagementForm.DateCreate,
                     EmployeeCreateName: exportManagementForm.EmployeeCreateName,
                     EmployeeCreateId: exportManagementForm.EmployeeCreateId,
@@ -232,12 +233,7 @@ const RowExportToOtherDepartmentManagementFormType = ({
             }
             else {
                 try {
-                    let normalizatedForm = {
-                        ...currentCreatedForm,
-                        DepartmentManageId: currentCreatedForm?.DepartmentManageId[0]
-                    }
-
-                    await forwardApproveExportToOtherDepartmentManagementForm(normalizatedForm, id, contentAccept);
+                    await forwardApproveExportToOtherDepartmentManagementForm(currentCreatedForm, id, contentAccept);
                     dispatch(
                         setSnackbar({
                             message: 'Trình duyệt phiếu xuất thành công!!!',
@@ -403,6 +399,9 @@ const RowExportToOtherDepartmentManagementFormType = ({
                                                         <div style={{ "fontSize": "0.75rem" }}>
                                                             Người duyệt: {exportManagementForm.listAccept[idx + 1].EmployeeAcceptId} - {exportManagementForm.listAccept[idx + 1].EmployeeAcceptName}
                                                         </div>
+                                                        {exportManagementForm.listAccept[idx + 1].ContentAccept && <div style={{ "fontSize": "0.75rem" }}>
+                                                            Nội dung: {exportManagementForm.listAccept[idx + 1].ContentAccept}
+                                                        </div>}
                                                     </>
                                                 }
                                             </StepLabel>
@@ -581,15 +580,11 @@ const DataGridFunc = React.memo(function DataGridFunc({
 
     const onContentReady = (e: any) => {
         let allRows = e.component.getVisibleRows();
-        let newListDeviceInfo = allRows.map((rowItem: any) => Object.assign({}, {
-            DeviceId: rowItem.values[0],
-            DeviceInfoId: rowItem.values[7]
-        }))
 
         e.component.getVisibleRows().forEach((item: any) => {
             if (item?.isEditing && listOfDeviceInfo?.length > 0) {
                 let deviceInfoIds = listOfDeviceInfo.find((x: any) => x.DeviceId === item.values[0])
-              
+
                 if (!deviceInfoIds?.DeviceId) {
                     dispatch(
                         setSnackbar({
@@ -601,11 +596,18 @@ const DataGridFunc = React.memo(function DataGridFunc({
                 }
 
             }
-            setCurrentCreatedForm((prevState: any) => Object.assign({}, {
-                ...prevState,
-                DepartmentManageId: allRows.map((row: any) => row.values[5]),
-                listDeviceInfo: newListDeviceInfo
-            }))
+            setCurrentCreatedForm((prevState: any) => {
+                let newListDeviceInfo = allRows.map((rowItem: any, idx: number) => Object.assign({}, {
+                    ...prevState.listDeviceInfo[idx],
+                    DeviceId: rowItem.values[0],
+                    DeviceInfoId: rowItem.values[7]
+                }))
+
+                return Object.assign({}, {
+                    ...prevState,
+                    listDeviceInfo: newListDeviceInfo
+                })
+            })
         })
     }
 
@@ -687,6 +689,7 @@ const DataGridFunc = React.memo(function DataGridFunc({
                         dataType="string"
                         caption="Mã định danh thiết bị"
                         headerCellRender={data => renderHeader(data, true)}
+                        allowEditing={exportManagementForm.Lock === "False"}
                     >
                         {listOfDeviceInfo?.length > 0 && <Lookup
                             dataSource={getFilteredDeviceInfoIds}

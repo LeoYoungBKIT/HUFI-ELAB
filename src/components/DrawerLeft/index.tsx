@@ -91,14 +91,16 @@ function PersistentDrawerLeft() {
 				open={isOpenDrawer}
 			>
 				<DrawerHeader>
-					<img
-						src={HufiLogoExtended}
-						style={{ maxHeight: '50px', marginTop: '5px', minWidth: '150px' }}
-						alt=""
-					/>
-					<IconButton onClick={handleDrawerClose}>
-						{theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-					</IconButton>
+					{/* <div id="DrawerHeaderLeft" style={{ margin: 'auto' }}> */}
+						<img
+							src={HufiLogoExtended}
+							style={{ maxHeight: '50px', marginTop: '5px', minWidth: '200px' }}
+							alt="logo HUIT"
+						/>
+						<IconButton onClick={handleDrawerClose}>
+							{theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+						</IconButton>
+					{/* </div> */}
 				</DrawerHeader>
 				<Divider />
 				{isOpenDrawer && (

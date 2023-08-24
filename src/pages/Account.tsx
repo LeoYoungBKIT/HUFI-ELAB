@@ -53,7 +53,7 @@ const Account: React.FC = () => {
 					></KeyboardArrowRightIcon>
 				</b>
 				<span>Thông tin nhân viên</span>
-				<Paper elevation={4} sx={{ "padding": "20px", "margin": "20px", boxShadow: 'none' }}>
+				<Paper elevation={4} sx={{ "padding": "20px", "margin": "20px" }}>
 					<Grid container>
 						<Grid item xs={12} md={10} lg={9} sx={{ margin: 'auto' }}>
 							<form onSubmit={e => e.preventDefault()} style={{ margin: '10px 0 56px 0' }}>

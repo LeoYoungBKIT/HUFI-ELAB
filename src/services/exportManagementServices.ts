@@ -33,7 +33,11 @@ export const approveExportToOtherDepartmentManagementForm = async (id: string) =
     return approvedExportToOtherDepartmentManagementFormType;
 }
 
-export const forwardApproveExportToOtherDepartmentManagementForm = async (exportManagementFormData: IExportToOtherDepartmentManagementFormType, id1: string, id2: string) => {
+export const forwardApproveExportToOtherDepartmentManagementForm = async (
+    exportManagementFormData: IExportToOtherDepartmentManagementFormType,
+    id1: string,
+    id2: string
+) => {
     const url = `${API_ENDPOINT}/api/ExportOuts/Propose/${id1}/${id2}`;
     const approvedExportToOtherDepartmentManagementFormType = await API.post<IExportToOtherDepartmentManagementFormType, any>(url, exportManagementFormData);
     return approvedExportToOtherDepartmentManagementFormType;
@@ -44,7 +48,11 @@ export const deleteExportToOtherDepartmentManagementForm = async (id: string) =>
     await API.deleteResource(url);
 }
 
-export const rejectExportToOtherDepartmentManagementForm = async (exportManagementFormData: IExportToOtherDepartmentManagementFormType, id1: string, id2: string) => {
+export const rejectExportToOtherDepartmentManagementForm = async (
+    exportManagementFormData: IExportToOtherDepartmentManagementFormType,
+    id1: string,
+    id2: string
+) => {
     const url = `${API_ENDPOINT}/api/ExportOuts/Reject/${id1}/${id2}`;
     const rejectedExportToOtherDepartmentManagementFormType = await API.post<IExportToOtherDepartmentManagementFormType, any>(url, exportManagementFormData);
     return rejectedExportToOtherDepartmentManagementFormType;
@@ -61,11 +69,21 @@ export const getListOfLiquidateDeviceForms = async () => {
     }
 }
 
-export const getDeviceListAccordingToDepartment = async () => {
+export const getDeviceInfoListAccordingToDepartment = async () => {
     try {
         const url = `${API_ENDPOINT}/api/ExportOuts/GetDeviceForPropose`;
+        const deviceInfoList: any[] = await API.get<any[]>(url)
+        return deviceInfoList;
+    }
+    catch {
+        return [];
+    }
+}
+
+export const getDeviceListAccordingToDepartment = async () => {
+    try {
+        const url = `${API_ENDPOINT}/api/ExportOuts/GetDeviceForDept`;
         const deviceList: any[] = await API.get<any[]>(url)
-        console.log("deviceList :", deviceList)
         return deviceList;
     }
     catch {
@@ -86,9 +104,10 @@ export const deleteExportToLiquidateManagementForm = async (id: string) => {
 
 export const forwardApproveExportToLiquidateManagementForm = async (
     exportManagementFormData: IExportToLiquidateManagementFormType,
-    id: string,
+    id1: string,
+    id2: string
 ) => {
-    const url = `${API_ENDPOINT}/api/LiquidateDevices/Propose/${id}`;
+    const url = `${API_ENDPOINT}/api/LiquidateDevices/Propose/${id1}/${id2}`;
     const approvedExportToLiquidateManagementFormType = await API.post<IExportToLiquidateManagementFormType, any>(url, exportManagementFormData);
     return approvedExportToLiquidateManagementFormType;
 }

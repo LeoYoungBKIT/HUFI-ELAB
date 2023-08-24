@@ -10,14 +10,16 @@ import {
 	TextField,
 	Tooltip,
 } from '@mui/material'
-
+import { Item } from 'devextreme-react/form';
 import DataGrid, {
 	Column,
 	Editing,
 	Paging,
 	Lookup,
 	Summary,
-	TotalItem
+	TotalItem,
+	Popup,
+	Form,
 } from 'devextreme-react/data-grid'
 import ArrayStore from 'devextreme/data/array_store'
 import DataSource from 'devextreme/data/data_source'
@@ -31,11 +33,19 @@ import { DialogProps } from './DialogType'
 import { renderHeader } from '../DetailExportToLiquidateManagementForm'
 import { colorsNotifi } from '../../../../configs/color'
 import {
-	getDeviceListAccordingToDepartment,
+	getDeviceInfoListAccordingToDepartment,
 	getListOfLiquidateDeviceForms,
 	postExportToLiquidateManagementForm
 } from '../../../../services/exportManagementServices'
 import { setListOfExportToLiquidateManagementForms } from '../../exportManagementSlice'
+import { useEvent } from './utils'
+import {
+	ColumnEditCellTemplateData,
+	EditCanceledEvent,
+	SavedEvent,
+	ColumnCellTemplateData
+} from 'devextreme/ui/data_grid'
+import { FileUploaderEditor } from './FileUploaderEditor'
 
 const commonFieldsShow = [
 	{ id: 'DeviceId', header: 'Mã thiết bị' },
@@ -64,9 +74,8 @@ const DialogCreate = ({ isOpen, onClose }: DialogProps) => {
 	const [currentCreatedForm, setCurrentCreatedForm] = useState<any>(dummyExportToLiquidateManagementForm)
 	const [listOfDeviceInfo, setListOfDeviceInfo] = useState<any[]>()
 
-
 	const getDeviceListOfCreateDepartment = async () => {
-		const deviceInfoList = await getDeviceListAccordingToDepartment();
+		const deviceInfoList = await getDeviceInfoListAccordingToDepartment();
 		if (deviceInfoList?.length > 0) {
 			let normalizatedDeviceInfoList = deviceInfoList.map((item: any) => {
 				let correspondingDeviceType = deviceList.find((deviceType: any) => deviceType.DeviceId === item.DeviceId);
@@ -74,7 +83,7 @@ const DialogCreate = ({ isOpen, onClose }: DialogProps) => {
 				if (correspondingDeviceType?.DeviceId && correspondingDeviceType.hasOwnProperty("listDeviceInfo")) {
 					return item.listDeviceInfoId.map((x: any) => {
 						let correspondingDevice = correspondingDeviceType?.listDeviceInfo ? correspondingDeviceType.listDeviceInfo.find((y: any) => y.DeviceInfoId === x) : null;
-						if (correspondingDevice?.DeviceInfoId){
+						if (correspondingDevice?.DeviceInfoId) {
 
 						}
 						return Object.assign({}, {
@@ -86,7 +95,6 @@ const DialogCreate = ({ isOpen, onClose }: DialogProps) => {
 				}
 
 			})
-			// console.log("normalizatedDeviceInfoList :", normalizatedDeviceInfoList.flat())
 			setListOfDeviceInfo(normalizatedDeviceInfoList.flat())
 		}
 	}
@@ -118,7 +126,7 @@ const DialogCreate = ({ isOpen, onClose }: DialogProps) => {
 			return;
 		}
 
-		else if (currentCreatedForm?.listDeviceInfo.length === 0) {
+		else if (currentCreatedForm?.listDevice.length === 0) {
 			dispatch(
 				setSnackbar({
 					message: 'Vui lòng thêm thông tin thiết bị thanh lý',
@@ -130,51 +138,8 @@ const DialogCreate = ({ isOpen, onClose }: DialogProps) => {
 		}
 
 		else {
-			currentCreatedForm.listDeviceInfo.forEach((item: any, idx: number) => {
-				if (!item?.DeviceId) {
-					dispatch(
-						setSnackbar({
-							message: `Vui lòng chọn thiết bị ở dòng thứ ${idx + 1}!`,
-							color: colorsNotifi['error'].color,
-							backgroundColor: colorsNotifi['error'].background,
-						})
-					)
-					return;
-				}
-			})
-
-			currentCreatedForm?.DepartmentManageId.forEach((item: any, idx: number) => {
-				if (!item) {
-					dispatch(
-						setSnackbar({
-							message: `Vui lòng chọn đơn vị quản lý thiết bị ở dòng thứ ${idx + 1}!`,
-							color: colorsNotifi['error'].color,
-							backgroundColor: colorsNotifi['error'].background,
-						})
-					)
-					return;
-				}
-			})
-		}
-
-		if (!(currentCreatedForm?.DepartmentManageId.every((item: any) => item === currentCreatedForm?.DepartmentManageId[0]))) {
-			dispatch(
-				setSnackbar({
-					message: 'Vui lòng chọn cùng đơn vị quản lý ở các thiết bị!',
-					color: colorsNotifi['error'].color,
-					backgroundColor: colorsNotifi['error'].background,
-				})
-			)
-			return;
-		}
-		else {
-			let normalizatedForm = {
-				...currentCreatedForm,
-				DepartmentManageId: currentCreatedForm?.DepartmentManageId[0]
-			}
-
 			try {
-				await postExportToLiquidateManagementForm(normalizatedForm);
+				await postExportToLiquidateManagementForm(currentCreatedForm);
 				dispatch(
 					setSnackbar({
 						message: 'Tạo phiếu xuất thành công!!!',
@@ -348,6 +313,19 @@ const DataGridFunc = React.memo(function DataGridFunc({
 	setCurrentCreatedForm,
 	listOfDeviceInfo,
 }: IDataGridFuncProps) {
+	const [retryButtonVisible, setRetryButtonVisible] = useState(false);
+
+	const onEditCanceled = useEvent((e: EditCanceledEvent) => {
+		if (retryButtonVisible)
+			setRetryButtonVisible(false);
+	})
+
+	const onSaved = useEvent((e: SavedEvent) => {
+		if (retryButtonVisible)
+			setRetryButtonVisible(false);
+	})
+
+
 	const onEditorPreparing = useCallback((e: any) => {
 		if (e.parentType === "dataRow" && e.dataField === "DeviceName") {
 			e.editorOptions.onValueChanged = function (ev: any) {
@@ -380,11 +358,15 @@ const DataGridFunc = React.memo(function DataGridFunc({
 
 	const onContentReady = (e: any) => {
 		let allRows = e.component.getVisibleRows();
-		let newListDeviceInfo = allRows.map((rowItem: any) => Object.assign({}, { DeviceId: rowItem.values[0] }))
+		console.log("allRows :", allRows)
+		let newListDeviceInfo = allRows.map((rowItem: any) => Object.assign({}, {
+			DeviceInfoId: rowItem.values[3],
+			LinkFileRepair: rowItem.values[10] || null,
+			LinkFileMaintenace: rowItem.values[11] || null,
+		}))
 		setCurrentCreatedForm((prevState: any) => Object.assign({}, {
 			...prevState,
-			DepartmentManageId: allRows.map((row: any) => row.values[5]),
-			listDeviceInfo: newListDeviceInfo
+			listDevice: newListDeviceInfo
 		}))
 	}
 
@@ -394,6 +376,21 @@ const DataGridFunc = React.memo(function DataGridFunc({
 			filter: options.data ? ['DeviceId', '=', options.data.DeviceId] : null,
 		};
 	}
+
+	const editCellLinkFileRepairRender = useEvent((cellInfo: ColumnEditCellTemplateData) =>
+		<FileUploaderEditor
+			cellInfo={cellInfo}
+			retryButtonVisible={retryButtonVisible}
+			setRetryButtonVisible={setRetryButtonVisible}
+		/>)
+
+	const editCellLinkFileMaintenace = useEvent((cellInfo: ColumnEditCellTemplateData) =>
+		<FileUploaderEditor
+			cellInfo={cellInfo}
+			retryButtonVisible={retryButtonVisible}
+			setRetryButtonVisible={setRetryButtonVisible}
+		/>)
+
 
 	return (<DataGrid
 		dataSource={dataSource}
@@ -409,67 +406,129 @@ const DataGridFunc = React.memo(function DataGridFunc({
 			width: 240,
 			placeholder: 'Tìm kiếm',
 		}}
-		editing={{
-			confirmDelete: true,
-			allowDeleting: true,
-			allowAdding: true,
-			allowUpdating: true,
-			mode: 'batch',
-		}}
+		onEditCanceled={onEditCanceled}
+		onSaved={onSaved}
+		// editing={{
+		// 	confirmDelete: true,
+		// 	allowDeleting: true,
+		// 	allowAdding: true,
+		// 	allowUpdating: true,
+		// 	mode: 'popup',
+		// }}
 		elementAttr={{ style: 'height: 100%; padding-bottom: 20px; width: 100%; min-width: 600px' }}
 		onEditorPreparing={onEditorPreparing}
 	>
-		<Paging enabled={true} />
-		<Editing mode="row" allowUpdating={true} allowDeleting={true} allowAdding={true} />
 
-		{commonFieldsShow.map(col => {
-			if (col.id === "DeviceInfoId") {
-				return <Column
-					key="DeviceInfoId"
-					dataField="DeviceInfoId"
-					dataType="string"
-					caption="Mã định danh thiết bị"
-					headerCellRender={data => renderHeader(data, true)}
-					setCellValue={setCellValue}
-				>
-					{listOfDeviceInfo?.length > 0 && <Lookup
-						dataSource={getFilteredDeviceInfoIds}
-						valueExpr="DeviceInfoId"
-						displayExpr="DeviceInfoId"
-					/>}
-				</Column>
-			}
-			if (col.id === "DeviceName") {
-				return <Column
-					key="DeviceName"
-					dataField="DeviceName"
-					caption="Tên thiết bị"
-					dataType="string"
-					headerCellRender={data => renderHeader(data, true)}
-					setCellValue={setCellValue}
-				>
-					<Lookup dataSource={deviceList} valueExpr="DeviceName" displayExpr="DeviceName" />
-				</Column>
-			}
-			else {
-				return <Column
-					key={col.id}
-					dataField={col.id}
-					dataType="string"
-					headerCellRender={data => renderHeader(data)}
-					caption={col.header}
-					allowEditing={false}
-					cellRender={data => (
-						<span>
-							{data.text}
-						</span>
-					)}
-				/>
-			}
-		})}
+		<Paging enabled={true} />
+		<Editing
+			allowUpdating={true}
+			allowDeleting={true}
+			allowAdding={true}
+			confirmDelete={true}
+			mode="popup"
+		>
+			<Popup title="Thông tin thiết bị thanh lý" showTitle={true} />
+			<Form>
+				<Item itemType="group" colCount={2} colSpan={2}>
+					{commonFieldsShow.map((ele) => {
+						if (ele.id !== "LinkFileRepair" && ele.id !== 'LinkFileMaintenace') {
+							return <Item dataField={ele.id} />
+						}
+					})}
+				</Item>
+				<Item itemType="group" caption="Biên bản kiểm tra thiết bị từ Đơn vị phụ trách tiếp nhận sửa chữa" colCount={2} colSpan={2}>
+					<Item dataField="LinkFileRepair" colSpan={2} />
+				</Item>
+				<Item itemType="group" caption="Lịch sử bảo trì/sửa chữa" colCount={2} colSpan={2}>
+					<Item dataField="LinkFileMaintenace" colSpan={2} />
+				</Item>
+			</Form>
+		</Editing>
+
+		{
+			commonFieldsShow.map(col => {
+				if (col.id === "DeviceInfoId") {
+					return <Column
+						key="DeviceInfoId"
+						dataField="DeviceInfoId"
+						dataType="string"
+						caption="Mã định danh thiết bị"
+						headerCellRender={data => renderHeader(data, true)}
+						setCellValue={setCellValue}
+					>
+						{listOfDeviceInfo?.length > 0 && <Lookup
+							dataSource={getFilteredDeviceInfoIds}
+							valueExpr="DeviceInfoId"
+							displayExpr="DeviceInfoId"
+						/>}
+					</Column>
+				}
+				else if (col.id === "DeviceName") {
+					return <Column
+						key="DeviceName"
+						dataField="DeviceName"
+						caption="Tên thiết bị"
+						dataType="string"
+						headerCellRender={data => renderHeader(data, true)}
+						setCellValue={setCellValue}
+					>
+						<Lookup dataSource={deviceList} valueExpr="DeviceName" displayExpr="DeviceName" />
+					</Column>
+				}
+				else if (col.id === "LinkFileRepair") {
+					return <Column
+						key="LinkFileRepair"
+						dataField="LinkFileRepair"
+						headerCellRender={data => renderHeader(data)}
+						caption={col.header}
+						allowSorting={false}
+						cellRender={(data: ColumnCellTemplateData) => {
+							return <img
+								src={data.value}
+								alt="LinkFileRepairRender"
+								style={{ "width": "50px", "height": "50px" }}
+							/>;
+						}}
+						editCellRender={editCellLinkFileRepairRender}
+					/>
+				}
+				else if (col.id === "LinkFileMaintenace") {
+					return <Column
+						key="LinkFileMaintenace"
+						dataField="LinkFileMaintenace"
+						headerCellRender={data => renderHeader(data)}
+						caption={col.header}
+						allowSorting={false}
+						cellRender={(data: ColumnCellTemplateData) => {
+							return <img
+								src={data.value}
+								alt="LinkFileMaintenace"
+								style={{ "width": "50px", "height": "50px" }}
+							/>;
+						}}
+						editCellRender={editCellLinkFileMaintenace}
+					/>
+				}
+				else {
+					return <Column
+						key={col.id}
+						dataField={col.id}
+						dataType="string"
+						headerCellRender={data => renderHeader(data)}
+						caption={col.header}
+						allowEditing={false}
+						cellRender={data => (
+							<span>
+								{data.text}
+							</span>
+						)}
+					/>
+				}
+			})
+		}
 
 		<Summary recalculateWhileEditing={true}>
 			<TotalItem column="DeviceId" summaryType="count" />
 		</Summary>
-	</DataGrid>)
+	</DataGrid >)
 })

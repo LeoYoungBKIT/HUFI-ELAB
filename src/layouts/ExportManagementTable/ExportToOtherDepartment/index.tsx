@@ -109,26 +109,6 @@ const ExportToOtherDepartmentTable: FC = () => {
         >
             {ALLOWED.includes(owner.GroupName) && (
                 <>
-                    <Box
-                        component="div"
-                        boxShadow="none"
-                        border="none"
-                        justifyContent="space-between"
-                        display="flex"
-                        flexWrap="wrap"
-                        m={2}
-                    >
-                        <Typography fontWeight="bold" variant="h6" whiteSpace="nowrap">
-                            Xuất ngoài đơn vị quản lý
-                        </Typography>
-
-                        {['Chuyên viên TT TNTH', 'Chuyên viên đơn vị sử dụng'].includes(owner.GroupName) &&
-                            <Tooltip arrow placement="left" title="Tạo mới">
-                                <Button variant="contained" onClick={handleOpenCreate} sx={{ marginLeft: '24px' }}>
-                                    Tạo mới
-                                </Button>
-                            </Tooltip>}
-                    </Box>
                     <Paper
                         sx={{
                             marginBottom: '24px',
@@ -203,6 +183,20 @@ const ExportToOtherDepartmentTable: FC = () => {
                                 />
                             </Column>
                             <Toolbar>
+                                <Item location="before">
+                                    <Typography fontWeight="bold" variant="h6" whiteSpace="nowrap">
+                                        Xuất ngoài đơn vị quản lý
+                                    </Typography>
+                                </Item>
+                                <Item location="after">
+                                    {['Chuyên viên TT TNTH', 'Chuyên viên đơn vị sử dụng'].includes(owner.GroupName) &&
+                                        <Tooltip arrow placement="left" title="Tạo phiếu xuất ngoài đơn vị mới">
+                                            <Button variant="contained" onClick={handleOpenCreate}>
+                                                Tạo mới
+                                            </Button>
+                                        </Tooltip>
+                                    }
+                                </Item>
                                 <Item name="columnChooserButton" />
                                 <Item name="searchPanel" showText="always" />
                             </Toolbar>

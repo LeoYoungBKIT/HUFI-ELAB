@@ -209,7 +209,8 @@ export const get = async <TResponse>(path: string): Promise<TResponse> => {
 		const response = await newAxios.get<TResponse>(path)
 		return response.data
 	} catch (error) {
-		throw new Error(JSON.stringify(error))
+		// Comment cho nay de khong raise error "Uncaught runtime errors" ra 
+		// throw new Error(JSON.stringify(error))
 	}
 	return {} as TResponse
 }
