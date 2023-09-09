@@ -77,6 +77,12 @@ export const postNewRepairDevice = async (newRepairDeviceData: FormData) => {
 	return newRepairDevice
 }
 
+export const postCompleteByRepairUnit = async (id: string, newRepairDeviceData: FormData) => {
+	const url = `${API_ENDPOINT}/api/Repairs/CompleteRepair/${id}`
+	const newRepairDevice = await API.post<FormData, FormData>(url, newRepairDeviceData)
+	return newRepairDevice
+}
+
 export const postRejectRepairDevice = async (id: string, contentRepair: string) => {
 	const url = `${API_ENDPOINT}/api/Repairs/Reject/${id}/${contentRepair}`
 	const repairDevice = await API.post<{}, {}>(url, {})
@@ -95,9 +101,9 @@ export const postCompleteRepairDevice = async (id: string) => {
 	return repairDevice
 }
 
-export const postProposeLiquidateRepairDevice = async (id: string) => {
+export const postProposeLiquidateRepairDevice = async (id: string, newRepairDeviceData: FormData) => {
 	const url = `${API_ENDPOINT}/api/Repairs/ProposeLiquidate/${id}`
-	const repairDevice = await API.post<{}, {}>(url, {})
+	const repairDevice = await API.post<{}, {}>(url, newRepairDeviceData)
 	return repairDevice
 }
 
