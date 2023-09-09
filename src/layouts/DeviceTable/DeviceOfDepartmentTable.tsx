@@ -17,6 +17,7 @@ import DataGrid, {
 	Item,
 	LoadPanel,
 	Pager,
+	IColumnProps,
 	Paging,
 	Position,
 	Toolbar,
@@ -29,6 +30,7 @@ import moment from 'moment'
 import {
 	ADMIN,
 	EQUIPMENT_MANAGEMENT_HEAD,
+	EQUIPMENT_MANAGEMENT_SPECIALIST,
 	EXPERIMENTAL_MANAGEMENT_HEAD,
 	EXPERIMENTAL_MANAGEMENT_SPECIALIST,
 	UNIT_UTILIZATION_HEAD,
@@ -220,7 +222,7 @@ const DeviceOfDepartmentTable = () => {
 								<Button stylingMode="contained" onClick={() => setPopupEditVisible(true)} icon="add" />
 							</Item>
 						)}
-						<Item name="columnChooserButton" />
+						<Item name="columnChooserButton" showText="always" />
 						<Item name="searchPanel" showText="always" />
 					</Toolbar>
 				</DataGrid>
@@ -280,39 +282,44 @@ const RowDevice = ({ device, isOpen, handleClose }: RowDeviceProps) => {
 		})
 	}, [device])
 
-	const [commonFieldsShow, setCommonFieldShow] = useState([
-		{ id: 'DeviceId', header: 'Mã thiết bị', fixed: true },
-		{ id: 'DeviceInfoId', header: 'Mã định danh thiết bị', fixed: true },
-		{ id: 'DeviceName', header: 'Tên thiết bị', fixed: true, width: 240 },
-		{ id: 'DeviceEnglishName', header: 'Tên tiếng anh' },
-		{ id: 'Model', header: 'Số Model' },
-		{ id: 'SerialNumber', header: 'Số Serial' },
-		{ id: 'Specification', header: 'Thông số kỹ thuật', width: 240 },
-		{ id: 'Manufacturer', header: 'Hãng sản xuất' },
-		{ id: 'Origin', header: 'Xuất xứ' },
-		{ id: 'SupplierName', header: 'Nhà cung cấp', width: 240 },
-		{ id: 'Unit', header: 'Đvt' },
-		{ id: 'QuantityImport', header: 'SL nhập' },
-		{ id: 'QuantityDistribute', header: 'SL phân phối' },
-		{ id: 'QuantityExport', header: 'SL xuất' },
-		{ id: 'QuantityAvailable', header: 'SL hiện có' },
-		{ id: 'DepartmentImportName', header: 'Đơn vị nhập' },
-		{ id: 'DateImport', header: 'Ngày nhập', type: 'date' },
-		{ id: 'YearStartUsage', header: 'Năm đưa vào sử dụng' },
+	const [commonFieldsShow, setCommonFieldShow] = useState<IColumnProps[]>([
+		{ dataField: 'DeviceId', caption: 'Mã thiết bị', fixed: true },
+		{ dataField: 'DeviceInfoId', caption: 'Mã định danh thiết bị', fixed: true },
+		{ dataField: 'DeviceName', caption: 'Tên thiết bị', fixed: true, width: 240 },
+		{ dataField: 'DeviceEnglishName', caption: 'Tên tiếng anh' },
+		{ dataField: 'Model', caption: 'Số Model' },
+		{ dataField: 'SerialNumber', caption: 'Số Serial' },
+		{ dataField: 'Specification', caption: 'Thông số kỹ thuật', width: 240 },
+		{ dataField: 'Manufacturer', caption: 'Hãng sản xuất' },
+		{ dataField: 'Origin', caption: 'Xuất xứ' },
+		{ dataField: 'SupplierName', caption: 'Nhà cung cấp', width: 240 },
+		{ dataField: 'Unit', caption: 'Đvt' },
+		{ dataField: 'QuantityImport', caption: 'SL nhập' },
+		{ dataField: 'QuantityDistribute', caption: 'SL phân phối' },
+		{ dataField: 'QuantityExport', caption: 'SL xuất' },
+		{ dataField: 'QuantityAvailable', caption: 'SL hiện có' },
+		{ dataField: 'DepartmentImportName', caption: 'Đơn vị nhập', visible: [EQUIPMENT_MANAGEMENT_SPECIALIST, EQUIPMENT_MANAGEMENT_HEAD].includes(owner.GroupName) },
 		{
-			id: 'StartGuarantee',
-			header: 'Thời gian bắt đầu bảo hành',
+			dataField: 'LabId',
+			caption: 'Vị trí',
+			visible: ![EQUIPMENT_MANAGEMENT_SPECIALIST, EQUIPMENT_MANAGEMENT_HEAD].includes(owner.GroupName),
+		},
+		{ dataField: 'DateImport', caption: 'Ngày nhập', type: 'date' },
+		{ dataField: 'YearStartUsage', caption: 'Năm đưa vào sử dụng' },
+		{
+			dataField: 'StartGuarantee',
+			caption: 'Thời gian bắt đầu bảo hành',
 			type: 'date',
 		},
-		{ id: 'EndGuarantee', header: 'Thời gian kết thúc bảo hành', type: 'date' },
+		{ dataField: 'EndGuarantee', caption: 'Thời gian kết thúc bảo hành', type: 'date' },
 		{
-			id: 'PeriodicMaintenance',
-			header: 'Chu kỳ hiệu chuẩn/bảo trì định kỳ',
+			dataField: 'PeriodicMaintenance',
+			caption: 'Chu kỳ hiệu chuẩn/bảo trì định kỳ',
 		},
-		{ id: 'Status', header: 'Tình trạng' },
+		{ dataField: 'Status', caption: 'Tình trạng' },
 		{
-			id: 'DepartmentMaintenanceName',
-			header: 'Đơn vị phụ trách hiệu chuẩn – bảo trì/sửa chữa',
+			dataField: 'DepartmentMaintenanceName',
+			caption: 'Đơn vị phụ trách hiệu chuẩn – bảo trì/sửa chữa',
 			width: 240,
 		},
 	])
@@ -388,12 +395,9 @@ const RowDevice = ({ device, isOpen, handleClose }: RowDeviceProps) => {
 							<Paging defaultPageSize={30} />
 							{commonFieldsShow.map(col => (
 								<Column
-									key={col.id}
-									dataField={col.id}
+									{...col}
+									key={col.dataField}
 									dataType="string"
-									caption={col.header}
-									fixed={col?.fixed}
-									width={col.width || 150}
 									cellRender={data => (
 										<span>
 											{Number(data.text) && col?.type === 'date'
@@ -429,7 +433,7 @@ const RowDevice = ({ device, isOpen, handleClose }: RowDeviceProps) => {
 								/>
 							</Column>
 							<Toolbar>
-								<Item name="columnChooserButton" />
+								<Item name="columnChooserButton" showText="always" />
 								<Item name="searchPanel" showText="always" />
 							</Toolbar>
 						</DataGrid>

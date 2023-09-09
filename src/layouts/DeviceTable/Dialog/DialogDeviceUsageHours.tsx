@@ -1,14 +1,5 @@
 import CloseIcon from '@mui/icons-material/Close'
-import {
-	Button,
-	Dialog,
-	DialogContent,
-	DialogTitle,
-	Grid,
-	IconButton,
-	InputLabel,
-	TextField
-} from '@mui/material'
+import { Dialog, DialogContent, DialogTitle, Grid, IconButton, InputLabel, TextField } from '@mui/material'
 import DataGrid, {
 	Column,
 	ColumnFixing,
@@ -31,7 +22,13 @@ import DataSource from 'devextreme/data/data_source'
 import { EditorPreparingEvent, SavingEvent } from 'devextreme/ui/data_grid'
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { colorsNotifi } from '../../../configs/color'
-import { ADMIN, EXPERIMENTAL_MANAGEMENT_HEAD, EXPERIMENTAL_MANAGEMENT_SPECIALIST, UNIT_UTILIZATION_HEAD, UNIT_UTILIZATION_SPECIALIST } from '../../../configs/permissions'
+import {
+	ADMIN,
+	EXPERIMENTAL_MANAGEMENT_HEAD,
+	EXPERIMENTAL_MANAGEMENT_SPECIALIST,
+	UNIT_UTILIZATION_HEAD,
+	UNIT_UTILIZATION_SPECIALIST,
+} from '../../../configs/permissions'
 import { useAppDispatch, useAppSelector } from '../../../hooks'
 import { setSnackbar } from '../../../pages/appSlice'
 import {
@@ -43,6 +40,7 @@ import {
 } from '../../../services/deviceUsageHoursServices'
 import { IDeviceRecordUsageHours, IDeviceUsageHours } from '../../../types/deviceUsageHoursType'
 import { DialogProps } from './DialogType'
+import Button from 'devextreme-react/button'
 
 const DialogDeviceUsageHours = ({ isOpen, onClose, deviceInfoId = '' }: DialogProps) => {
 	const [deviceHours, setDeviceHours] = useState<IDeviceUsageHours>()
@@ -71,13 +69,13 @@ const DialogDeviceUsageHours = ({ isOpen, onClose, deviceInfoId = '' }: DialogPr
 	const columnTableHours = useMemo(() => {
 		return [
 			{
-				id: 'Month',
-				header: 'Tháng',
+				id: 'Year',
+				header: 'Năm',
 				isReadonly: true,
 			},
 			{
-				id: 'Year',
-				header: 'Năm',
+				id: 'Month',
+				header: 'Tháng',
 				isReadonly: true,
 			},
 			{
@@ -322,7 +320,7 @@ const DialogDeviceUsageHours = ({ isOpen, onClose, deviceInfoId = '' }: DialogPr
 						}}
 						onEditorPreparing={handleOnEditorPreparingEvent}
 						onSaving={handleOnSave}
-						elementAttr={{ style: 'padding-bottom: 20px; width: 100%; min-width: 600px' }}
+						elementAttr={{ style: 'padding-bottom: 20px; width: 100%' }}
 						wordWrapEnabled={true}
 					>
 						<Editing
@@ -351,38 +349,31 @@ const DialogDeviceUsageHours = ({ isOpen, onClose, deviceInfoId = '' }: DialogPr
 
 						<Toolbar>
 							<Item location="before">
-								<Button
-									variant="contained"
-									sx={{
-										padding: 0,
-										minWidth: 0,
-										mb: '8px',
-									}}
-								>
-									<InputLabel
-										sx={{
-											padding: '6px 8px',
-											minWidth: '64px',
-											color: 'white',
-										}}
-										htmlFor="importUsageHour"
-									>
-										{isFileLoading ? 'Đang tải...' : 'Tải mẫu file import'}
-										<input
-											type="file"
-											name="importUsageHour"
-											id="importUsageHour"
-											hidden
-											onChange={handleChangeFileImport}
-										/>
-									</InputLabel>
-								</Button>
+								<a href="./ImportUsageHoursTemplate.xlsx" style={{ textDecoration: 'none' }}>
+									<Button stylingMode="contained" type="default">
+										Tải mẫu file import
+									</Button>
+								</a>
 							</Item>
-							<Item name="addRowButton" />
-							<Item name="revertButton" />
-							<Item name="saveButton" />
-							<Item name="columnChooserButton" />
-							<Item name="searchPanel" showText="always" />
+							<Item location="before">
+								<label htmlFor="importUsageHour">
+									<Button stylingMode="contained" type="default">
+										{isFileLoading ? 'Đang tải...' : 'Import'}
+									</Button>
+								</label>
+								<input
+									type="file"
+									name="importUsageHour"
+									id="importUsageHour"
+									hidden
+									onChange={handleChangeFileImport}
+								/>
+							</Item>
+
+							<Item name="addRowButton" showText="always" />
+							<Item name="revertButton" showText="always" />
+							<Item name="saveButton" showText="always" />
+							<Item name="columnChooserButton" showText="always" />
 						</Toolbar>
 						<Summary>
 							<TotalItem

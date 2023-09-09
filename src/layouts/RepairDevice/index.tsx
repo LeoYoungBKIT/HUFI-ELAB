@@ -28,7 +28,7 @@ import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 're
 import { colorsNotifi } from '../../configs/color'
 import { useAppDispatch, useAppSelector } from '../../hooks'
 import { setSnackbar } from '../../pages/appSlice'
-import { getDeviceGeneral } from '../../services/deviceServices'
+import { getDeviceGeneral, getDeviceGeneralDept } from '../../services/deviceServices'
 import { getRepairDevices, postNewRepairDevice } from '../../services/maintenanceDevicesServices'
 import { IDeviceGeneral } from '../../types/deviceType'
 import { IRepairDevice } from '../../types/maintenanceDevicesType'
@@ -44,6 +44,7 @@ const RepairDevice = () => {
 	const [isOpenDetail, setIsOpenDetail] = useState<boolean>(false)
 	const [popupVisible, setPopupVisible] = useState<boolean>(false)
 	const { owner } = useAppSelector(state => state.userManager)
+	const departments = useAppSelector(state => state.department.listOfDepartments)
 	const dispatch = useAppDispatch()
 
 	const [getRepair, isLoadingGetRepair] = useLoading(async () => {
@@ -64,8 +65,12 @@ const RepairDevice = () => {
 	}, [setPopupVisible])
 
 	const getDeviceInfo = async () => {
-		const devicesInfo = await getDeviceGeneral()
-		setDeviceGenerals(devicesInfo)
+		const department = departments.find(d => d?.DepartmentName === owner.DepartmentName)
+
+		if (department) {
+			const devicesInfo = await getDeviceGeneralDept(department?.DepartmentId?.toString() || "")
+			setDeviceGenerals(devicesInfo)
+		}
 	}
 
 	const dataGridFromRef = useRef<DataGrid<IRepairDevice, string> | null>(null)
@@ -105,8 +110,8 @@ const RepairDevice = () => {
 		},
 		{ dataField: 'DeviceName', caption: 'Tên thiết bị', width: 280 },
 		{ dataField: 'LinkReportFile', caption: 'Bản tường trình', visible: false, typeCreate: 'file' },
-		{ dataField: 'LinkCheckFile', caption: 'Biên bản kiểm tra', visible: false, typeCreate: 'file' },
-		{ dataField: 'LinkHandoverFile', caption: 'Biên bản bàn giao', visible: false, typeCreate: 'file' },
+		{ dataField: 'LinkCheckFile', caption: 'Biên bản kiểm tra', visible: false },
+		{ dataField: 'LinkHandoverFile', caption: 'Biên bản bàn giao', visible: false, },
 		{ dataField: 'Status', caption: 'Trạng thái', width: 150 },
 	])
 
@@ -253,7 +258,7 @@ const RepairDevice = () => {
 						</Item>
 						{[ADMIN, UNIT_UTILIZATION_SPECIALIST].includes(owner.GroupName) && (
 							<Item location="after">
-								<Button icon="add" onClick={showPopup} />
+								<Button icon="add" text='Thêm'  onClick={showPopup} />
 							</Item>
 						)}
 						<Item location="after" name="searchPanel" showText="always" />

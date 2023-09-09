@@ -186,10 +186,10 @@ const DeviceCategory = () => {
 								Làm mới
 							</Button>
 						</Item>
-						<Item name="addRowButton" />
-						<Item name="saveButton" />
-						<Item name="revertButton" />
-						<Item name="columnChooserButton" />
+						<Item name="addRowButton" showText="always"/>
+						<Item name="saveButton" showText="always"/>
+						<Item name="revertButton" showText="always"/>
+						<Item name="columnChooserButton" showText="always"/>
 						<Item name="searchPanel" showText="always" />
 					</Toolbar>
 				</DataGrid>
