@@ -100,7 +100,7 @@ function App() {
 									<MenuIcon />
 								</IconButton>
 								<Typography variant="h6" noWrap component="div">
-									HUFI E-LAB
+									HUIT E-LAB
 								</Typography>
 
 								<Box sx={{ flexGrow: 0, position: 'absolute', right: '3%' }}>

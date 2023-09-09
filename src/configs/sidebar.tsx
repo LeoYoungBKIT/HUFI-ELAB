@@ -29,6 +29,8 @@ import {
 	EQUIPMENT_MANAGEMENT_SPECIALIST,
 	EXPERIMENTAL_MANAGEMENT_HEAD,
 	EXPERIMENTAL_MANAGEMENT_SPECIALIST,
+	FINANCIAL_MANAGEMENT_HEAD,
+	FINANCIAL_MANAGEMENT_SPECIALIST,
 	UNIT_UTILIZATION_HEAD,
 	UNIT_UTILIZATION_SPECIALIST,
 } from './permissions'
@@ -153,7 +155,19 @@ const Sidebar = {
 						id: 'TB - Quản lý xuất',
 						name: 'Quản lý xuất',
 						icon: null,
-						comp: null,
+						comp: <ExportManagementTable />,
+						permissions: [
+							ADMIN,
+							EQUIPMENT_MANAGEMENT_HEAD,
+							EQUIPMENT_MANAGEMENT_SPECIALIST,
+							EXPERIMENTAL_MANAGEMENT_HEAD,
+							EXPERIMENTAL_MANAGEMENT_SPECIALIST,
+							UNIT_UTILIZATION_HEAD,
+							UNIT_UTILIZATION_SPECIALIST,
+							FINANCIAL_MANAGEMENT_SPECIALIST,
+							FINANCIAL_MANAGEMENT_HEAD,
+							BOARD_DIRECTORS
+						],
 					},
 					{
 						id: 'TB - Hướng dẫn sử dụng thiết bị',

@@ -24,7 +24,7 @@ export const NotFound: FC = () => {
       }}>
         <Button
           variant="outlined"
-          onClick={() => document.title = "HUFI ELab"}
+          onClick={() => document.title = "HUIT ELab"}
         >
           Về trang chủ
         </Button>

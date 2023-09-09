@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import CloseIcon from '@mui/icons-material/Close'
 import {
 	Box,
@@ -31,6 +31,7 @@ import { DialogProps } from './DialogType'
 import { renderHeader } from '../DetailExportToOtherDepartmentManagementForm'
 import { colorsNotifi } from '../../../../configs/color'
 import {
+	getDeviceListAccordingToDepartment,
 	getExportToOtherDepartmentManagementForms,
 	postExportToOtherDepartmentManagementForm
 } from '../../../../services/exportManagementServices'
@@ -55,9 +56,33 @@ const DialogCreate = ({ isOpen, onClose }: DialogProps) => {
 	const owner = useAppSelector(state => state.userManager.owner)
 
 	const [currentCreatedForm, setCurrentCreatedForm] = useState<any>(dummyExportToOtherDepartmentManagementForm)
+	const [deviceListOfAllDepartments, setDeviceListOfAllDepartments] = useState<any>([])
+
+	const getDeviceListOfAllDepartments = async () => {
+		const deviceListOfDepartments = await getDeviceListAccordingToDepartment();
+		if (deviceListOfDepartments?.length > 0) {
+			let normalizedListOfDepartments = deviceListOfDepartments
+				.filter((ele: any) => ele?.listDevice.length > 0)
+				.map((item: any) => {
+					if (item?.listDevice.length > 0) {
+						return item.listDevice.map((x: any) => {
+							return Object.assign({}, {
+								...item,
+								...x
+							})
+						})
+					}
+				})
+				.flat()
+			setDeviceListOfAllDepartments(normalizedListOfDepartments);
+		}
+	}
+
+	useEffect(() => {
+		getDeviceListOfAllDepartments();
+	}, [isOpen])
 
 	const handleSave = async () => {
-		console.log("currentCreatedForm :", currentCreatedForm)
 		if (!currentCreatedForm?.Title) {
 			dispatch(
 				setSnackbar({
@@ -139,7 +164,7 @@ const DialogCreate = ({ isOpen, onClose }: DialogProps) => {
 			} else {
 				isNotHaveSameDepartmentIds = false;
 			}
-			
+
 			if (!isHaveAllDeviceIds || !isHaveAllDepartmentManageIds || isNotHaveSameDepartmentIds) {
 				return;
 			}
@@ -193,7 +218,7 @@ const DialogCreate = ({ isOpen, onClose }: DialogProps) => {
 				key: 'Id',
 			}),
 		})
-	}, [deviceList, departmentList])
+	}, [departmentList])
 
 
 	const handleEditTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -261,6 +286,7 @@ const DialogCreate = ({ isOpen, onClose }: DialogProps) => {
 					dataGridRef={dataGridRef}
 					deviceList={deviceList}
 					departmentList={departmentList}
+					deviceListOfAllDepartments={deviceListOfAllDepartments}
 					setCurrentCreatedForm={setCurrentCreatedForm}
 				/>
 
@@ -298,6 +324,7 @@ type IDataGridFuncProps = {
 	deviceList: any;
 	departmentList: any;
 	setCurrentCreatedForm: any;
+	deviceListOfAllDepartments: any;
 }
 
 const DataGridFunc = React.memo(function DataGridFunc({
@@ -307,6 +334,7 @@ const DataGridFunc = React.memo(function DataGridFunc({
 	deviceList,
 	departmentList,
 	setCurrentCreatedForm,
+	deviceListOfAllDepartments
 }: IDataGridFuncProps) {
 	const onEditorPreparing = useCallback((e: any) => {
 		if (e.parentType === "dataRow" && e.dataField === "DeviceName") {
@@ -326,12 +354,28 @@ const DataGridFunc = React.memo(function DataGridFunc({
 	const onContentReady = (e: any) => {
 		let allRows = e.component.getVisibleRows();
 		let newListDeviceInfo = allRows.map((rowItem: any) => Object.assign({}, { DeviceId: rowItem.values[0] }))
-		console.log("allRows :", allRows)
+
 		setCurrentCreatedForm((prevState: any) => Object.assign({}, {
 			...prevState,
 			DepartmentManageId: allRows.map((row: any) => row.values[5]),
 			listDeviceInfo: newListDeviceInfo
 		}))
+	}
+
+	const getFilteredDeparmentList = (options: any) => {
+		if (owner?.DepartmentName) {
+			return {
+				store: departmentList,
+				filter: options.data ? ['DepartmentName', '<>', owner?.DepartmentName] : null,
+			};
+		}
+	}
+
+	const getFilteredDeviceList = (options: any) => {
+		return {
+			store: deviceListOfAllDepartments,
+			filter: options.data ? ['DepartmentId', '=', options.data.DepartmentManageName] : null,
+		};
 	}
 
 	return (
@@ -378,7 +422,7 @@ const DataGridFunc = React.memo(function DataGridFunc({
 				headerCellRender={data => renderHeader(data, true)}
 				setCellValue={setCellValue}
 			>
-				<Lookup dataSource={deviceList} valueExpr="DeviceName" displayExpr="DeviceName" />
+				<Lookup dataSource={getFilteredDeviceList} valueExpr="DeviceName" displayExpr="DeviceName" />
 			</Column>
 
 			<Column
@@ -428,7 +472,7 @@ const DataGridFunc = React.memo(function DataGridFunc({
 				dataType="string"
 				headerCellRender={data => renderHeader(data, true)}
 			>
-				<Lookup dataSource={departmentList} valueExpr="DepartmentId" displayExpr="DepartmentName" />
+				<Lookup dataSource={getFilteredDeparmentList} valueExpr="DepartmentId" displayExpr="DepartmentName" />
 			</Column>
 			<Summary recalculateWhileEditing={true}>
 				<TotalItem column="DeviceId" summaryType="count" />

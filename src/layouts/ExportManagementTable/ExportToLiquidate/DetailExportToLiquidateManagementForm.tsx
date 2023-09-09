@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react"
+import React, { useEffect, useMemo, useRef, useState } from "react"
 import { IExportToLiquidateManagementFormType } from "../../../types/exportManagementType"
 import { useAppDispatch, useAppSelector } from "../../../hooks"
 import {
@@ -12,7 +12,8 @@ import {
     Button,
     Stepper,
     Step,
-    StepLabel
+    StepLabel,
+    Stack
 } from "@mui/material"
 import CloseIcon from '@mui/icons-material/Close'
 import { Box } from '@mui/system'
@@ -77,7 +78,8 @@ const commonFieldsShow = [
     { id: 'YearStartUsage', header: 'Năm đưa vào sử dụng' },
     { id: 'LinkFileRepair', header: 'Biên bản kiểm tra thiết bị từ Đơn vị phụ trách tiếp nhận sửa chữa' },
     { id: 'LinkFileMaintenace', header: 'Lịch sử bảo trì/sửa chữa' },
-    { id: 'ResidualValue', header: 'Tổng số giờ sử dụng' },
+    { id: 'DepreciationRate', header: 'Tỷ lệ khấu hao tài sản (%):' },
+    { id: 'ResidualValue', header: 'Giá trị còn lại của tài sản (VNĐ):' },
     { id: 'Status', header: 'Trạng thái' },
 ]
 
@@ -92,6 +94,9 @@ const RowExportToLiquidateManagementForm = ({
 
     const [progressStep,] = useState<number>(exportManagementForm.listAccept.length + 1)
     const [contentAccept, setContentAccept] = useState<string>('')
+    const [currentCreatedForm, setCurrentCreatedForm] = useState<any>(exportManagementForm)
+    const [depreciationRateValue, setDepreciationRateValue] = useState<number>(0)
+    const [residualValueValue, setResidualValueValue] = useState<number>(0)
     const [reason, setReason] = useState<string>('')
 
     useEffect(() => {
@@ -122,6 +127,16 @@ const RowExportToLiquidateManagementForm = ({
     const handleEditContentAccept = (e: React.ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();
         setContentAccept(e.target.value);
+    }
+
+    const handleEditDepreciationRate = (e: React.ChangeEvent<HTMLInputElement>) => {
+        e.preventDefault();
+        setDepreciationRateValue(Number(e.target.value));
+    }
+
+    const handleEditResidualValue = (e: React.ChangeEvent<HTMLInputElement>) => {
+        e.preventDefault();
+        setResidualValueValue(Number(e.target.value));
     }
 
     const handleEditReason = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -161,15 +176,79 @@ const RowExportToLiquidateManagementForm = ({
         if (!contentAccept) {
             dispatch(
                 setSnackbar({
-                    message: 'Vui lòng điền đề xuất xử lý!',
+                    message: 'Vui lòng điền nội dung trình duyệt!',
                     color: colorsNotifi['error'].color,
                     backgroundColor: colorsNotifi['error'].background,
                 })
             )
             return;
-        } else {
+        }
+        else {
+            let isAllHaveResidualValues = true;
+            let isAllHaveDepreciationRates = true;
+            let isAllHaveResidualValuesNumeric = true;
+            let isAllHaveDepreciationRatesNumeric = true;
+
+            currentCreatedForm.listDevice.forEach((item: any, idx: number) => {
+                if (!isAllHaveResidualValues) {
+                    return;
+                }
+                if (!isAllHaveDepreciationRates) {
+                    return;
+                }
+
+                if (!item.DepreciationRate) {
+                    dispatch(
+                        setSnackbar({
+                            message: `Vui lòng nhập tỷ lệ khấu hao tài sản ở dòng thứ ${idx + 1}!`,
+                            color: colorsNotifi['error'].color,
+                            backgroundColor: colorsNotifi['error'].background,
+                        })
+                    )
+                    isAllHaveResidualValues = false;
+                }
+                else if (!item.ResidualValue) {
+                    dispatch(
+                        setSnackbar({
+                            message: `Vui lòng nhập giá trị còn lại của tài sản ở dòng thứ ${idx + 1}!`,
+                            color: colorsNotifi['error'].color,
+                            backgroundColor: colorsNotifi['error'].background,
+                        })
+                    )
+                    isAllHaveDepreciationRates = false;
+                }
+                else if (isNaN(item.DepreciationRate)) {
+                    dispatch(
+                        setSnackbar({
+                            message: `Vui lòng nhập tỷ lệ khấu hao tài sản ở dòng thứ ${idx + 1} là một con số!`,
+                            color: colorsNotifi['error'].color,
+                            backgroundColor: colorsNotifi['error'].background,
+                        })
+                    )
+                    isAllHaveResidualValuesNumeric = false;
+                }
+                else if (isNaN(item.ResidualValue)) {
+                    dispatch(
+                        setSnackbar({
+                            message: `Vui lòng nhập giá trị còn lại của tài sản ở dòng thứ ${idx + 1} là một con số!`,
+                            color: colorsNotifi['error'].color,
+                            backgroundColor: colorsNotifi['error'].background,
+                        })
+                    )
+                    isAllHaveDepreciationRatesNumeric = false;
+                }
+            })
+
+            if (!isAllHaveResidualValues ||
+                !isAllHaveDepreciationRates ||
+                !isAllHaveDepreciationRatesNumeric ||
+                !isAllHaveResidualValuesNumeric
+            ) {
+                return;
+            }
+
             try {
-                await forwardApproveExportToLiquidateManagementForm(exportManagementForm, id);
+                await forwardApproveExportToLiquidateManagementForm(currentCreatedForm, id, contentAccept);
                 dispatch(
                     setSnackbar({
                         message: 'Trình duyệt phiếu xuất thành công!!!',
@@ -263,7 +342,6 @@ const RowExportToLiquidateManagementForm = ({
         }
     }
 
-
     return (
         <>
             <Dialog
@@ -335,6 +413,9 @@ const RowExportToLiquidateManagementForm = ({
                                                         <div style={{ "fontSize": "0.75rem" }}>
                                                             Người duyệt: {exportManagementForm.listAccept[idx + 1].EmployeeAcceptId} - {exportManagementForm.listAccept[idx + 1].EmployeeAcceptName}
                                                         </div>
+                                                        {exportManagementForm.listAccept[idx + 1].ContentAccept && <div style={{ "fontSize": "0.75rem" }}>
+                                                            Nội dung: {exportManagementForm.listAccept[idx + 1].ContentAccept}
+                                                        </div>}
                                                     </>
                                                 }
                                             </StepLabel>
@@ -343,7 +424,7 @@ const RowExportToLiquidateManagementForm = ({
                                 </Stepper>
                             </Grid>
                         </Grid>
-                        <Grid item p={1}>
+                        <Stack>
                             <TextField
                                 label="Tiêu đề"
                                 variant="standard"
@@ -384,75 +465,15 @@ const RowExportToLiquidateManagementForm = ({
                                     value: `${exportManagementForm.DepartmentCreateName}`,
                                 }}
                             />
-                        </Grid>
-                        <DataGrid
-                            dataSource={dataSource}
-                            ref={dataGridRef}
-                            id="gridContainer"
-                            showBorders={true}
-                            columnAutoWidth={true}
-                            allowColumnResizing={true}
-                            columnResizingMode="widget"
-                            columnMinWidth={100}
-                            searchPanel={{
-                                visible: true,
-                                width: 240,
-                                placeholder: 'Tìm kiếm',
-                            }}
-                            // editing={{
-                            //     confirmDelete: true,
-                            //     allowDeleting: true,
-                            //     allowAdding: true,
-                            //     allowUpdating: true,
-                            // }}
-                            elementAttr={{ style: 'height: 100%; padding-bottom: 20px; width: 100%; min-width: 600px' }}
-                        >
-                            <ColumnChooser enabled={true} mode="select" />
-                            <Paging enabled={true} />
-                            <FilterRow visible={true} applyFilter={true} />
-                            <HeaderFilter visible={true} />
-                            <ColumnFixing enabled={true} />
-                            <Grouping contextMenuEnabled={true} expandMode="rowClick" />
-                            <FilterPanel visible={true} />
-                            <Pager
-                                allowedPageSizes={true}
-                                showInfo={true}
-                                showNavigationButtons={true}
-                                showPageSizeSelector={true}
-                                visible={true}
-                            />
-                            <LoadPanel enabled={true} />
-                            <Paging defaultPageSize={30} />
-                            {commonFieldsShow.map(col => {
-                                if (
-                                    ['Admin', 'Trưởng phòng QTTB', 'Chuyên viên phòng QTTB'].includes(owner.GroupName) ||
-                                    ['Chuyên viên TT TNTH', 'Chuyên viên đơn vị sử dụng'].includes(owner.GroupName)
-                                ) {
-                                    return <Column
-                                        key={col.id}
-                                        dataField={col.id}
-                                        dataType="string"
-                                        headerCellRender={data => renderHeader(data)}
-                                        caption={col.header}
-                                        cellRender={data => (
-                                            <span>
-                                                {/* {Number(data.text) && col?.type === 'date' */}
-                                                {/* ? moment.unix(Number(data.text)).format('DD/MM/YYYY') */}
-                                                {/* : */}
-                                                {data.text}
-                                            </span>
-                                        )}
-                                    />
-                                } else {
-                                    return <></>
-                                }
-                            })}
+                        </Stack>
 
-                            <Toolbar>
-                                <Item name="columnChooserButton" />
-                                <Item name="searchPanel" showText="always" />
-                            </Toolbar>
-                        </DataGrid>
+                        <DataGridFunc
+                            owner={owner}
+                            dataSource={dataSource}
+                            dataGridRef={dataGridRef}
+                            exportManagementForm={exportManagementForm}
+                            setCurrentCreatedForm={setCurrentCreatedForm}
+                        />
 
                         {['Chuyên viên TT TNTH', 'Chuyên viên đơn vị sử dụng'].includes(owner.GroupName) &&
                             owner.DepartmentName === exportManagementForm.DepartmentCreateName &&
@@ -478,13 +499,14 @@ const RowExportToLiquidateManagementForm = ({
 
                         {exportManagementForm.Lock === "False" &&
                             <>
-                                {exportManagementForm.DisplayMode === "trinh_duyet" && <TextField
-                                    label="Đề xuất hướng xử lý:"
-                                    variant="standard"
-                                    type="text"
-                                    sx={{ "paddingBottom": "10px", width: "50%" }}
-                                    onChange={handleEditContentAccept}
-                                />}
+                                {exportManagementForm.DisplayMode === "trinh_duyet" &&
+                                    <TextField
+                                        label="Nội dung:"
+                                        variant="standard"
+                                        type="text"
+                                        sx={{ "paddingBottom": "10px", width: "50%" }}
+                                        onChange={handleEditContentAccept}
+                                    />}
 
                                 {exportManagementForm.DisplayMode === "duyet_khongduyet" && <TextField
                                     label="Lý do:"
@@ -517,8 +539,7 @@ const RowExportToLiquidateManagementForm = ({
                                         </Box>
                                     }
 
-                                    {(owner.GroupName === 'Chuyên viên phòng QTTB' ||
-                                        ['Chuyên viên TT TNTH', 'Chuyên viên đơn vị sử dụng'].includes(owner.GroupName)) &&
+                                    {['Chuyên viên phòng KHTC', 'Chuyên viên phòng QTTB'].includes(owner.GroupName) &&
                                         <Box display="flex" alignItems="end">
                                             <Tooltip arrow placement="left" title="Trình duyệt phiếu đề nghị">
                                                 <Button
@@ -531,8 +552,7 @@ const RowExportToLiquidateManagementForm = ({
                                         </Box>
                                     }
 
-                                    {owner.GroupName === 'Trưởng phòng QTTB' ||
-                                        ['Trưởng phòng TT TNTH', 'Trưởng đơn vị sử dụng'].includes(owner.GroupName) &&
+                                    {['Trưởng phòng KHTC', 'Trưởng phòng QTTB', 'Ban giám hiệu'].includes(owner.GroupName) &&
                                         <>
                                             <Tooltip arrow placement="left" title="Không duyệt phiếu đề nghị">
                                                 <Button
@@ -566,3 +586,150 @@ const RowExportToLiquidateManagementForm = ({
 }
 
 export default RowExportToLiquidateManagementForm
+
+type IDataGridFuncProps = {
+    owner: any;
+    dataSource: any;
+    dataGridRef: any;
+    exportManagementForm: any;
+    setCurrentCreatedForm: any;
+}
+
+const DataGridFunc = React.memo(function DataGridFunc({
+    owner,
+    dataSource,
+    dataGridRef,
+    exportManagementForm,
+    setCurrentCreatedForm,
+}: IDataGridFuncProps) {
+    const dispatch = useAppDispatch()
+
+    const onContentReady = (e: any) => {
+        let allRows = e.component.getVisibleRows();
+
+        e.component.getVisibleRows().forEach((item: any) => {
+            setCurrentCreatedForm((prevState: any) => {
+                let newListDevice = allRows.map((rowItem: any, idx: number) => Object.assign({}, {
+                    ...prevState.listDevice[idx],
+                    DepreciationRate: rowItem.values[13],
+                    ResidualValue: rowItem.values[14],
+                }))
+
+                return Object.assign({}, {
+                    ...prevState,
+                    listDevice: newListDevice
+                })
+            })
+        })
+    }
+
+    return (
+        <DataGrid
+            dataSource={dataSource}
+            ref={dataGridRef}
+            id="gridContainer"
+            showBorders={true}
+            columnAutoWidth={true}
+            allowColumnResizing={true}
+            columnResizingMode="widget"
+            onContentReady={onContentReady}
+            columnMinWidth={100}
+            searchPanel={{
+                visible: true,
+                width: 240,
+                placeholder: 'Tìm kiếm',
+            }}
+            editing={{
+                // confirmDelete: true,
+                // allowDeleting: true,
+                // allowAdding: true,
+                // allowUpdating: true,
+                allowUpdating: owner.GroupName === 'Chuyên viên phòng KHTC' ? true : false,
+                mode: 'batch',
+            }}
+            elementAttr={{ style: 'height: 100%; padding-bottom: 20px; width: 100%; min-width: 600px' }}
+        >
+            <ColumnChooser enabled={true} mode="select" />
+            <Paging enabled={true} />
+            <FilterRow visible={true} applyFilter={true} />
+            <HeaderFilter visible={true} />
+            <ColumnFixing enabled={true} />
+            <Grouping contextMenuEnabled={true} expandMode="rowClick" />
+            <FilterPanel visible={true} />
+            <Pager
+                allowedPageSizes={true}
+                showInfo={true}
+                showNavigationButtons={true}
+                showPageSizeSelector={true}
+                visible={true}
+            />
+            <LoadPanel enabled={true} />
+            <Paging defaultPageSize={30} />
+            {commonFieldsShow.map(col => {
+                if (
+                    ['Admin',
+                        'Trưởng phòng KHTC',
+                        'Chuyên viên phòng KHTC',
+                        'Trưởng phòng QTTB',
+                        'Chuyên viên phòng QTTB',
+                        'Chuyên viên TT TNTH',
+                        'Chuyên viên đơn vị sử dụng'
+                    ].includes(owner.GroupName)) {
+                    return <Column
+                        key={col.id}
+                        dataField={col.id}
+                        dataType="string"
+                        headerCellRender={data => renderHeader(data)}
+                        caption={col.header}
+                        allowEditing={
+                            owner.GroupName === 'Chuyên viên phòng KHTC' &&
+                            exportManagementForm.Lock === "False" &&
+                            (col.id === 'DepreciationRate' || col.id === 'ResidualValue')
+                        }
+                        cellRender={data => (
+                            <span>
+                                {data.text}
+                            </span>
+                        )}
+                    />
+                } else {
+                    return <></>
+                }
+            })}
+
+            {owner.GroupName === 'Chuyên viên phòng KHTC' && <>
+                <Column
+                    key="DepreciationRate"
+                    dataField="DepreciationRate"
+                    dataType="string"
+                    headerCellRender={data => renderHeader(data)}
+                    caption="Tỷ lệ khấu hao tài sản (%):"
+                    allowEditing={exportManagementForm.Lock === "False"}
+                    cellRender={data => (
+                        <span>
+                            {data.text}
+                        </span>
+                    )}
+                />
+                <Column
+                    key="ResidualValue"
+                    dataField="ResidualValue"
+                    dataType="string"
+                    headerCellRender={data => renderHeader(data)}
+                    caption="Giá trị còn lại của tài sản (VNĐ):"
+                    allowEditing={exportManagementForm.Lock === "False"}
+                    cellRender={data => (
+                        <span>
+                            {data.text}
+                        </span>
+                    )}
+                />
+            </>}
+
+            <Toolbar>
+                <Item name="columnChooserButton" />
+                <Item name="searchPanel" showText="always" />
+            </Toolbar>
+        </DataGrid>
+    )
+})
