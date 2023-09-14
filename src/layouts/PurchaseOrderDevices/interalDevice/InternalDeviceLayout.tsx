@@ -1,6 +1,6 @@
 import {
   Box,
-  Button,
+  Button as ButtonMui,
   Dialog,
   DialogTitle,
   IconButton,
@@ -11,7 +11,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { Edit as EditIcon } from "@mui/icons-material";
 import moment from "moment";
 import { IExportLab, initExportLab } from "../../../types/IInternalDevice";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../../hooks";
 import {
   updateExportLabAction,
@@ -24,6 +24,7 @@ import ErrorComponent from "../../../components/ErrorToast";
 import SuccessToast from "../../../components/Success";
 import FormCmp from "./Form";
 import { exportLabStatusEditing, nextStatus } from "./utils";
+import DataGrid, { Button, Column } from "devextreme-react/data-grid";
 
 export default function InternalDeviceLayout() {
   const { data, loading, error, successMessage } = useAppSelector(
@@ -36,6 +37,7 @@ export default function InternalDeviceLayout() {
 
   const handleToggleForm = () => {
     setOpenModalForm(!isOpenModalForm);
+    if (isOpenModalForm) dispatch(getAllAction());
   };
 
   const handleForm = (dataForm: IExportLab, type: "create" | "update") => {
@@ -82,13 +84,13 @@ export default function InternalDeviceLayout() {
     <Box>
       <Box sx={{ display: "flex", justifyContent: "space-between", my: 1 }}>
         <Typography variant="h5">Quản lí xuất thiết bị</Typography>
-        <Button
+        <ButtonMui
           onClick={() => handleForm(initExportLab, "create")}
           variant="contained"
           color="primary"
         >
           Tạo mới
-        </Button>
+        </ButtonMui>
       </Box>
       <Dialog
         fullScreen
@@ -131,30 +133,50 @@ export default function InternalDeviceLayout() {
           message={successMessage}
         />
       )}
-
-      <MaterialReactTable
-        enableRowActions
-        enableStickyHeader
-        columns={columns}
-        data={data}
-        state={{ isLoading: loading }}
-        enableEditing={true}
-        editingMode="modal"
-        initialState={{
-          density: "compact",
+      <DataGrid
+        dataSource={data}
+        allowColumnReordering={true}
+        rowAlternationEnabled={true}
+        showBorders={true}
+        loadPanel={{
+          enabled: loading,
         }}
-        renderRowActions={({ row }) => (
-          <Box sx={{ display: "flex", flexWrap: "nowrap", gap: "8px" }}>
-            <IconButton
-              onClick={() => {
-                handleForm(row.original, "update");
-              }}
-            >
-              <EditIcon />
-            </IconButton>
-          </Box>
-        )}
-      />
+        allowColumnResizing={true}
+      >
+        <Column type="buttons" width={110} caption={"Thao tác"}>
+          <Button
+            name="edit"
+            visible={true}
+            icon={"edit"}
+            onClick={(e: any) => handleForm(e.row.data, "update")}
+          />
+          <Button name="delete" />
+        </Column>
+        {Object.keys(columnHeads).map((x) => {
+          const key = x as keyof IExportLab;
+
+          if (key === "listAccept" || key === "listDevice")
+            return <React.Fragment key={x}></React.Fragment>;
+
+          if (key === "DateCreate")
+            return (
+              <Column
+                key={key}
+                dataField={key}
+                caption={columnHeads[key]}
+                calculateCellValue={(row: any) => {
+                  return moment
+                    .unix(Number(row.DateCreate))
+                    .format("DD/MM/YYYY");
+                }}
+              />
+            );
+
+          return (
+            <Column key={key} dataField={key} caption={columnHeads[key]} />
+          );
+        })}
+      </DataGrid>
     </Box>
   );
 }
@@ -185,3 +207,19 @@ const columns: MRT_ColumnDef<IExportLab>[] = [
   { ...renderRow("EmployeeManageLabId", "Nhân viên quản lí(id)") },
   { ...renderRow("EmployeeManageLabName", "Nhân viên quản lí(name)") },
 ];
+
+const columnHeads: { [key in keyof IExportLab]: string } = {
+  ExportLabId: "Mã số Export",
+  Status: "Tình trạng ",
+  DateCreate: "Ngày tạo",
+  EmployeeCreateId: "Nhân viên tạo(id)",
+  EmployeeCreateName: "Nhân viên tạo(name)",
+  DepartmenCreatetId: "Phòng Tạo(id)",
+  DepartmentCreateName: "Phòng tạo(name)",
+  EmployeeManageLabId: "Nhân viên quản lí(id)",
+  EmployeeManageLabName: "Nhân viên quản lí(name)",
+  Content: "Nội dung",
+  Lock: "Khoá",
+  listAccept: "Danh sách xác nhận",
+  listDevice: "Danh sách thiết bị",
+};

@@ -171,7 +171,7 @@ export const get = async <TResponse>(path: string): Promise<TResponse> => {
     const response = await newAxios.get<TResponse>(path);
     return response.data;
   } catch (error) {
-    throw new Error(JSON.stringify(error));
+    // throw new Error(JSON.stringify(error));
   }
   return {} as TResponse;
 };
@@ -188,7 +188,7 @@ export const put = async <TRequest, TResponse>(
     const response = await newAxios.put<TRequest, TResponse>(path, payload);
     return response;
   } catch (error) {
-    throw new Error(JSON.stringify(error));
+    // throw new Error(JSON.stringify(error));
   }
   return {} as TResponse;
 };
@@ -202,7 +202,7 @@ export const deleteResource = async (path: string): Promise<any> => {
     const response = await newAxios.delete(path);
     return response;
   } catch (error) {
-    throw new Error(JSON.stringify(error));
+    // throw new Error(JSON.stringify(error));
   }
 };
 
@@ -220,7 +220,7 @@ export const deleteData = async <TRequest, TResponse>(
     });
     return response;
   } catch (error) {
-    throw new Error(JSON.stringify(error));
+    // throw new Error(JSON.stringify(error));
   }
   return {} as TResponse;
 };
@@ -241,7 +241,7 @@ export const post = async <TRequest, TResponse>(
 
     return response;
   } catch (error) {
-    throw new Error(JSON.stringify(error));
+    // throw new Error(JSON.stringify(error));
   }
   return {} as TResponse;
 };

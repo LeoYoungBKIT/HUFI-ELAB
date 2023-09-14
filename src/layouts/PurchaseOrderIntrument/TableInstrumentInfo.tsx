@@ -1,5 +1,4 @@
 import {
-  Button,
   Paper,
   Table,
   TableBody,
@@ -9,8 +8,8 @@ import {
   TableRow,
   tableCellClasses,
 } from "@mui/material";
-import { InstrumentInfo } from "../../types/IPurchaseOrderInstruments";
 import { styled } from "@mui/material/styles";
+import { InstrumentInfo } from "../../types/IPurchaseOrderInstruments";
 
 interface IProps {
   dataSource: InstrumentInfo[];
@@ -30,7 +29,6 @@ const TableInstrumentInfo = ({ dataSource, onEditRow }: IProps) => {
             {columns.map((x) => {
               return <StyledTableCell key={x}>{x}</StyledTableCell>;
             })}
-            <StyledTableCell>Thao tác</StyledTableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -63,16 +61,6 @@ const TableInstrumentInfo = ({ dataSource, onEditRow }: IProps) => {
               <StyledTableCell component="th" scope="row">
                 {row.Unit}
               </StyledTableCell>
-              <StyledTableCell component="th" scope="row">
-                <Button
-                  onClick={() => handleDelete(row)}
-                  size="small"
-                  color="error"
-                  variant="contained"
-                >
-                  delete
-                </Button>
-              </StyledTableCell>
             </StyledTableRow>
           ))}
         </TableBody>
@@ -97,6 +85,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
     border: "1px solid #eee",
   },
 }));
+
 const columns = [
   "So Luong",
   "Tình trạng ",

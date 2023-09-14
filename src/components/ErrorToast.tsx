@@ -8,7 +8,8 @@ const ErrorComponent = ({ errorMessage }: IProps) => {
   return (
     <Snackbar
       open={true}
-      anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      sx={{ width: "500px" }}
       autoHideDuration={6000}
     >
       <Alert severity="error" sx={{ width: "100%" }}>

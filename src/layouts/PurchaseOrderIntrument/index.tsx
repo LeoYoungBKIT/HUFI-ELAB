@@ -71,13 +71,13 @@ const Index = () => {
     dispatch(updateAction(data));
   };
 
-  useEffect(() => {
-    dispatch(getAllAction());
-  }, [dispatch]);
-
   const handleDelete = (data: IPurchaseOrderInstrument) => {
     dispatch(removeAction(data));
   };
+
+  useEffect(() => {
+    dispatch(getAllAction());
+  }, [dispatch]);
 
   return (
     <Box>

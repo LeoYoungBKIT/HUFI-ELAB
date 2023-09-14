@@ -103,7 +103,7 @@ export default function FormSelect({
         >
           {devices.map((x) => (
             <MenuItem key={x.DeviceId} value={x.DeviceId}>
-              {x.DeviceName}
+              {x.DeviceId}-{x.DeviceName}
             </MenuItem>
           ))}
         </Select>
@@ -133,7 +133,7 @@ export default function FormSelect({
         >
           {deviceCur?.listDevice.map((x) => (
             <MenuItem key={x.DeviceInfoId} value={x.DeviceInfoId}>
-              {x.DeviceName}
+              {x.DeviceInfoId}-{x.DeviceName}
             </MenuItem>
           ))}
         </Select>

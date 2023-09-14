@@ -1,8 +1,8 @@
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { Step, StepIconProps, StepLabel, Stepper } from "@mui/material";
-
 import moment from "moment";
-import { IAccept } from "../../types/IDeviceServiceInfo";
+
+import { IAccept } from "../../../types/IInternalDevice";
 
 interface IProps {
   dataSource: IAccept[];
@@ -32,7 +32,7 @@ const TableListAccept = ({ dataSource }: IProps) => {
       {dataSource.map((label, idx) => (
         <Step
           sx={{ minWidth: 200 }}
-          key={label.AcceptValue + idx}
+          key={label.AcceptValue! + idx}
           color="success"
         >
           <StepLabel

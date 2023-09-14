@@ -16,7 +16,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import ErrorComponent from "../../components/ErrorToast";
 import SuccessToast from "../../components/Success";
-import { useAppDispatch } from "../../hooks";
+import { useAppDispatch, useAppSelector } from "../../hooks";
 import {
   IDeviceServiceInfo,
   initDeviceServiceInfo,
@@ -34,6 +34,7 @@ import {
 } from "./purchaseOrderDeviceSlice";
 import { DeviceEditing, nextStatus } from "./utils";
 import moment from "moment";
+import { GroupNames } from "../../types/userManagerType";
 
 const renderRow = (key: keyof IDeviceServiceInfo) => {
   return (row: IDeviceServiceInfo) => row[key] ?? "trống";
@@ -43,6 +44,7 @@ const PurchaseOrderDevices = () => {
   const { data, loading, error, successMessage } = useSelector(
     purchaseOrderDeviceSelect
   );
+  const { owner } = useAppSelector((state) => state.userManager);
   const dispatch = useAppDispatch();
   const [valueTab, setValueTab] = useState("1");
   const [isOpenModalForm, setOpenModalForm] = useState(false);
@@ -59,6 +61,7 @@ const PurchaseOrderDevices = () => {
 
   const handleToggleForm = () => {
     setOpenModalForm(!isOpenModalForm);
+    if (isOpenModalForm) dispatch(getAllAction());
   };
 
   const handleShowForm = (
@@ -127,12 +130,15 @@ const PurchaseOrderDevices = () => {
           )}
           <Box sx={{ display: "flex", justifyContent: "space-between", my: 1 }}>
             <Typography variant="h5">Quản lí phiếu nhập</Typography>
-            <ButtonMui
-              onClick={() => handleShowForm(initDeviceServiceInfo, "create")}
-              variant="contained"
-            >
-              Tạo mới
-            </ButtonMui>
+            {(owner.GroupName === GroupNames["Trưởng phòng QTTB"] ||
+              owner.GroupName === GroupNames["Chuyên viên phòng QTTB"]) && (
+              <ButtonMui
+                onClick={() => handleShowForm(initDeviceServiceInfo, "create")}
+                variant="contained"
+              >
+                Tạo mới
+              </ButtonMui>
+            )}
           </Box>
           <Dialog
             fullScreen

@@ -21,6 +21,7 @@ import { useAppSelector } from "../../hooks";
 import AlertDialog from "../../components/AlertDialog";
 import { DeviceEditing, matchAccept } from "./utils";
 import { GroupNames } from "../../types/userManagerType";
+import TableListAccept from "./TableListAccepts";
 
 interface IProps {
   dataInit: IDeviceServiceInfo;
@@ -76,13 +77,17 @@ export default function FormCmp({
 
     if (file) {
       setLoading(true);
-      getDataFile(file).then(({ data }) => {
-        setData({
-          ...data,
-          DateCreate: moment().unix().toString(),
+      getDataFile(file)
+        .then(({ data }) => {
+          setData({
+            ...data,
+            DateCreate: moment().unix().toString(),
+          });
+          setLoading(false);
+        })
+        .catch((e) => {
+          console.log(e);
         });
-        setLoading(false);
-      });
     }
     e.target.value = "";
   };
@@ -103,6 +108,9 @@ export default function FormCmp({
       autoComplete="off"
       onSubmit={onSubmit}
     >
+      <div style={{ overflow: "auto" }}>
+        <TableListAccept dataSource={dataInit.listAccept || []} />
+      </div>
       {loading && (
         <Backdrop
           sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}

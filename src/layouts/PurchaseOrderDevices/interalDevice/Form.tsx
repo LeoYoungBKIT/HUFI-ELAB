@@ -11,17 +11,18 @@ import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import { MRT_ColumnDef } from "material-react-table";
 import moment from "moment";
 import React, { useEffect, useMemo, useState } from "react";
+import AlertDialog from "../../../components/AlertDialog";
+import { useAppSelector } from "../../../hooks";
 import {
   IDevice,
   IEmployeeManagerLab,
   IExportLab,
 } from "../../../types/IInternalDevice";
+import { GroupNames } from "../../../types/userManagerType";
 import FormSelect from "./FormSelect";
 import TableDevice from "./TableDevice";
-import { useAppSelector } from "../../../hooks";
-import AlertDialog from "../../../components/AlertDialog";
-import { doneStatus, exportLabStatusEditing, matchAccept } from "./utils";
-import { GroupNames } from "../../../types/userManagerType";
+import TableListAccept from "./TableListAccepts";
+import { exportLabStatusEditing, matchAccept } from "./utils";
 
 interface IProps {
   loading?: boolean;
@@ -104,12 +105,20 @@ export default function FormCmp({
         </Backdrop>
       )}
 
+      <div style={{ overflow: "auto" }}>
+        <TableListAccept dataSource={values.listAccept} />
+      </div>
+
       {showAllForm && (
         <Stack
           sx={{
             width: "100%",
             minWidth: { xs: "300px", sm: "360px", md: "400px" },
             gap: "1.5rem",
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "center",
+            flexWrap: "wrap",
           }}
         >
           {columnsForm.map(({ accessorKey, header }, i) => {
@@ -119,36 +128,39 @@ export default function FormCmp({
 
             if (accessorKey === "DateCreate")
               return (
-                <LocalizationProvider key={i} dateAdapter={AdapterMoment}>
-                  <DatePicker
-                    label={header}
-                    value={new Date(Number(value) * 1000)}
-                    onChange={(val: any) => {
-                      setValues({
-                        ...values,
-                        [accessorKey]: moment(Date.parse(val))
-                          .unix()
-                          .toString(),
-                      });
-                    }}
-                    renderInput={(params: any) => (
-                      <TextField key={accessorKey} {...params} />
-                    )}
-                    inputFormat="DD/MM/YYYY"
-                  />
-                </LocalizationProvider>
+                <div key={i} style={{ maxWidth: 300 }}>
+                  <LocalizationProvider dateAdapter={AdapterMoment}>
+                    <DatePicker
+                      label={header}
+                      value={new Date(Number(value) * 1000)}
+                      onChange={(val: any) => {
+                        setValues({
+                          ...values,
+                          [accessorKey]: moment(Date.parse(val))
+                            .unix()
+                            .toString(),
+                        });
+                      }}
+                      renderInput={(params: any) => (
+                        <TextField key={accessorKey} {...params} />
+                      )}
+                      inputFormat="DD/MM/YYYY"
+                    />
+                  </LocalizationProvider>
+                </div>
               );
 
             return (
-              <TextField
-                value={values[accessorKey] || ""}
-                key={i}
-                label={header}
-                name={accessorKey}
-                onChange={(e) =>
-                  setValues({ ...values, [e.target.name]: e.target.value })
-                }
-              />
+              <div key={i} style={{ maxWidth: 300 }}>
+                <TextField
+                  value={values[accessorKey] || ""}
+                  label={header}
+                  name={accessorKey}
+                  onChange={(e) =>
+                    setValues({ ...values, [e.target.name]: e.target.value })
+                  }
+                />
+              </div>
             );
           })}
         </Stack>
@@ -167,6 +179,7 @@ export default function FormCmp({
           label: "nội dung",
         }}
       />
+
       {owner.GroupName === GroupNames["Chuyên viên đơn vị sử dụng"] &&
         (values.Status === exportLabStatusEditing || showFormCreate) && (
           <FormSelect
@@ -175,10 +188,13 @@ export default function FormCmp({
             handleChoiceEmployee={handleChoiceEmployee}
           />
         )}
-      <TableDevice
-        dataSource={values.listDevice}
-        handleDelete={handleDeleteRowDevice}
-      />
+
+      <Box sx={{ width: "100%" }}>
+        <TableDevice
+          dataSource={values.listDevice}
+          handleDelete={handleDeleteRowDevice}
+        />
+      </Box>
 
       <Box sx={{ my: 2, gap: 2, display: "flex", justifyContent: "end" }}>
         {matchAccept(owner.GroupName, values.Status) && (
