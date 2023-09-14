@@ -77,7 +77,7 @@ const DeviceOfDepartmentTable = () => {
 	})
 
 	useEffect(() => {
-		getDeviceData().catch(console.error)
+		getDeviceData().catch(console.log)
 	}, [])
 
 	const columns = useRef<DeviceColumnType[]>([
@@ -114,7 +114,7 @@ const DeviceOfDepartmentTable = () => {
 	}, [devices])
 
 	const handleRefresh = () => {
-		getDeviceData().catch(console.error)
+		getDeviceData().catch(console.log)
 	}
 
 	return (
@@ -298,7 +298,11 @@ const RowDevice = ({ device, isOpen, handleClose }: RowDeviceProps) => {
 		{ dataField: 'QuantityDistribute', caption: 'SL phân phối' },
 		{ dataField: 'QuantityExport', caption: 'SL xuất' },
 		{ dataField: 'QuantityAvailable', caption: 'SL hiện có' },
-		{ dataField: 'DepartmentImportName', caption: 'Đơn vị nhập', visible: [EQUIPMENT_MANAGEMENT_SPECIALIST, EQUIPMENT_MANAGEMENT_HEAD].includes(owner.GroupName) },
+		{
+			dataField: 'DepartmentImportName',
+			caption: 'Đơn vị nhập',
+			visible: [EQUIPMENT_MANAGEMENT_SPECIALIST, EQUIPMENT_MANAGEMENT_HEAD].includes(owner.GroupName),
+		},
 		{
 			dataField: 'LabId',
 			caption: 'Vị trí',

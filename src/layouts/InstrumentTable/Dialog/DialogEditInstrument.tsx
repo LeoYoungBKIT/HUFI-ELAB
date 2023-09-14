@@ -49,7 +49,7 @@ const DialogEditInstrument = ({ isOpen, onClose }: DialogProps) => {
 	})
 
 	useEffect(() => {
-		getInstrumentData().catch(console.error)
+		getInstrumentData().catch(console.log)
 	}, [])
 
 	const dataGridRef = useRef<DataGrid<any, any> | null>(null)
@@ -64,7 +64,7 @@ const DialogEditInstrument = ({ isOpen, onClose }: DialogProps) => {
 	}, [instruments])
 
 	const handleRefresh = () => {
-		getInstrumentData().catch(console.error)
+		getInstrumentData().catch(console.log)
 	}
 
 	const columns = useRef<(IColumnProps & { required?: boolean })[]>([
@@ -193,7 +193,7 @@ const DialogEditInstrument = ({ isOpen, onClose }: DialogProps) => {
 		} catch (error) {
 			console.log(error)
 		} finally {
-			getInstrumentData().catch(console.error)
+			getInstrumentData().catch(console.log)
 		}
 	}
 

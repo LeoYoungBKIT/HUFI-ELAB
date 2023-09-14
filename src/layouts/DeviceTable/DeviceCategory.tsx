@@ -48,7 +48,7 @@ const DeviceCategory = () => {
 	})
 
 	useEffect(() => {
-		getDeviceData().catch(console.error)
+		getDeviceData().catch(console.log)
 	}, [department])
 
 	const dataGridRef = useRef<DataGrid<any, any> | null>(null)
@@ -63,7 +63,7 @@ const DeviceCategory = () => {
 	}, [devices])
 
 	const handleRefresh = () => {
-		getDeviceData().catch(console.error)
+		getDeviceData().catch(console.log)
 	}
 	const columns = useMemo<IColumnProps[]>(
 		() => [
@@ -186,10 +186,10 @@ const DeviceCategory = () => {
 								Làm mới
 							</Button>
 						</Item>
-						<Item name="addRowButton" showText="always"/>
-						<Item name="saveButton" showText="always"/>
-						<Item name="revertButton" showText="always"/>
-						<Item name="columnChooserButton" showText="always"/>
+						<Item name="addRowButton" showText="always" />
+						<Item name="saveButton" showText="always" />
+						<Item name="revertButton" showText="always" />
+						<Item name="columnChooserButton" showText="always" />
 						<Item name="searchPanel" showText="always" />
 					</Toolbar>
 				</DataGrid>

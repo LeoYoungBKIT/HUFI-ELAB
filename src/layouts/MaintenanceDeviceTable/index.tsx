@@ -174,11 +174,11 @@ function MaintenanceDeviceTable() {
 	}
 
 	useEffect(() => {
-		getCriteria().catch(console.error)
+		getCriteria().catch(console.log)
 	}, [])
 
 	const handleRefresh = () => {
-		getCriteria().catch(console.error)
+		getCriteria().catch(console.log)
 	}
 
 	return (
@@ -331,7 +331,7 @@ function MaintenanceDeviceTable() {
 							</Button>
 						</Item>
 						<Item name="exportButton" showText="always" />
-						<Item name="columnChooserButton"  showText="always" />
+						<Item name="columnChooserButton" showText="always" />
 						<Item name="searchPanel" showText="always" />
 					</Toolbar>
 				</DataGrid>

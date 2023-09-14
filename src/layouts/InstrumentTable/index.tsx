@@ -2,21 +2,21 @@ import CloseIcon from '@mui/icons-material/Close'
 import { Box, Dialog, DialogContent, DialogTitle, IconButton, Typography } from '@mui/material'
 import Button from 'devextreme-react/button'
 import DataGrid, {
-    Column,
-    ColumnChooser,
-    ColumnFixing,
-    Button as DevButtonGrid,
-    FilterPanel,
-    FilterRow,
-    Grouping,
-    HeaderFilter,
-    IColumnProps,
-    Item,
-    LoadPanel,
-    Pager,
-    Paging,
-    Position,
-    Toolbar
+	Column,
+	ColumnChooser,
+	ColumnFixing,
+	Button as DevButtonGrid,
+	FilterPanel,
+	FilterRow,
+	Grouping,
+	HeaderFilter,
+	IColumnProps,
+	Item,
+	LoadPanel,
+	Pager,
+	Paging,
+	Position,
+	Toolbar,
 } from 'devextreme-react/data-grid'
 import LoadIndicator from 'devextreme-react/load-indicator'
 import ArrayStore from 'devextreme/data/array_store'
@@ -38,7 +38,7 @@ const InstrumentTable = () => {
 
 	const [getInstrumentData, isLoadingGetDevices] = useLoading(async () => {
 		try {
-            const data: IInstrumentType[] = await getInstruments()
+			const data: IInstrumentType[] = await getInstruments()
 			setInstruments(data)
 			console.log(data)
 		} catch (error) {
@@ -47,7 +47,7 @@ const InstrumentTable = () => {
 	})
 
 	useEffect(() => {
-		getInstrumentData().catch(console.error)
+		getInstrumentData().catch(console.log)
 	}, [])
 
 	const dataGridRef = useRef<DataGrid<any, any> | null>(null)
@@ -66,7 +66,7 @@ const InstrumentTable = () => {
 	}, [instruments])
 
 	const handleRefresh = () => {
-		getInstrumentData().catch(console.error)
+		getInstrumentData().catch(console.log)
 	}
 
 	const columns = useRef<IColumnProps[]>([
@@ -286,8 +286,8 @@ const RowInstrument = ({ instrument, isOpen, handleClose }: RowInstrumentProps) 
 							<Paging defaultPageSize={30} />
 							{columns.current.map(col => (
 								<Column key={col.dataField} {...col} />
-                            ))}
-                            
+							))}
+
 							<Toolbar>
 								<Item name="columnChooserButton" />
 								<Item name="searchPanel" showText="always" />

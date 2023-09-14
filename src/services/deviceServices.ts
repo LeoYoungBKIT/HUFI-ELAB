@@ -24,6 +24,12 @@ export const getDeviceGeneralDept = async (id: string) => {
 	return devices
 }
 
+export const GetDeviceDept = async () => {
+	const url = `${API_ENDPOINT}/api/Devices/GetDeviceDept`
+	const devices: IDeviceGeneral[] = await API.get<IDeviceGeneral[]>(url)
+	return devices
+}
+
 export const getDeviceById = async (id: Number) => {
 	const url = `${API_ENDPOINT}/api/devices/${id}`
 	const device: IDeviceType = await API.get<IDeviceType>(url)
