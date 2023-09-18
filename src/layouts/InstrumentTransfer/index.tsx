@@ -156,7 +156,7 @@ const InstrumentTransfer = () => {
 				)
 			}
 		} catch (error) {
-			console.error(error)
+			console.log(error)
 			dispatch(
 				setSnackbar({
 					message: 'Chuyển không thành công',
@@ -186,9 +186,9 @@ const InstrumentTransfer = () => {
 	}
 
 	const handleRefresh = () => {
-		getInstrumentTransferData().catch(console.error)
-    }
-    
+		getInstrumentTransferData().catch(console.log)
+	}
+
 	const hidePopupEdit = useCallback(() => {
 		setPopupEditVisible(false)
 	}, [setPopupEditVisible])

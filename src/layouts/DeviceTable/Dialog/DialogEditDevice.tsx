@@ -47,7 +47,7 @@ const DialogEditDevice = ({ isOpen, onClose }: DialogProps) => {
 	})
 
 	useEffect(() => {
-		getDeviceData().catch(console.error)
+		getDeviceData().catch(console.log)
 	}, [])
 
 	const dataGridRef = useRef<DataGrid<any, any> | null>(null)
@@ -61,7 +61,7 @@ const DialogEditDevice = ({ isOpen, onClose }: DialogProps) => {
 		})
 	}, [devices])
 	const handleRefresh = () => {
-		getDeviceData().catch(console.error)
+		getDeviceData().catch(console.log)
 	}
 	const columns = useRef<(IColumnProps & { required?: boolean })[]>([
 		{ dataField: 'DeviceId', caption: 'Mã thiết bị', required: true },
@@ -171,7 +171,7 @@ const DialogEditDevice = ({ isOpen, onClose }: DialogProps) => {
 		} catch (error) {
 			console.log(error)
 		} finally {
-			getDeviceData().catch(console.error)
+			getDeviceData().catch(console.log)
 		}
 	}
 

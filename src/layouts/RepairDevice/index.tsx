@@ -68,7 +68,7 @@ const RepairDevice = () => {
 		const department = departments.find(d => d?.DepartmentName === owner.DepartmentName)
 
 		if (department) {
-			const devicesInfo = await getDeviceGeneralDept(department?.DepartmentId?.toString() || "")
+			const devicesInfo = await getDeviceGeneralDept(department?.DepartmentId?.toString() || '')
 			setDeviceGenerals(devicesInfo)
 		}
 	}
@@ -111,7 +111,7 @@ const RepairDevice = () => {
 		{ dataField: 'DeviceName', caption: 'Tên thiết bị', width: 280 },
 		{ dataField: 'LinkReportFile', caption: 'Bản tường trình', visible: false, typeCreate: 'file' },
 		{ dataField: 'LinkCheckFile', caption: 'Biên bản kiểm tra', visible: false },
-		{ dataField: 'LinkHandoverFile', caption: 'Biên bản bàn giao', visible: false, },
+		{ dataField: 'LinkHandoverFile', caption: 'Biên bản bàn giao', visible: false },
 		{ dataField: 'Status', caption: 'Trạng thái', width: 150 },
 	])
 
@@ -130,7 +130,7 @@ const RepairDevice = () => {
 				}),
 			)
 			setPopupVisible(false)
-			getRepair().catch(console.error)
+			getRepair().catch(console.log)
 		} catch (error) {
 			dispatch(
 				setSnackbar({
@@ -141,18 +141,18 @@ const RepairDevice = () => {
 			)
 			console.log(error)
 		} finally {
-			console.log(e);
+			console.log(e)
 			form.reset()
 		}
 	})
 
 	const handleRefresh = useCallback(() => {
-		getRepair().catch(console.error)
+		getRepair().catch(console.log)
 	}, [])
 
 	useEffect(() => {
-		getRepair().catch(console.error)
-		getDeviceInfo().catch(console.error)
+		getRepair().catch(console.log)
+		getDeviceInfo().catch(console.log)
 	}, [])
 
 	useEffect(() => {
@@ -258,7 +258,7 @@ const RepairDevice = () => {
 						</Item>
 						{[ADMIN, UNIT_UTILIZATION_SPECIALIST].includes(owner.GroupName) && (
 							<Item location="after">
-								<Button icon="add" text='Thêm'  onClick={showPopup} />
+								<Button icon="add" text="Thêm" onClick={showPopup} />
 							</Item>
 						)}
 						<Item location="after" name="searchPanel" showText="always" />
@@ -274,7 +274,7 @@ const RepairDevice = () => {
 						setSelectedDevice(undefined)
 					}}
 					changeData={() => {
-						getRepair().catch(console.error)
+						getRepair().catch(console.log)
 					}}
 				/>
 			)}
