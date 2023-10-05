@@ -330,8 +330,8 @@ function MaintenanceDeviceTable() {
 								Làm mới
 							</Button>
 						</Item>
-						<Item name="exportButton" />
-						<Item name="columnChooserButton" />
+						<Item name="exportButton" showText="always" />
+						<Item name="columnChooserButton"  showText="always" />
 						<Item name="searchPanel" showText="always" />
 					</Toolbar>
 				</DataGrid>

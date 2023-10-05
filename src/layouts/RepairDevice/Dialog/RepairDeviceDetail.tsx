@@ -33,6 +33,7 @@ import { getDeviceGeneral } from '../../../services/deviceServices'
 import {
 	deleteRepairDevice,
 	postAcceptRepairDevice,
+	postCompleteByRepairUnit,
 	postCompleteRepairDevice,
 	postProposeLiquidateRepairDevice,
 	postReceiveRepairDevice,
@@ -67,6 +68,8 @@ const RepairDeviceDetail = ({ isOpen, onClose, data, changeData }: RepairDeviceD
 	const [deviceGenerals, setDeviceGenerals] = useState<IDeviceGeneral[]>([])
 	const contentRepairRef = useRef<HTMLInputElement>()
 	const [popupEditVisible, setPopupEditVisible] = useState<boolean>(false)
+	const [popupComfirmFileVisible, setPopupComfirmFileVisible] = useState<boolean>(false)
+	const [popupComfirmLiquidateFileVisible, setPopupComfirmLiquidateFileVisible] = useState<boolean>(false)
 	const stepperRef = useRef<HTMLDivElement>()
 	const { owner } = useAppSelector(state => state.userManager)
 	const dispatch = useAppDispatch()
@@ -78,6 +81,22 @@ const RepairDeviceDetail = ({ isOpen, onClose, data, changeData }: RepairDeviceD
 	const showPopupEdit = useCallback(() => {
 		setPopupEditVisible(true)
 	}, [setPopupEditVisible])
+
+	const hidePopupComfirmFile = useCallback(() => {
+		setPopupComfirmFileVisible(false)
+	}, [setPopupComfirmFileVisible])
+
+	const showPopupComfirmFile = useCallback(() => {
+		setPopupComfirmFileVisible(true)
+	}, [setPopupComfirmFileVisible])
+
+	const hidePopupComfirmLiquidateFile = useCallback(() => {
+		setPopupComfirmLiquidateFileVisible(false)
+	}, [setPopupComfirmLiquidateFileVisible])
+
+	const showPopupComfirmLiquidateFile = useCallback(() => {
+		setPopupComfirmLiquidateFileVisible(true)
+	}, [setPopupComfirmLiquidateFileVisible])
 
 	const getDeviceInfo = async () => {
 		const devicesInfo = await getDeviceGeneral()
@@ -207,7 +226,9 @@ const RepairDeviceDetail = ({ isOpen, onClose, data, changeData }: RepairDeviceD
 	const [handleRejectRepair, isLoadingRejectRepair] = useLoading(async () => {
 		try {
 			let result = await confirm(
-				'<p>Bạn chắc chắn từ chối tiếp nhận phiếu sửa chữa này?</p>',
+				`<p><p style="color: red">${
+					contentRepairRef?.current?.value ? '' : `Bạn đang từ chối mà không có nội dung sửa chữa.`
+				}</p>Bạn chắc chắn từ chối tiếp nhận phiếu sửa chữa này?</p>`,
 				'Từ chối tiếp nhận',
 			)
 			if (result) {
@@ -261,32 +282,6 @@ const RepairDeviceDetail = ({ isOpen, onClose, data, changeData }: RepairDeviceD
 		}
 	})
 
-	const [handleProposeLiquidateRepair, isLoadingProposeLiquidateRepair] = useLoading(async () => {
-		try {
-			let result = await confirm('<p>Bạn chắc chắn đề xuất thanh lý phiếu sửa chữa này?</p>', 'Đề xuất thanh lý')
-			if (result) {
-				await postProposeLiquidateRepairDevice(currentData.RepairId)
-				dispatch(
-					setSnackbar({
-						message: 'Đề xuất thanh lý thành công',
-						color: colorsNotifi['success'].color,
-						backgroundColor: colorsNotifi['success'].background,
-					}),
-				)
-				changeData()
-			}
-		} catch (error) {
-			dispatch(
-				setSnackbar({
-					message: 'Đã xảy ra lỗi!!!',
-					color: colorsNotifi['error'].color,
-					backgroundColor: colorsNotifi['error'].background,
-				}),
-			)
-			console.log(error)
-		}
-	})
-
 	const [handleCompleteRepair, isLoadingCompleteRepair] = useLoading(async () => {
 		try {
 			let result = await confirm(
@@ -318,10 +313,7 @@ const RepairDeviceDetail = ({ isOpen, onClose, data, changeData }: RepairDeviceD
 
 	const [handleAcceptRepair, isLoadingAcceptRepair] = useLoading(async () => {
 		try {
-			let result = await confirm(
-				'<p>Bạn chắc chắn xác nhận duyệt phiếu sửa chữa này?</p>',
-				'Xác nhận duyệt',
-			)
+			let result = await confirm('<p>Bạn chắc chắn xác nhận duyệt phiếu sửa chữa này?</p>', 'Xác nhận duyệt')
 			if (result) {
 				await postAcceptRepairDevice(currentData.RepairId)
 
@@ -347,10 +339,8 @@ const RepairDeviceDetail = ({ isOpen, onClose, data, changeData }: RepairDeviceD
 	})
 
 	const [handleDeleteRepair, isLoadingDeleteRepair] = useLoading(async () => {
-		try {let result = await confirm(
-				'<p>Bạn chắc chắn xác nhận xóa phiếu sửa chữa này?</p>',
-				'Xác nhận xóa',
-			)
+		try {
+			let result = await confirm('<p>Bạn chắc chắn xác nhận xóa phiếu sửa chữa này?</p>', 'Xác nhận xóa')
 			if (result) {
 				await deleteRepairDevice(currentData.RepairId)
 				dispatch(
@@ -380,6 +370,12 @@ const RepairDeviceDetail = ({ isOpen, onClose, data, changeData }: RepairDeviceD
 			const form = e.target as HTMLFormElement
 			const formData = new FormData(form)
 
+			const LinkReportFile = formData.get('LinkReportFile') as File
+
+			if (!LinkReportFile?.name) {
+				formData.delete('LinkReportFile')
+			}
+
 			await putRepairDevice(currentData.RepairId, formData)
 
 			dispatch(
@@ -389,6 +385,7 @@ const RepairDeviceDetail = ({ isOpen, onClose, data, changeData }: RepairDeviceD
 					backgroundColor: colorsNotifi['success'].background,
 				}),
 			)
+
 			changeData()
 		} catch (error) {
 			dispatch(
@@ -399,16 +396,82 @@ const RepairDeviceDetail = ({ isOpen, onClose, data, changeData }: RepairDeviceD
 				}),
 			)
 			console.log(error)
+		} finally {
+			hidePopupEdit()
 		}
 	})
+
+	const [handleSavingCompleteRepair, isLoadingSavingCompleteRepair] = useLoading(
+		async (e: FormEvent<HTMLFormElement>) => {
+			try {
+				e.preventDefault()
+				const form = e.target as HTMLFormElement
+				const formData = new FormData(form)
+
+				await postCompleteByRepairUnit(currentData.RepairId, formData)
+
+				dispatch(
+					setSnackbar({
+						message: 'Xác nhận hoàn thành sửa chữa thành công',
+						color: colorsNotifi['success'].color,
+						backgroundColor: colorsNotifi['success'].background,
+					}),
+				)
+
+				changeData()
+			} catch (error) {
+				dispatch(
+					setSnackbar({
+						message: 'Đã xảy ra lỗi!!!',
+						color: colorsNotifi['error'].color,
+						backgroundColor: colorsNotifi['error'].background,
+					}),
+				)
+				console.log(error)
+			} finally {
+				hidePopupComfirmFile()
+			}
+		},
+	)
+
+	const [handleProposeLiquidateRepair, isLoadingProposeLiquidateRepair] = useLoading(
+		async (e: FormEvent<HTMLFormElement>) => {
+			try {
+				e.preventDefault()
+				const form = e.target as HTMLFormElement
+				const formData = new FormData(form)
+
+				await postProposeLiquidateRepairDevice(currentData.RepairId, formData)
+
+				dispatch(
+					setSnackbar({
+						message: 'Xác nhận hoàn thành sửa chữa thành công',
+						color: colorsNotifi['success'].color,
+						backgroundColor: colorsNotifi['success'].background,
+					}),
+				)
+
+				changeData()
+			} catch (error) {
+				dispatch(
+					setSnackbar({
+						message: 'Đã xảy ra lỗi!!!',
+						color: colorsNotifi['error'].color,
+						backgroundColor: colorsNotifi['error'].background,
+					}),
+				)
+				console.log(error)
+			} finally {
+				hidePopupComfirmFile()
+			}
+		},
+	)
 
 	const columnsEdit = useRef<(IColumnProps & { typeCreate?: string })[]>([
 		{ dataField: 'Title', caption: 'Tiêu đề', typeCreate: 'textbox' },
 		{ dataField: 'ContentRepair', caption: 'Nội dung sửa chữa', typeCreate: 'textbox' },
 		{ dataField: 'ContentReport', caption: 'Nội dung tường trình', typeCreate: 'textbox' },
 		{ dataField: 'LinkReportFile', caption: 'Bản tường trình', visible: false, typeCreate: 'file' },
-		{ dataField: 'LinkCheckFile', caption: 'Biên bản kiểm tra', visible: false, typeCreate: 'file' },
-		{ dataField: 'LinkHandoverFile', caption: 'Biên bản bàn giao', visible: false, typeCreate: 'file' },
 	])
 
 	useEffect(() => {
@@ -539,13 +602,25 @@ const RepairDeviceDetail = ({ isOpen, onClose, data, changeData }: RepairDeviceD
 								alignItems="center"
 								justifyContent="space-between"
 							>
-								<Box>
+								<Box
+									sx={{
+										mb: 3,
+										width: '100%',
+										maxWidth: '500px',
+									}}
+								>
 									{currentData.DisplayMode === 'tiepnhan_khongtiepnhan' && (
 										<TextField
 											inputRef={contentRepairRef}
 											variant="standard"
 											placeholder="Nội dung chỉnh sửa"
-											required={true}
+											label="Nội dung chỉnh sửa"
+											color="info"
+											multiline
+											focused
+											sx={{
+												width: '100%'
+											}}
 										/>
 									)}
 								</Box>
@@ -559,17 +634,9 @@ const RepairDeviceDetail = ({ isOpen, onClose, data, changeData }: RepairDeviceD
 											].includes(owner.GroupName) && (
 												<Button
 													type="default"
-													onClick={handleProposeLiquidateRepair}
+													onClick={showPopupComfirmLiquidateFile}
 													elementAttr={{ style: 'margin-left: 8px;' }}
-													disabled={isLoadingProposeLiquidateRepair}
 												>
-													<LoadIndicator
-														id="small-indicator"
-														height={20}
-														width={20}
-														visible={isLoadingProposeLiquidateRepair}
-														elementAttr={{ class: 'indicator-white' }}
-													/>
 													Đề xuất thanh lý
 												</Button>
 											)}
@@ -581,18 +648,10 @@ const RepairDeviceDetail = ({ isOpen, onClose, data, changeData }: RepairDeviceD
 											].includes(owner.GroupName) && (
 												<Button
 													type="default"
-													onClick={handleCompleteRepair}
+													onClick={showPopupComfirmFile}
 													elementAttr={{ style: 'margin-left: 8px;' }}
-													disabled={isLoadingCompleteRepair}
 												>
-													<LoadIndicator
-														id="small-indicator"
-														height={20}
-														width={20}
-														visible={isLoadingCompleteRepair}
-														elementAttr={{ class: 'indicator-white' }}
-													/>
-													Hoàn thành
+													Hoàn thành sửa chữa
 												</Button>
 											)}
 										</>
@@ -797,15 +856,11 @@ const RepairDeviceDetail = ({ isOpen, onClose, data, changeData }: RepairDeviceD
 													text: col.caption,
 												}}
 											>
-												<RequiredRule />
 												<FileUploader
 													selectButtonText="Chọn file"
 													labelText=""
 													elementAttr={{
 														class: 'uploader-horizontal',
-													}}
-													inputAttr={{
-														required: 'required',
 													}}
 													accept="application/pdf,application/vnd.ms-excel"
 													uploadMode="useForm"
@@ -816,9 +871,6 @@ const RepairDeviceDetail = ({ isOpen, onClose, data, changeData }: RepairDeviceD
 									}
 								})}
 							</Form>
-							<Typography fontStyle="italic" fontSize="14px" my={2}>
-								(<span style={{ color: '#c9302c' }}>*</span>) Bắt buộc phải điền
-							</Typography>
 							<Box display="flex">
 								<ButtonDevextreme
 									type="default"
@@ -840,6 +892,150 @@ const RepairDeviceDetail = ({ isOpen, onClose, data, changeData }: RepairDeviceD
 									type="normal"
 									text="Hủy"
 									onClick={hidePopupEdit}
+									elementAttr={{ style: 'margin-left: 16px; width: 80px' }}
+									width={80}
+								/>
+							</Box>
+						</form>
+					</Popup>
+
+					<Popup
+						visible={popupComfirmFileVisible}
+						onHiding={hidePopupComfirmFile}
+						dragEnabled={true}
+						hideOnOutsideClick={false}
+						showCloseButton={true}
+						showTitle={true}
+						title="Thêm thông tin"
+						height="auto"
+						resizeEnabled={true}
+						width={700}
+					>
+						<form onSubmit={handleSavingCompleteRepair} encType="multipart/form-data">
+							<Form formData={{ ...currentData }}>
+								{[
+									{ dataField: 'LinkCheckFile', caption: 'Biên bản kiểm tra', typeCreate: 'file' },
+									{ dataField: 'LinkHandoverFile', caption: 'Biên bản bàn giao', typeCreate: 'file' },
+								].map(col => {
+									if (col?.typeCreate === 'file') {
+										return (
+											<FormItem
+												key={col.dataField}
+												cssClass="items-center disable-padding-top  disable-padding-bottom disable-padding-left"
+												dataField={col.dataField}
+												colSpan={2}
+												label={{
+													text: col.caption,
+												}}
+											>
+												<FileUploader
+													selectButtonText="Chọn file"
+													labelText=""
+													elementAttr={{
+														class: 'uploader-horizontal',
+													}}
+													accept="application/pdf,application/vnd.ms-excel"
+													uploadMode="useForm"
+													name={col.dataField}
+												/>
+											</FormItem>
+										)
+									}
+								})}
+							</Form>
+							<Box display="flex">
+								<ButtonDevextreme
+									type="default"
+									elementAttr={{ style: 'margin-left: auto; width: 120px;' }}
+									width={120}
+									useSubmitBehavior={true}
+									disabled={isLoadingSavingCompleteRepair}
+								>
+									<LoadIndicator
+										id="small-indicator"
+										height={20}
+										width={20}
+										visible={isLoadingSavingCompleteRepair}
+										elementAttr={{ class: 'indicator-white' }}
+									/>
+									Xác nhận
+								</ButtonDevextreme>
+								<ButtonDevextreme
+									type="normal"
+									text="Hủy"
+									onClick={hidePopupComfirmFile}
+									elementAttr={{ style: 'margin-left: 16px; width: 80px' }}
+									width={80}
+								/>
+							</Box>
+						</form>
+					</Popup>
+
+					<Popup
+						visible={popupComfirmLiquidateFileVisible}
+						onHiding={hidePopupComfirmLiquidateFile}
+						dragEnabled={true}
+						hideOnOutsideClick={false}
+						showCloseButton={true}
+						showTitle={true}
+						title="Thêm thông tin"
+						height="auto"
+						resizeEnabled={true}
+						width={700}
+					>
+						<form onSubmit={handleProposeLiquidateRepair} encType="multipart/form-data">
+							<Form formData={{ ...currentData }}>
+								{[
+									{ dataField: 'LinkCheckFile', caption: 'Biên bản kiểm tra', typeCreate: 'file' },
+									{ dataField: 'LinkHandoverFile', caption: 'Biên bản bàn giao', typeCreate: 'file' },
+								].map(col => {
+									if (col?.typeCreate === 'file') {
+										return (
+											<FormItem
+												key={col.dataField}
+												cssClass="items-center disable-padding-top  disable-padding-bottom disable-padding-left"
+												dataField={col.dataField}
+												colSpan={2}
+												label={{
+													text: col.caption,
+												}}
+											>
+												<FileUploader
+													selectButtonText="Chọn file"
+													labelText=""
+													elementAttr={{
+														class: 'uploader-horizontal',
+													}}
+													accept="application/pdf,application/vnd.ms-excel"
+													uploadMode="useForm"
+													name={col.dataField}
+												/>
+											</FormItem>
+										)
+									}
+								})}
+							</Form>
+							<Box display="flex">
+								<ButtonDevextreme
+									type="default"
+									elementAttr={{ style: 'margin-left: auto; width: 120px;' }}
+									width={120}
+									useSubmitBehavior={true}
+									disabled={isLoadingProposeLiquidateRepair}
+								>
+									<LoadIndicator
+										id="small-indicator"
+										height={20}
+										width={20}
+										visible={isLoadingProposeLiquidateRepair}
+										elementAttr={{ class: 'indicator-white' }}
+									/>
+									Xác nhận
+								</ButtonDevextreme>
+								<ButtonDevextreme
+									type="normal"
+									text="Hủy"
+									onClick={hidePopupComfirmLiquidateFile}
 									elementAttr={{ style: 'margin-left: 16px; width: 80px' }}
 									width={80}
 								/>

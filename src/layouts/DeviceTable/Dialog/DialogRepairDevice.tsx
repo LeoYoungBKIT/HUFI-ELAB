@@ -264,7 +264,7 @@ const DialogRepairDevice = ({ isOpen, onClose, deviceInfoId = '' }: DialogProps)
 								<b style={{ fontSize: '18px' }}>Lịch sử sửa chữa</b>
 							</div>
 						</Item>
-						<Item name="columnChooserButton" />
+						<Item name="columnChooserButton" showText="always" />
 						<Item name="searchPanel" showText="always" />
 					</Toolbar>
 				</DataGrid>
