@@ -119,7 +119,7 @@ const RepairDeviceDetail = ({ isOpen, onClose, data, changeData }: RepairDeviceD
 		if (currentData) {
 			setProgressStep(currentData.listAccept.length + 1)
 		}
-		getDeviceInfo().catch(console.error)
+		getDeviceInfo().catch(console.log)
 	}, [currentData])
 
 	const dataGridRef = useRef<DataGrid<IRepairDevice, string> | null>(null)
@@ -619,7 +619,7 @@ const RepairDeviceDetail = ({ isOpen, onClose, data, changeData }: RepairDeviceD
 											multiline
 											focused
 											sx={{
-												width: '100%'
+												width: '100%',
 											}}
 										/>
 									)}
