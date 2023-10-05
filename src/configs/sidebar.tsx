@@ -113,7 +113,13 @@ const Sidebar = {
                         id: "TB - Quản lý nhập kho - phân phối",
                         name: "Quản lý nhập kho - phân phối",
                         icon: null,
-                        comp: null,
+                        comp: <PurchaseOrderDevices />,
+                    },
+                    {
+                        id: "PHÂN PHỐI DỤNG CỤ - CÔNG CỤ",
+                        name: "PHÂN PHỐI DỤNG CỤ - CÔNG CỤ",
+                        icon: <BiotechIcon />,
+                        comp: <PurchaseOrderIntrument />,
                     },
                     {
                         id: "TB - Quản lý sửa chữa - Hiệu chuẩn/bảo trì",
@@ -316,18 +322,6 @@ const Sidebar = {
                 name: "Quản lý xuất",
                 icon: <BiotechIcon />,
                 comp: <ExportManagementTable />,
-            },
-            {
-                id: "quản lí nhập khoa phân phối",
-                name: "Quản lí nhập khoa phân phối",
-                icon: <BiotechIcon />,
-                comp: <PurchaseOrderDevices />,
-            },
-            {
-                id: "PHÂN PHỐI DỤNG CỤ - CÔNG CỤ",
-                name: "PHÂN PHỐI DỤNG CỤ - CÔNG CỤ",
-                icon: <BiotechIcon />,
-                comp: <PurchaseOrderIntrument />,
             },
         ];
     },
