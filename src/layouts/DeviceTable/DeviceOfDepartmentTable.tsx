@@ -53,11 +53,11 @@ type DeviceColumnType = {
 }
 
 export function removeAccents(str: string) {
-	return str
-		.normalize('NFD')
-		.replace(/[\u0300-\u036f]/g, '')
-		.replace(/đ/g, 'd')
-		.replace(/Đ/g, 'D')
+  return str
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D");
 }
 
 const DeviceOfDepartmentTable = () => {
@@ -80,29 +80,29 @@ const DeviceOfDepartmentTable = () => {
 		getDeviceData().catch(console.log)
 	}, [])
 
-	const columns = useRef<DeviceColumnType[]>([
-		{ id: 'DeviceId', header: 'Mã thiết bị' },
-		{ id: 'DeviceName', header: 'Tên thiết bị' },
-		{ id: 'DeviceEnglishName', header: 'Tên tiếng anh' },
-		{
-			id: 'QuantityImport',
-			header: 'SL nhập',
-		},
-		{
-			id: 'QuantityDistribute',
-			header: 'SL phân phối',
-		},
-		{
-			id: 'QuantityExport',
-			header: 'SL xuất',
-		},
-		{
-			id: 'QuantityAvailable',
-			header: 'SL hiện có',
-		},
-	])
+  const columns = useRef<DeviceColumnType[]>([
+    { id: "DeviceId", header: "Mã thiết bị" },
+    { id: "DeviceName", header: "Tên thiết bị" },
+    { id: "DeviceEnglishName", header: "Tên tiếng anh" },
+    {
+      id: "QuantityImport",
+      header: "SL nhập",
+    },
+    {
+      id: "QuantityDistribute",
+      header: "SL phân phối",
+    },
+    {
+      id: "QuantityExport",
+      header: "SL xuất",
+    },
+    {
+      id: "QuantityAvailable",
+      header: "SL hiện có",
+    },
+  ]);
 
-	const dataGridRef = useRef<DataGrid<any, any> | null>(null)
+  const dataGridRef = useRef<DataGrid<any, any> | null>(null);
 
 	const dataSource = useMemo(() => {
 		return new DataSource({
@@ -243,10 +243,10 @@ const DeviceOfDepartmentTable = () => {
 }
 
 type RowDeviceProps = {
-	device: IDeviceDepartmentType
-	isOpen: boolean
-	handleClose: () => void
-}
+  device: IDeviceDepartmentType;
+  isOpen: boolean;
+  handleClose: () => void;
+};
 
 const RowDevice = ({ device, isOpen, handleClose }: RowDeviceProps) => {
 	const dataGridRef = useRef<DataGrid<any, any> | null>(null)
@@ -259,9 +259,9 @@ const RowDevice = ({ device, isOpen, handleClose }: RowDeviceProps) => {
 		setIsOpenDeviceRepair(false)
 	}
 
-	const handleCloseDeviceUsageHoursDialog = () => {
-		setIsOpenDeviceUsageHours(false)
-	}
+  const handleCloseDeviceUsageHoursDialog = () => {
+    setIsOpenDeviceUsageHours(false);
+  };
 
 	const handleOpenDeviceUsageHoursDialog = (deviceInfoId: String) => {
 		setDeviceInfoId(`${deviceInfoId}`)
@@ -273,14 +273,17 @@ const RowDevice = ({ device, isOpen, handleClose }: RowDeviceProps) => {
 		setIsOpenDeviceRepair(true)
 	}
 
-	const dataSource = useMemo(() => {
-		return new DataSource({
-			store: new ArrayStore({
-				data: (device?.listDeviceInfo || []).map(x => ({ ...x, Id: uniqueId('DeviceDetail_') })),
-				key: 'Id',
-			}),
-		})
-	}, [device])
+  const dataSource = useMemo(() => {
+    return new DataSource({
+      store: new ArrayStore({
+        data: (device?.listDeviceInfo || []).map((x) => ({
+          ...x,
+          Id: uniqueId("DeviceDetail_"),
+        })),
+        key: "Id",
+      }),
+    });
+  }, [device]);
 
 	const [commonFieldsShow, setCommonFieldShow] = useState<IColumnProps[]>([
 		{ dataField: 'DeviceId', caption: 'Mã thiết bị', fixed: true },
@@ -462,4 +465,4 @@ const RowDevice = ({ device, isOpen, handleClose }: RowDeviceProps) => {
 	)
 }
 
-export default DeviceOfDepartmentTable
+export default DeviceOfDepartmentTable;

@@ -1,88 +1,132 @@
-import { configureStore, Middleware } from '@reduxjs/toolkit';
-import counterReducer from '../layouts/Counter/counterSlice';
-import appReducer, { reset as appReset } from '../pages/appSlice';
-import laboratoryReducer, { reset as laboratoryReset } from '../layouts/LaboratoryTable/laboratorySlice';
-import employeeReducer, { reset as employeeReset } from '../layouts/EmployeeTable/employeeSlice';
-import departmentReducer, { reset as departmentReset } from '../layouts/DepartmentTable/departmentSlice';
-import manufacturerReducer, { reset as manufacturerReset } from '../layouts/ManufacturerTable/manufacturerSlice';
-import chemicalReducer, { reset as chemicalReset } from '../layouts/ChemicalTable/chemicalSlice';
+import { configureStore, Middleware } from "@reduxjs/toolkit";
+import counterReducer from "../layouts/Counter/counterSlice";
+import appReducer, { reset as appReset } from "../pages/appSlice";
+import laboratoryReducer, {
+    reset as laboratoryReset,
+} from "../layouts/LaboratoryTable/laboratorySlice";
+import employeeReducer, {
+    reset as employeeReset,
+} from "../layouts/EmployeeTable/employeeSlice";
+import departmentReducer, {
+    reset as departmentReset,
+} from "../layouts/DepartmentTable/departmentSlice";
+import manufacturerReducer, {
+    reset as manufacturerReset,
+} from "../layouts/ManufacturerTable/manufacturerSlice";
+import chemicalReducer, {
+    reset as chemicalReset,
+} from "../layouts/ChemicalTable/chemicalSlice";
 import chemicalWarehouseReducer, {
-	reset as chemicalWarehouseReset,
-} from '../layouts/ChemicalWarehouseTable/chemicalWarehouseSlice';
-import supplierReducer, { reset as supplierReset } from '../layouts/SupplierTable/supplierSlice';
-import deviceReducer, { reset as deviceReset } from '../layouts/DeviceTable/deviceSlice';
-import subjectReducer, { reset as subjectReset } from '../layouts/SubjectTable/subjectSlice';
-import classSubjectReducer, { reset as classSubjectReset } from '../layouts/ClassSubjectTable/classSubjectSlice';
-import lessonLabReducer, { reset as lessonLabReset } from '../layouts/LessonLabTable/lessonLabSlice';
+    reset as chemicalWarehouseReset,
+} from "../layouts/ChemicalWarehouseTable/chemicalWarehouseSlice";
+import supplierReducer, {
+    reset as supplierReset,
+} from "../layouts/SupplierTable/supplierSlice";
+import deviceReducer, {
+    reset as deviceReset,
+} from "../layouts/DeviceTable/deviceSlice";
+import subjectReducer, {
+    reset as subjectReset,
+} from "../layouts/SubjectTable/subjectSlice";
+import classSubjectReducer, {
+    reset as classSubjectReset,
+} from "../layouts/ClassSubjectTable/classSubjectSlice";
+import lessonLabReducer, {
+    reset as lessonLabReset,
+} from "../layouts/LessonLabTable/lessonLabSlice";
 import registerGeneralReducer, {
-	reset as registerGeneralReset,
-} from '../layouts/RegisterGeneralTable/registerGeneralSlice';
-import purchaseOrderReducer, { reset as purchaseOrderReset } from '../layouts/PurchaseOrderTable/purchaseOrderSlice';
-import scheduleReducer, { reset as scheduleReset } from '../layouts/ScheduleTable/scheduleSlice';
-import planSubjectReducer, { reset as planSubjectReset } from '../layouts/PlanSubjectTable/planSubjectSlice';
-import researchTeamReducer, { reset as researchTeamReset } from '../layouts/ResearchTeamTable/researchTeamSlice';
-import trainScheduleReducer, { reset as trainScheduleReset } from '../layouts/TrainSchedule/TrainScheduleSlice';
+    reset as registerGeneralReset,
+} from "../layouts/RegisterGeneralTable/registerGeneralSlice";
+import purchaseOrderReducer, {
+    reset as purchaseOrderReset,
+} from "../layouts/PurchaseOrderTable/purchaseOrderSlice";
+import scheduleReducer, {
+    reset as scheduleReset,
+} from "../layouts/ScheduleTable/scheduleSlice";
+import planSubjectReducer, {
+    reset as planSubjectReset,
+} from "../layouts/PlanSubjectTable/planSubjectSlice";
+import researchTeamReducer, {
+    reset as researchTeamReset,
+} from "../layouts/ResearchTeamTable/researchTeamSlice";
+import trainScheduleReducer, {
+    reset as trainScheduleReset,
+} from "../layouts/TrainSchedule/TrainScheduleSlice";
 import suggestNewDeviceReducer, {
-	reset as suggestNewDeviceReset,
-} from '../layouts/SuggestNewDevicesTable/suggestNewDeviceSlice';
-import userManagerReducer from '../layouts/UserManager/userManagerSlice';
-import exportManagementReducer, { reset as exportManagementReset } from '../layouts/ExportManagementTable/exportManagementSlice';
+    reset as suggestNewDeviceReset,
+} from "../layouts/SuggestNewDevicesTable/suggestNewDeviceSlice";
+import userManagerReducer from "../layouts/UserManager/userManagerSlice";
+import exportManagementReducer, {
+    reset as exportManagementReset,
+} from "../layouts/ExportManagementTable/exportManagementSlice";
+import purchaseOrderDeviceReduce from "../layouts/PurchaseOrderDevices/purchaseOrderDeviceSlice";
+import exportLabReducer from "../layouts/PurchaseOrderDevices/interalDevice/internalDeviceSlice";
+import purchaseOrderInstrumentReducer, {
+    reset as purchaseOrderInstumentReset,
+} from "../layouts/PurchaseOrderIntrument/purchaseOrderInstrumentSlice";
+import { reset as purchaseOrderDeviceReset } from "../layouts/PurchaseOrderDevices/purchaseOrderDeviceSlice";
 
 const resetStateMiddleware: Middleware =
-	({ dispatch }) =>
-	next =>
-	action => {
-		if (action.type === 'userManager/logout') {
-			dispatch(appReset());
-			dispatch(laboratoryReset());
-			dispatch(employeeReset());
-			dispatch(departmentReset());
-			dispatch(manufacturerReset());
-			dispatch(chemicalReset());
-			dispatch(chemicalWarehouseReset());
-			dispatch(supplierReset());
-			dispatch(deviceReset());
-			dispatch(subjectReset());
-			dispatch(classSubjectReset());
-			dispatch(lessonLabReset());
-			dispatch(registerGeneralReset());
-			dispatch(purchaseOrderReset());
-			dispatch(scheduleReset());
-			dispatch(planSubjectReset());
-			dispatch(researchTeamReset());
-			dispatch(trainScheduleReset());
-			dispatch(suggestNewDeviceReset());
-			dispatch(exportManagementReset());
-		}
-		return next(action);
-	};
+    ({ dispatch }) =>
+    (next) =>
+    (action) => {
+        if (action.type === "userManager/logout") {
+            dispatch(appReset());
+            dispatch(laboratoryReset());
+            dispatch(employeeReset());
+            dispatch(departmentReset());
+            dispatch(manufacturerReset());
+            dispatch(chemicalReset());
+            dispatch(chemicalWarehouseReset());
+            dispatch(supplierReset());
+            dispatch(deviceReset());
+            dispatch(subjectReset());
+            dispatch(classSubjectReset());
+            dispatch(lessonLabReset());
+            dispatch(registerGeneralReset());
+            dispatch(purchaseOrderReset());
+            dispatch(scheduleReset());
+            dispatch(planSubjectReset());
+            dispatch(researchTeamReset());
+            dispatch(trainScheduleReset());
+            dispatch(suggestNewDeviceReset());
+            dispatch(exportManagementReset());
+            dispatch(purchaseOrderDeviceReset());
+            dispatch(purchaseOrderInstumentReset());
+        }
+        return next(action);
+    };
 
 export const store = configureStore({
-	reducer: {
-		counter: counterReducer,
-		app: appReducer,
-		laboratory: laboratoryReducer,
-		employee: employeeReducer,
-		department: departmentReducer,
-		manufacturer: manufacturerReducer,
-		chemical: chemicalReducer,
-		chemicalWarehouse: chemicalWarehouseReducer,
-		supplier: supplierReducer,
-		device: deviceReducer,
-		subject: subjectReducer,
-		classSubject: classSubjectReducer,
-		lessonLab: lessonLabReducer,
-		registerGeneral: registerGeneralReducer,
-		purchaseOrder: purchaseOrderReducer,
-		schedule: scheduleReducer,
-		planSubject: planSubjectReducer,
-		researchTeam: researchTeamReducer,
-		managerTrainSchedule: trainScheduleReducer,
-		suggestNewDevice: suggestNewDeviceReducer,
-		userManager: userManagerReducer,
-		exportManagement: exportManagementReducer,
-	},
-	middleware: [resetStateMiddleware],
+    reducer: {
+        counter: counterReducer,
+        app: appReducer,
+        laboratory: laboratoryReducer,
+        employee: employeeReducer,
+        department: departmentReducer,
+        manufacturer: manufacturerReducer,
+        chemical: chemicalReducer,
+        chemicalWarehouse: chemicalWarehouseReducer,
+        supplier: supplierReducer,
+        device: deviceReducer,
+        subject: subjectReducer,
+        classSubject: classSubjectReducer,
+        lessonLab: lessonLabReducer,
+        registerGeneral: registerGeneralReducer,
+        purchaseOrder: purchaseOrderReducer,
+        schedule: scheduleReducer,
+        planSubject: planSubjectReducer,
+        researchTeam: researchTeamReducer,
+        managerTrainSchedule: trainScheduleReducer,
+        suggestNewDevice: suggestNewDeviceReducer,
+        userManager: userManagerReducer,
+        exportManagement: exportManagementReducer,
+        purchaseOrderDevice: purchaseOrderDeviceReduce,
+        exportLab: exportLabReducer,
+        purchaseOrderInstrument: purchaseOrderInstrumentReducer,
+    },
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware().concat(resetStateMiddleware),
 });
 
 // Infer the `RootState` and `AppDispatch` types from the store itself
