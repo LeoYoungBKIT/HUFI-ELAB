@@ -22,6 +22,9 @@ import SubjectTable from "../layouts/SubjectTable";
 import SuggestNewDevicesTable from "../layouts/SuggestNewDevicesTable";
 import SupplierTable from "../layouts/SupplierTable";
 import TrainSchedule from "../layouts/TrainSchedule";
+import PurchaseOrderDevices from "../layouts/PurchaseOrderDevices";
+import PurchaseOrderIntrument from "../layouts/PurchaseOrderIntrument";
+
 import {
     ADMIN,
     BOARD_DIRECTORS,
@@ -113,7 +116,13 @@ const Sidebar = {
                         id: "TB - Quản lý nhập kho - phân phối",
                         name: "Quản lý nhập kho - phân phối",
                         icon: null,
-                        comp: null,
+                        comp: <PurchaseOrderDevices />,
+                    },
+                    {
+                        id: "PHÂN PHỐI DỤNG CỤ - CÔNG CỤ",
+                        name: "PHÂN PHỐI DỤNG CỤ - CÔNG CỤ",
+                        icon: null,
+                        comp: <PurchaseOrderIntrument />,
                     },
                     {
                         id: "TB - Quản lý sửa chữa - Hiệu chuẩn/bảo trì",
