@@ -1,16 +1,24 @@
-import { MRT_ColumnDef, type MRT_Row } from "material-react-table";
+import DataGrid, {
+    Column,
+    ColumnFixing,
+    Export,
+    FilterPanel,
+    FilterRow,
+    Grouping,
+    HeaderFilter,
+    Item,
+    LoadPanel,
+    Scrolling,
+} from "devextreme-react/data-grid";
+import { MRT_ColumnDef } from "material-react-table";
+import moment from "moment";
+import React, { useEffect, useState } from "react";
+
+import { ExportingEvent } from "devextreme/ui/data_grid";
 import {
     IDeviceInfor,
     IDeviceServiceInfo,
-    initDeviceInfo,
 } from "../../types/IDeviceServiceInfo";
-import MaterialReactTable from "material-react-table";
-import moment from "moment";
-import AddIcon from "@mui/icons-material/Add";
-import { Box, Button, MenuItem } from "@mui/material";
-import { ExportToCsv } from "export-to-csv";
-import { useEffect, useState } from "react";
-import { ModalFormDeviceInfo } from "./ModalFormDeviceInfo";
 
 interface IProps {
     dataSource: IDeviceInfor[];
@@ -26,121 +34,76 @@ const TableListDeviceInfo = ({
     deviceServiceInfo,
 }: IProps) => {
     const [data, setData] = useState(dataSource);
-    const [formState, setStateForm] = useState<{
-        typeForm: "create" | "update";
-        dataForm: IDeviceInfor;
-        showForm: boolean;
-    }>({
-        typeForm: "create",
-        dataForm: initDeviceInfo,
-        showForm: false,
-    });
-
-    const { typeForm, showForm, dataForm } = formState;
-
-    const handleSubmit = (value: IDeviceInfor) => {
-        let newState: IDeviceInfor[] = [];
-
-        if (typeForm === "update") {
-            newState = [
-                ...data.map((x) =>
-                    x.DeviceInfoId === value.DeviceInfoId ? value : x
-                ),
-            ];
-        }
-        onTableChange(newState);
-    };
-
-    const handleExportRows = (rows: MRT_Row<IDeviceInfor>[]) => {
-        const csvOptions = {
-            fieldSeparator: ",",
-            quoteStrings: '"',
-            decimalSeparator: ".",
-            showLabels: true,
-            useBom: true,
-            useKeysAsHeaders: false,
-            headers: columns.map((c) => c.header),
-        };
-
-        const csvExporter = new ExportToCsv({
-            ...csvOptions,
-            filename: deviceServiceInfo.OrderId,
-        });
-        csvExporter.generateCsv(rows.map((row) => row._valuesCache));
-    };
 
     useEffect(() => {
         setData(dataSource);
     }, [dataSource]);
 
+    function onExporting(e: ExportingEvent<IDeviceInfor, any>): void {
+        throw new Error("Function not implemented.");
+    }
+
     return (
         <>
-            <ModalFormDeviceInfo
-                columns={columns}
-                open={showForm}
-                onClose={() => setStateForm({ ...formState, showForm: false })}
-                dataForm={dataForm}
-                onSubmit={handleSubmit}
-            />
-            <MaterialReactTable
-                muiTableBodyProps={{
-                    sx: {
-                        backgroundColor: "#f5f5f5",
-                    },
-                }}
-                columns={columns}
-                data={data}
-                initialState={{
-                    density: "compact",
-                }}
-                enableRowActions
-                renderRowActionMenuItems={({ row }) => [
-                    <MenuItem
-                        key="edit"
-                        onClick={() =>
-                            setStateForm({
-                                typeForm: "update",
-                                showForm: true,
-                                dataForm: row.original,
-                            })
-                        }
-                    >
-                        Edit
-                    </MenuItem>,
-                    <MenuItem
-                        key="delete"
-                        onClick={() => console.info("Delete")}
-                    >
-                        Delete
-                    </MenuItem>,
-                ]}
-                renderTopToolbarCustomActions={({ table }) => (
-                    <Box
-                        sx={{
-                            display: "flex",
-                            gap: "1rem",
-                            p: "0.5rem",
-                            flexWrap: "wrap",
-                        }}
-                    >
-                        {alowExportCsv && (
-                            <Button
-                                color="primary"
-                                variant="contained"
-                                onClick={() => {
-                                    handleExportRows(table.getRowModel().rows);
-                                }}
-                            >
-                                Xuất file
-                            </Button>
-                        )}
+            <DataGrid
+                columnAutoWidth={true}
+                allowColumnResizing={true}
+                columnResizingMode="widget"
+                wordWrapEnabled={true}
+                repaintChangesOnly={true}
+                columnMinWidth={120}
+                dataSource={data}
+                allowColumnReordering={true}
+                rowAlternationEnabled={true}
+                showBorders={true}
+                onExporting={onExporting}
+            >
+                <Export />
+                <FilterRow visible={true} applyFilter={true} />
+                <HeaderFilter visible={true} />
+                <ColumnFixing enabled={false} />
+                <Grouping contextMenuEnabled={true} expandMode="rowClick" />
+                <FilterPanel visible={true} />
+                <Item name="exportButton" showText="always" />
+                <Item name="columnChooserButton" showText="always" />
+                <Item name="searchPanel" showText="always" />
+                <LoadPanel enabled={true} />
+                <Scrolling mode="infinite" />
+                {Object.keys(columnHeads).map((x) => {
+                    const key = x as keyof IDeviceInfor;
 
-                        <Button color="primary" variant="contained">
-                            <AddIcon />
-                        </Button>
-                    </Box>
-                )}
-            />
+                    if (!columnHeads[key])
+                        return <React.Fragment key={x}></React.Fragment>;
+
+                    if (
+                        [
+                            "DateImport",
+                            "StartGuarantee",
+                            "EndGuarantee",
+                        ].includes(key)
+                    )
+                        return (
+                            <Column
+                                key={key}
+                                dataField={key}
+                                caption={columnHeads[key]}
+                                calculateCellValue={(row: any) => {
+                                    return moment
+                                        .unix(Number(row.DateCreate))
+                                        .format("DD/MM/YYYY");
+                                }}
+                            />
+                        );
+
+                    return (
+                        <Column
+                            key={key}
+                            dataField={key}
+                            caption={columnHeads[key]}
+                        />
+                    );
+                })}
+            </DataGrid>
         </>
     );
 };
@@ -163,12 +126,12 @@ const columns: MRT_ColumnDef<IDeviceInfor>[] = [
     {
         accessorFn: renderRow("DeviceName"),
         accessorKey: "DeviceName",
-        header: "Tên thiết bị(vi)",
+        header: "Tên tiếng Việt",
     },
     {
         accessorFn: renderRow("DeviceEnglishName"),
         accessorKey: "DeviceEnglishName",
-        header: "Tên thiết bị(En)",
+        header: "Tên tiếng Anh",
     },
     {
         accessorFn: renderRow("Model"),
@@ -254,5 +217,31 @@ const columns: MRT_ColumnDef<IDeviceInfor>[] = [
         header: "Đơn vị phụ trách hiệu chuẩn – bảo trì/sửa chữa",
     },
 ];
+
+const columnHeads: { [key in keyof IDeviceInfor]: string } = {
+    DeviceId: "Mã thiết bị",
+    DeviceInfoId: "Mã định danh thiết bị",
+    DeviceName: "Tên tiếng Việt",
+    DeviceEnglishName: "Tên tiếng Anh",
+    Model: "Số Model",
+    SerialNumber: "Số Serial",
+    Specification: "Thông số kỹ thuật",
+    Manufacturer: "Hãng sản xuất",
+    Origin: "Xuất xứ",
+    SupplierId: "Mã nhà cung cấp",
+    SupplierName: "Tên nhà cung cấp",
+    Unit: "Đơn vị tính",
+    QuantityImport: "Số lượng nhập",
+    DateImport: "Ngày Nhập",
+    YearStartUsage: "Năm đưa vào sử dụng",
+    StartGuarantee: "Thời gian bắt đầu bảo hành",
+    EndGuarantee: "Thời gian kết thúc bảo hành",
+    PeriodicMaintenance: "Chu kỳ bảo trì/ hiệu chuẩn định kỳ",
+    Status: "Tình trạng",
+    DepartmentMaintenanceName: "Đơn vị phụ trách hiệu chuẩn – bảo trì/sửa chữa",
+    DepartmentImportId: "",
+    DepartmentImportName: "",
+    DepartmentMaintenanceId: "",
+};
 
 export default TableListDeviceInfo;

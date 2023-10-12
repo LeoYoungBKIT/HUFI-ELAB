@@ -298,7 +298,18 @@ export default function FormCmp({
                     loadPanel={{
                         enabled: loading,
                     }}
-                />
+                >
+                    {Object.keys(columnHeads).map((x) => {
+                        const key = x as keyof IDevice;
+                        return (
+                            <Column
+                                key={key}
+                                dataField={key}
+                                caption={columnHeads[key]}
+                            />
+                        );
+                    })}
+                </DataGrid>
             </Box>
 
             <Box sx={{ my: 2, gap: 2, display: "flex", justifyContent: "end" }}>
@@ -343,3 +354,13 @@ export default function FormCmp({
         </Box>
     );
 }
+
+const columnHeads: { [key in keyof IDevice]: string } = {
+    DeviceId: "Mã thiết bị",
+    DeviceInfoId: "Tên thiết bị",
+    DeviceName: "Tên tiếng Việt",
+    DeviceEnglishName: "Tên tiếng Anh",
+    QuantityImport: "Số lượng nhập",
+    QuantityDistribute: "Số lượng phân phối",
+    LabId: "Mã phòng",
+};

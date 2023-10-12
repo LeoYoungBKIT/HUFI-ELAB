@@ -18,7 +18,7 @@ const TableListAccept = ({ dataSource }: IProps) => {
                     )}
                 >
                     <div>
-                        Tạo lúc{" "}
+                        Tạo lúc
                         {moment
                             .unix(Number(dataSource[0].AcceptDate))
                             .format("HH:mm - DD/MM/YYYY")}

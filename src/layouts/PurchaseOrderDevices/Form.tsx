@@ -109,7 +109,11 @@ export default function FormCmp({
             onSubmit={onSubmit}
         >
             <div style={{ overflow: "auto" }}>
-                <TableListAccept dataSource={dataInit.listAccept || []} />
+                {dataInit.listAccept?.length ? (
+                    <TableListAccept dataSource={dataInit.listAccept || []} />
+                ) : (
+                    <></>
+                )}
             </div>
             {loading && (
                 <Backdrop

@@ -7,7 +7,15 @@ import {
     IconButton,
     Typography,
 } from "@mui/material";
-import DataGrid, { Button, Column } from "devextreme-react/data-grid";
+import DataGrid, {
+    Column,
+    ColumnFixing,
+    FilterPanel,
+    FilterRow,
+    Grouping,
+    HeaderFilter,
+    Button,
+} from "devextreme-react/data-grid";
 import { MRT_ColumnDef } from "material-react-table";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
@@ -101,7 +109,7 @@ export default function InternalDeviceLayout() {
                 aria-describedby="modal-modal-description"
             >
                 <DialogTitle textAlign="left">
-                    <b>Form Thông tin</b>
+                    <b>Chi tiết phiếu nhập kho phân phối</b>
                     <IconButton
                         aria-label="close"
                         onClick={handleToggleForm}
@@ -154,6 +162,11 @@ export default function InternalDeviceLayout() {
                     enabled: loading,
                 }}
             >
+                <FilterRow visible={true} applyFilter={true} />
+                <HeaderFilter visible={true} />
+                <ColumnFixing enabled={false} />
+                <Grouping contextMenuEnabled={true} expandMode="rowClick" />
+                <FilterPanel visible={true} />
                 <Column type="buttons" width={110} caption={"Thao tác"}>
                     <Button
                         name="edit"

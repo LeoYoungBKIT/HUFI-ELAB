@@ -9,9 +9,18 @@ import {
     Typography,
 } from "@mui/material";
 import { Box } from "@mui/system";
-import DataGrid, { Column, Button } from "devextreme-react/data-grid";
+import DataGrid, {
+    Button,
+    Column,
+    ColumnFixing,
+    FilterPanel,
+    FilterRow,
+    Grouping,
+    HeaderFilter,
+} from "devextreme-react/data-grid";
 
 import { MRT_Row } from "material-react-table";
+import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import ErrorComponent from "../../components/ErrorToast";
@@ -21,6 +30,7 @@ import {
     IDeviceServiceInfo,
     initDeviceServiceInfo,
 } from "../../types/IDeviceServiceInfo";
+import { GroupNames } from "../../types/userManagerType";
 import FormCmp from "./Form";
 import InternalDeviceLayout from "./interalDevice/InternalDeviceLayout";
 import {
@@ -33,8 +43,6 @@ import {
     updatePurchaseOrderDeviceAction,
 } from "./purchaseOrderDeviceSlice";
 import { DeviceEditing, nextStatus } from "./utils";
-import moment from "moment";
-import { GroupNames } from "../../types/userManagerType";
 
 const renderRow = (key: keyof IDeviceServiceInfo) => {
     return (row: IDeviceServiceInfo) => row[key] ?? "trống";
@@ -161,7 +169,7 @@ const PurchaseOrderDevices = () => {
                         aria-describedby="modal-modal-description"
                     >
                         <DialogTitle textAlign="left">
-                            <b>Form Thông tin</b>
+                            <b>Chi tiết phiếu nhập</b>
                             <IconButton
                                 aria-label="close"
                                 onClick={handleToggleForm}
@@ -208,6 +216,14 @@ const PurchaseOrderDevices = () => {
                             enabled: loading,
                         }}
                     >
+                        <FilterRow visible={true} applyFilter={true} />
+                        <HeaderFilter visible={true} />
+                        <ColumnFixing enabled={false} />
+                        <Grouping
+                            contextMenuEnabled={true}
+                            expandMode="rowClick"
+                        />
+                        <FilterPanel visible={true} />
                         <Column type="buttons" width={110} caption={"Thao tác"}>
                             <Button
                                 name="edit"
@@ -219,12 +235,18 @@ const PurchaseOrderDevices = () => {
                             />
                             <Button name="delete" />
                         </Column>
+
                         {Object.keys(columnHeads).map((x) => {
                             const key = x as keyof IDeviceServiceInfo;
 
                             if (
-                                key === "listAccept" ||
-                                key === "listDeviceInfo"
+                                [
+                                    "listAccept",
+                                    "listDeviceInfo",
+                                    "Lock",
+                                    "EmployeeCreateId",
+                                    "DepartmentImportId",
+                                ].includes(key)
                             )
                                 return (
                                     <React.Fragment key={x}></React.Fragment>
@@ -243,6 +265,40 @@ const PurchaseOrderDevices = () => {
                                         }}
                                     />
                                 );
+
+                            if (key === "DepartmentImportName") {
+                                return (
+                                    <Column
+                                        key={key}
+                                        dataField={key}
+                                        calculateCellValue={(row: any) => {
+                                            return (
+                                                row.DepartmentImportId +
+                                                " - " +
+                                                row.DepartmentImportName
+                                            );
+                                        }}
+                                        caption={columnHeads[key]}
+                                    />
+                                );
+                            }
+
+                            if (key === "EmployeeCreateName") {
+                                return (
+                                    <Column
+                                        key={key}
+                                        dataField={key}
+                                        calculateCellValue={(row: any) => {
+                                            return (
+                                                row.EmployeeCreateId +
+                                                " - " +
+                                                row.EmployeeCreateName
+                                            );
+                                        }}
+                                        caption={columnHeads[key]}
+                                    />
+                                );
+                            }
 
                             return (
                                 <Column
@@ -265,10 +321,10 @@ const columnHeads: { [key in keyof IDeviceServiceInfo]: string } = {
     OrderId: "Mã phiếu nhập",
     Status: "Trạng Thái",
     Content: "Nội dung",
-    DepartmentImportId: "Phòng nhập (id)",
-    DepartmentImportName: "Phòng nhập(name)",
-    EmployeeCreateId: "Người Tạo(id)",
-    EmployeeCreateName: "người tạo(name)",
+    DepartmentImportId: "Phòng nhập",
+    DepartmentImportName: "Phòng nhập",
+    EmployeeCreateId: "Người Tạo",
+    EmployeeCreateName: "Người tạo",
     DateCreate: "Ngày tạo",
     Lock: "Khoá",
     Title: "Tiều dề",
