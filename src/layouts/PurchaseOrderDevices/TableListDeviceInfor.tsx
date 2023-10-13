@@ -89,7 +89,7 @@ const TableListDeviceInfo = ({
                                 caption={columnHeads[key]}
                                 calculateCellValue={(row: any) => {
                                     return moment
-                                        .unix(Number(row.DateCreate))
+                                        .unix(Number(row[key]))
                                         .format("DD/MM/YYYY");
                                 }}
                             />
