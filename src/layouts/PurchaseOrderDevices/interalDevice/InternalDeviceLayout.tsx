@@ -31,7 +31,7 @@ import {
     unAcceptExportLabAction,
     updateExportLabAction,
 } from "./internalDeviceSlice";
-import { exportLabStatusEditing, nextStatus } from "./utils";
+import { ObjAccept, exportLabStatusEditing, nextStatus } from "./utils";
 
 export default function InternalDeviceLayout() {
     const { data, loading, error, successMessage } = useAppSelector(
@@ -40,14 +40,19 @@ export default function InternalDeviceLayout() {
     const dispatch = useAppDispatch();
     const [isOpenModalForm, setOpenModalForm] = useState(false);
     const [dataForm, setDataForm] = useState(initExportLab);
-    const [typeForm, setTypeForm] = useState<"create" | "update">("create");
+    const [typeForm, setTypeForm] = useState<"create" | "update" | "reupdate">(
+        "create"
+    );
 
     const handleToggleForm = () => {
         setOpenModalForm(!isOpenModalForm);
         if (isOpenModalForm) dispatch(getAllAction());
     };
 
-    const handleForm = (dataForm: IExportLab, type: "create" | "update") => {
+    const handleForm = (
+        dataForm: IExportLab,
+        type: "create" | "update" | "reupdate"
+    ) => {
         setOpenModalForm(true);
         setDataForm(dataForm);
         setTypeForm(type);
@@ -61,6 +66,13 @@ export default function InternalDeviceLayout() {
                 updateExportLabAction({
                     ...dataExport,
                     Status: nextStatus[dataExport.Status],
+                })
+            ).then(handleToggleForm);
+        else if (typeForm === "reupdate")
+            dispatch(
+                updateExportLabAction({
+                    ...dataExport,
+                    Status: ObjAccept["Cán bộ phụ trách PTN"],
                 })
             ).then(handleToggleForm);
     };
@@ -132,6 +144,7 @@ export default function InternalDeviceLayout() {
                     showFormCreate={typeForm === "create"}
                     handleAccept={handleAccept}
                     handleOnclickNoAccept={handleUnAcceps}
+                    typeForm={typeForm}
                 />
             </Dialog>
 
@@ -172,7 +185,14 @@ export default function InternalDeviceLayout() {
                         name="edit"
                         visible={true}
                         icon={"edit"}
-                        onClick={(e: any) => handleForm(e.row.data, "update")}
+                        onClick={(e: any) => {
+                            const type =
+                                e.row.data.Status ===
+                                ObjAccept["Cán bộ phụ trách PTN"]
+                                    ? "reupdate"
+                                    : "update";
+                            handleForm(e.row.data, type);
+                        }}
                     />
                     <Button name="delete" />
                 </Column>

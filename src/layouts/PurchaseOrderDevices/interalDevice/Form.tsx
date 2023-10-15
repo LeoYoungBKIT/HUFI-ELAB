@@ -8,11 +8,17 @@ import {
 } from "@mui/material";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
+import DataGrid, {
+    Column,
+    Button as ButtonDataGrid,
+} from "devextreme-react/data-grid";
 import { MRT_ColumnDef } from "material-react-table";
 import moment from "moment";
 import React, { useEffect, useMemo, useState } from "react";
 import AlertDialog from "../../../components/AlertDialog";
-import { useAppSelector } from "../../../hooks";
+import { colorsNotifi } from "../../../configs/color";
+import { useAppDispatch, useAppSelector } from "../../../hooks";
+import { setSnackbar } from "../../../pages/appSlice";
 import {
     IDevice,
     IEmployeeManagerLab,
@@ -20,10 +26,8 @@ import {
 } from "../../../types/IInternalDevice";
 import { GroupNames } from "../../../types/userManagerType";
 import FormSelect from "./FormSelect";
-import TableDevice from "./TableDevice";
 import TableListAccept from "./TableListAccepts";
 import { exportLabStatusEditing, matchAccept } from "./utils";
-import DataGrid, { Column } from "devextreme-react/data-grid";
 
 interface IProps {
     loading?: boolean;
@@ -34,6 +38,7 @@ interface IProps {
     handleAccept?: (exportLab: IExportLab) => void;
     handleOnclickNoAccept?: (dataForm: IExportLab, message: string) => void;
     showFormCreate: boolean;
+    typeForm?: string;
 }
 
 export default function FormCmp({
@@ -45,10 +50,12 @@ export default function FormCmp({
     handleAccept,
     handleOnclickNoAccept,
     showFormCreate,
+    typeForm,
 }: IProps) {
-    console.log(initDataForm);
+    console.log(typeForm);
     const { owner } = useAppSelector((state) => state.userManager);
     const [showBox, setShowBox] = useState(false);
+    const dispatch = useAppDispatch();
 
     const [values, setValues] = useState(initDataForm);
 
@@ -80,7 +87,22 @@ export default function FormCmp({
     );
 
     const handleAddRecord = (device: IDevice) => {
-        setValues({ ...values, listDevice: [device, ...values.listDevice] });
+        const isExist = values.listDevice.find(
+            (x) => x.DeviceId === device.DeviceId
+        );
+
+        if (isExist) {
+            dispatch(
+                setSnackbar({
+                    message: "biết bị đã được thêm!",
+                    color: colorsNotifi["error"].color,
+                    backgroundColor: colorsNotifi["error"].background,
+                })
+            );
+            return;
+        }
+        const newListDevice = [...values.listDevice, device];
+        setValues({ ...values, listDevice: [...newListDevice] });
     };
 
     return (
@@ -278,6 +300,15 @@ export default function FormCmp({
                     />
                 )}
 
+            {owner.GroupName === GroupNames["Chuyên viên đơn vị sử dụng"] &&
+                typeForm === "reupdate" && (
+                    <FormSelect
+                        loading={loading ?? false}
+                        handleAddRecord={handleAddRecord}
+                        handleChoiceEmployee={handleChoiceEmployee}
+                    />
+                )}
+
             <Box sx={{ width: "100%" }}>
                 <DataGrid
                     columnAutoWidth={true}
@@ -295,10 +326,32 @@ export default function FormCmp({
                     allowColumnReordering={true}
                     rowAlternationEnabled={true}
                     showBorders={true}
-                    loadPanel={{
-                        enabled: loading,
-                    }}
                 >
+                    <ButtonDataGrid>Delete</ButtonDataGrid>
+
+                    {typeForm === "reupdate" && (
+                        <Column type="buttons" width={110} caption={"Thao tác"}>
+                            <ButtonDataGrid
+                                render={() => (
+                                    <Button color="error">delete</Button>
+                                )}
+                                onClick={(e: any) => {
+                                    const data = e.row.data as IDevice;
+
+                                    setValues({
+                                        ...values,
+                                        listDevice: [
+                                            ...values.listDevice.filter(
+                                                (device) =>
+                                                    device.DeviceId !==
+                                                    data.DeviceId
+                                            ),
+                                        ],
+                                    });
+                                }}
+                            ></ButtonDataGrid>
+                        </Column>
+                    )}
                     {Object.keys(columnHeads).map((x) => {
                         const key = x as keyof IDevice;
                         return (
@@ -339,7 +392,8 @@ export default function FormCmp({
 
                 {owner.GroupName === GroupNames["Chuyên viên đơn vị sử dụng"] &&
                     (values.Status === exportLabStatusEditing ||
-                        showFormCreate) && (
+                        showFormCreate ||
+                        typeForm === "reupdate") && (
                         <Button
                             type="submit"
                             variant="contained"
@@ -357,7 +411,7 @@ export default function FormCmp({
 
 const columnHeads: { [key in keyof IDevice]: string } = {
     DeviceId: "Mã thiết bị",
-    DeviceInfoId: "Tên thiết bị",
+    DeviceInfoId: "Mã định danh thiết bị",
     DeviceName: "Tên tiếng Việt",
     DeviceEnglishName: "Tên tiếng Anh",
     QuantityImport: "Số lượng nhập",
