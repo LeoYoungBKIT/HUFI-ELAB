@@ -52,11 +52,9 @@ export default function FormCmp({
     showFormCreate,
     typeForm,
 }: IProps) {
-    console.log(typeForm);
     const { owner } = useAppSelector((state) => state.userManager);
     const [showBox, setShowBox] = useState(false);
     const dispatch = useAppDispatch();
-
     const [values, setValues] = useState(initDataForm);
 
     const onsubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
@@ -94,7 +92,7 @@ export default function FormCmp({
         if (isExist) {
             dispatch(
                 setSnackbar({
-                    message: "biết bị đã được thêm!",
+                    message: "thiết bị đã được thêm!",
                     color: colorsNotifi["error"].color,
                     backgroundColor: colorsNotifi["error"].background,
                 })
@@ -303,6 +301,7 @@ export default function FormCmp({
             {owner.GroupName === GroupNames["Chuyên viên đơn vị sử dụng"] &&
                 typeForm === "reupdate" && (
                     <FormSelect
+                        EmployeeManageLabId={initDataForm.EmployeeManageLabId}
                         loading={loading ?? false}
                         handleAddRecord={handleAddRecord}
                         handleChoiceEmployee={handleChoiceEmployee}

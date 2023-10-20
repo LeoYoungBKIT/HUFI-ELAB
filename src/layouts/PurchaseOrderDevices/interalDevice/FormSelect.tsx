@@ -28,17 +28,21 @@ interface IProps {
     handleAddRecord: (device: IDevice) => void;
     handleChoiceEmployee?: (employee: IEmployeeManagerLab) => void;
     loading: boolean;
+    EmployeeManageLabId?: string;
 }
 
 export default function FormSelect({
     handleAddRecord,
     handleChoiceEmployee,
     loading,
+    EmployeeManageLabId,
 }: IProps) {
     const [devices, setDevices] = useState<IDeviceForCreate[]>([]);
     const [deviceSelected, setDeviceSelected] = useState<IDevice>(initDevice);
     const [deviceCur, setDeviceCur] = useState<IDeviceForCreate>();
-    const [employeeCur, setEmployeeCur] = useState<IEmployeeManagerLab>();
+    const [employeeCur, setEmployeeCur] = useState<IEmployeeManagerLab>({
+        EmployeeId: EmployeeManageLabId || "",
+    } as any);
     const [employees, setEmployees] = useState<IEmployeeManagerLab[]>([]);
 
     useEffect(() => {
@@ -68,6 +72,8 @@ export default function FormSelect({
                 setEmployees(data);
             }
         });
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -182,7 +188,7 @@ export default function FormSelect({
                             (x) => x.EmployeeId === e.target.value
                         );
 
-                        setEmployeeCur(empoloyeeCur);
+                        if (empoloyeeCur) setEmployeeCur(empoloyeeCur);
 
                         setDeviceSelected({
                             ...deviceSelected,
@@ -210,7 +216,7 @@ export default function FormSelect({
                         });
                     }}
                 >
-                    {employeeCur?.listLab.map((x) => (
+                    {employeeCur?.listLab?.map((x) => (
                         <MenuItem key={x.LabId} value={x.LabId}>
                             {x.LabId} - {x.LabName}
                         </MenuItem>
