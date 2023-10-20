@@ -39,6 +39,7 @@ interface IProps {
     handleOnclickNoAccept?: (dataForm: IExportLab, message: string) => void;
     showFormCreate: boolean;
     typeForm?: string;
+    handleDelete?: (data: IExportLab) => void;
 }
 
 export default function FormCmp({
@@ -47,6 +48,7 @@ export default function FormCmp({
     initDataForm,
     showAllForm,
     handleSave,
+    handleDelete,
     handleAccept,
     handleOnclickNoAccept,
     showFormCreate,
@@ -64,15 +66,6 @@ export default function FormCmp({
     useEffect(() => {
         setValues(initDataForm);
     }, [initDataForm]);
-
-    const handleDeleteRowDevice = (device: IDevice) => {
-        setValues({
-            ...values,
-            listDevice: values.listDevice.filter(
-                (x) => x.DeviceInfoId !== device.DeviceInfoId
-            ),
-        });
-    };
 
     const handleChoiceEmployee = useMemo(
         () => (employee: IEmployeeManagerLab) => {
@@ -189,6 +182,13 @@ export default function FormCmp({
                                             }}
                                             renderInput={(params: any) => (
                                                 <TextField
+                                                    disabled={[
+                                                        "edit",
+                                                        "update",
+                                                        "reupdate",
+                                                    ].includes(
+                                                        typeForm || "not found"
+                                                    )}
                                                     key={accessorKey}
                                                     {...params}
                                                 />
@@ -203,6 +203,11 @@ export default function FormCmp({
                             return (
                                 <div key={i} style={{ minWidth: 350 }}>
                                     <TextField
+                                        disabled={[
+                                            "edit",
+                                            "update",
+                                            "reupdate",
+                                        ].includes(typeForm || "not found")}
                                         sx={{ width: "100%" }}
                                         value={`${values[accessorKey]} - ${values.EmployeeCreateName}`}
                                         label={header}
@@ -221,6 +226,11 @@ export default function FormCmp({
                             return (
                                 <div key={i} style={{ minWidth: 350 }}>
                                     <TextField
+                                        disabled={[
+                                            "edit",
+                                            "update",
+                                            "reupdate",
+                                        ].includes(typeForm || "not found")}
                                         sx={{ width: "100%" }}
                                         value={`${values[accessorKey]} - ${values.DepartmentCreateName}`}
                                         label={header}
@@ -239,6 +249,11 @@ export default function FormCmp({
                             return (
                                 <div key={i} style={{ minWidth: 350 }}>
                                     <TextField
+                                        disabled={[
+                                            "edit",
+                                            "update",
+                                            "reupdate",
+                                        ].includes(typeForm || "not found")}
                                         sx={{ width: "100%" }}
                                         value={`${values[accessorKey]} - ${values.EmployeeManageLabName}`}
                                         label={header}
@@ -256,6 +271,11 @@ export default function FormCmp({
                         return (
                             <div key={i} style={{ minWidth: 350 }}>
                                 <TextField
+                                    disabled={[
+                                        "edit",
+                                        "update",
+                                        "reupdate",
+                                    ].includes(typeForm || "not found")}
                                     sx={{ width: "100%" }}
                                     value={values[accessorKey] || ""}
                                     label={header}
@@ -301,6 +321,7 @@ export default function FormCmp({
             {owner.GroupName === GroupNames["Chuyên viên đơn vị sử dụng"] &&
                 typeForm === "reupdate" && (
                     <FormSelect
+                        disableEmployee
                         EmployeeManageLabId={initDataForm.EmployeeManageLabId}
                         loading={loading ?? false}
                         handleAddRecord={handleAddRecord}
@@ -386,6 +407,17 @@ export default function FormCmp({
                         }}
                     >
                         xác nhận
+                    </Button>
+                )}
+
+                {handleDelete && typeForm === "reupdate" && (
+                    <Button
+                        onClick={() => handleDelete(values)}
+                        type="submit"
+                        color="error"
+                        variant="contained"
+                    >
+                        xoá
                     </Button>
                 )}
 

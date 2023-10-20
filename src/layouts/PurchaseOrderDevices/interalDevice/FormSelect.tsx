@@ -29,6 +29,7 @@ interface IProps {
     handleChoiceEmployee?: (employee: IEmployeeManagerLab) => void;
     loading: boolean;
     EmployeeManageLabId?: string;
+    disableEmployee?: boolean;
 }
 
 export default function FormSelect({
@@ -36,6 +37,7 @@ export default function FormSelect({
     handleChoiceEmployee,
     loading,
     EmployeeManageLabId,
+    disableEmployee: disableAll,
 }: IProps) {
     const [devices, setDevices] = useState<IDeviceForCreate[]>([]);
     const [deviceSelected, setDeviceSelected] = useState<IDevice>(initDevice);
@@ -80,6 +82,15 @@ export default function FormSelect({
         if (employeeCur && handleChoiceEmployee)
             handleChoiceEmployee(employeeCur);
     }, [employeeCur, handleChoiceEmployee]);
+
+    useEffect(() => {
+        if (EmployeeManageLabId && employees.length) {
+            const employee = employees.find(
+                (e) => e.EmployeeId === EmployeeManageLabId
+            );
+            if (employee) setEmployeeCur(employee);
+        }
+    }, [EmployeeManageLabId, employees]);
 
     return (
         <Box sx={{ ...style }}>
@@ -181,6 +192,7 @@ export default function FormSelect({
             <FormControl>
                 <InputLabel>Nhân viên quản lí PTN</InputLabel>
                 <Select
+                    readOnly={disableAll}
                     label="Danh sach nhan vien"
                     value={employeeCur?.EmployeeId || ""}
                     onChange={(e) => {
@@ -208,7 +220,11 @@ export default function FormSelect({
                 <InputLabel>Danh sach phong lab</InputLabel>
                 <Select
                     label="Danh sach phong lab"
-                    value={deviceSelected.LabId}
+                    value={
+                        deviceSelected.LabId ||
+                        employeeCur?.listLab?.[0].LabId ||
+                        ""
+                    }
                     onChange={(e) => {
                         setDeviceSelected({
                             ...deviceSelected,

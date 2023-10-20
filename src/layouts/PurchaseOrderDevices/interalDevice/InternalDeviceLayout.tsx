@@ -27,6 +27,7 @@ import FormCmp from "./Form";
 import {
     acceptExportLabAction,
     addExportLabAction,
+    deleteExportLabAction,
     getAllAction,
     unAcceptExportLabAction,
     updateExportLabAction,
@@ -99,6 +100,11 @@ export default function InternalDeviceLayout() {
         ).then(handleToggleForm);
     }
 
+    async function handleDelete(data: IExportLab) {
+        await dispatch(deleteExportLabAction(data.ExportLabId));
+        handleToggleForm();
+    }
+
     return (
         <Box>
             <Box
@@ -145,6 +151,7 @@ export default function InternalDeviceLayout() {
                     handleAccept={handleAccept}
                     handleOnclickNoAccept={handleUnAcceps}
                     typeForm={typeForm}
+                    handleDelete={handleDelete}
                 />
             </Dialog>
 
