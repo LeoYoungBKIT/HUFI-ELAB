@@ -58,6 +58,7 @@ export default function FormCmp({
     const [showBox, setShowBox] = useState(false);
     const dispatch = useAppDispatch();
     const [values, setValues] = useState(initDataForm);
+    const [showConfirmDelete, setShowConfirmDelete] = useState(false);
 
     const onsubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
         e.preventDefault();
@@ -410,9 +411,20 @@ export default function FormCmp({
                     </Button>
                 )}
 
+                {showConfirmDelete && handleDelete && (
+                    <AlertDialog
+                        isOpen={showConfirmDelete || false}
+                        message="Bạn chắc chắn muốn xoá ?"
+                        handleClose={() => setShowConfirmDelete(false)}
+                        handleOk={() => {
+                            handleDelete(values);
+                        }}
+                    />
+                )}
+
                 {handleDelete && typeForm === "reupdate" && (
                     <Button
-                        onClick={() => handleDelete(values)}
+                        onClick={() => setShowConfirmDelete(true)}
                         type="submit"
                         color="error"
                         variant="contained"
