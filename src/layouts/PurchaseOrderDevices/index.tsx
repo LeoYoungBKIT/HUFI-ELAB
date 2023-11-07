@@ -86,10 +86,6 @@ const PurchaseOrderDevices = () => {
             dispatch(savePurchaseOrderDeviceAction(data));
     };
 
-    const handleShowModalDelete = (row: MRT_Row<IDeviceServiceInfo>) => {
-        setDataForm(row.original);
-    };
-
     function handleDelete(data: IDeviceServiceInfo): void {
         dispatch(deletePurchaseOrderDeviceAction(data.OrderId));
     }

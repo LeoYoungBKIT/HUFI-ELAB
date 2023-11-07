@@ -59,13 +59,10 @@ export default function FormCmp({
 
     const onSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
         e.preventDefault();
-        const dataForm = new FormData(e.currentTarget);
-        let formObject = Object.fromEntries(
-            dataForm.entries()
-        ) as unknown as IDeviceServiceInfo;
+
         if (handleSubmit)
             handleSubmit({
-                ...formObject,
+                ...data,
                 DateCreate: data.DateCreate,
                 listDeviceInfo: data.listDeviceInfo,
                 listAccept: [],
@@ -95,6 +92,8 @@ export default function FormCmp({
     const handleTableDeviceInfoChange = (tableChange: IDeviceInfor[]) => {
         setData({ ...data, listDeviceInfo: tableChange });
     };
+
+    console.log(data);
 
     return (
         <Box
