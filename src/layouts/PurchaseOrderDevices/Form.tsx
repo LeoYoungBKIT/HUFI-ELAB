@@ -19,7 +19,7 @@ import {
 import DetailPannel from "./DetailPanel";
 import { useAppSelector } from "../../hooks";
 import AlertDialog from "../../components/AlertDialog";
-import { DeviceEditing, matchAccept } from "./utils";
+import { DeviceEditing, ObjAccept, matchAccept } from "./utils";
 import { GroupNames } from "../../types/userManagerType";
 import TableListAccept from "./TableListAccepts";
 
@@ -225,7 +225,8 @@ export default function FormCmp({
             />
             <Box sx={{ my: 2, gap: 2, display: "flex", justifyContent: "end" }}>
                 {GroupName === GroupNames["Chuyên viên phòng QTTB"] &&
-                    data.Status === DeviceEditing && (
+                    (data.Status === DeviceEditing ||
+                        data.Status === ObjAccept["Trưởng phòng QTTB"]) && (
                         <Button
                             onClick={() => setShowBoxDelete(true)}
                             variant="contained"
